@@ -203,7 +203,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     gap: 8px;
     margin-top: 12px;
 }
-.file-hide { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.file-hide { position: fixed; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
 
 /* decision cards */
 .decision-switch {
@@ -780,9 +780,10 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
         <div class="panel">
             <h2>1 · Данные сотрудника и рапорт</h2>
             <div class="btn-row" style="margin-top:0;margin-bottom:12px;">
-                <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('fileIn').click()">Загрузить JSON</button>
-                <button type="button" class="btn btn-gold btn-sm" onclick="document.getElementById('reportViewFileInput').click()">Открыть отчёт (HTML)</button>
+                <button type="button" class="btn btn-gold btn-sm" id="btnLoadAny" onclick="document.getElementById('fileInAny').click()">Загрузить рапорт (JSON / HTML / Word)</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('reportViewFileInput').click()">Только просмотр HTML</button>
                 <button type="button" class="btn btn-ghost btn-sm" onclick="clearReport()">Очистить</button>
+                <input type="file" id="fileInAny" class="file-hide" accept=".json,.html,.htm,.doc,application/json,text/html,application/msword" onchange="onAnyReportFile(event)" />
                 <input type="file" id="fileIn" class="file-hide" accept=".json,application/json" onchange="onFile(event)" />
                 <input type="file" id="reportViewFileInput" class="file-hide" accept=".html,.htm,.doc,text/html" onchange="handleReportViewImport(event)" />
             </div>
@@ -821,7 +822,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
                 <input type="text" id="docNo" oninput="scheduleDraw()" />
             </div>
             <div class="report-summary" id="reportSummary">
-                Рапорт не загружен. Заполните поля вручную или загрузите JSON из программы сотрудника.
+                Рапорт не загружен. Нажмите «Загрузить рапорт» и выберите JSON / HTML / Word. Лучше открывать сайт через GitHub Pages (не file://).
             </div>
             <div class="btn-row" style="margin-top:8px;margin-bottom:8px;">
                 <button type="button" class="btn btn-gold btn-sm" id="btnViewFullReport" onclick="openJsonAsViewer()" disabled>Просмотр рапорта внутри</button>
@@ -919,6 +920,8 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
         <div class="export-row">
             <button type="button" class="btn btn-gold" onclick="downloadPng()">Скачать PNG (A4)</button>
             <button type="button" class="btn btn-ghost" onclick="drawA4()">Обновить бланк</button>
+            <button type="button" class="btn btn-ghost" onclick="openBlankLightbox()">Увеличить бланк</button>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Клик по бланку — крупный просмотр. Решение выделено цветом сверху.</div>
         </div>
     </div>
 </div>
@@ -1538,22 +1541,141 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
         toast(photoN ? ('Рапорт загружен · фото: ' + photoN) : 'Рапорт загружен');
     }
 
-    window.onFile = function (ev) {
-        const f = ev.target.files && ev.target.files[0];
-        if (!f) return;
+    function setLoadStatus(msg, ok) {
+        const el = document.getElementById('reportSummary');
+        if (el) {
+            el.innerHTML = msg;
+            el.style.color = ok === false ? '#e74c3c' : (ok === true ? '#6abf69' : '');
+        }
+        try { toast(String(msg).replace(/<[^>]+>/g, ' ').slice(0, 120)); } catch (e) {}
+        console.log('[MMS load]', msg);
+    }
+
+    window.onAnyReportFile = function (ev) {
+        const input = ev && ev.target;
+        const f = input && input.files && input.files[0];
+        if (!f) {
+            setLoadStatus('Файл не выбран', false);
+            return;
+        }
+        setLoadStatus('Читаю файл: <strong>' + f.name + '</strong> (' + Math.round(f.size / 1024) + ' КБ)…', null);
+        const name = String(f.name || '').toLowerCase();
         const reader = new FileReader();
+        reader.onerror = function () {
+            setLoadStatus('Ошибка чтения файла (FileReader). Откройте страницу через GitHub Pages, не как file://', false);
+        };
         reader.onload = function () {
             try {
-                const data = JSON.parse(String(reader.result));
-                applyReportData(data);
+                let text = String(reader.result || '');
+                // убрать BOM
+                if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+
+                if (name.endsWith('.json') || (f.type && f.type.indexOf('json') >= 0) || text.trim().charAt(0) === '{') {
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch (e1) {
+                        setLoadStatus('JSON повреждён: ' + (e1.message || e1), false);
+                        return;
+                    }
+                    applyReportData(data);
+                    setLoadStatus('JSON загружен: <strong>' + (entries && entries.length || 0) + '</strong> записей', true);
+                    return;
+                }
+
+                // HTML / Word(.doc от MMS = HTML)
+                if (name.endsWith('.html') || name.endsWith('.htm') || name.endsWith('.doc') || /<\s*html/i.test(text)) {
+                    if (!/<\s*(?:!doctype|html|head|body|table|div)[\s>]/i.test(text)) {
+                        setLoadStatus('Файл не похож на HTML/Word-отчёт MMS. Нужен .html или .doc, созданный программой сотрудника.', false);
+                        return;
+                    }
+                    lastViewerHtml = text;
+                    lastViewerTitle = f.name;
+                    const btnFull = document.getElementById('btnViewFullReport');
+                    if (btnFull) btnFull.disabled = false;
+
+                    // Парсим данные из HTML без iframe (работает и с file://)
+                    const parsed = parseReportHtmlToData(text);
+                    if (parsed && (parsed.entries && parsed.entries.length || parsed.employee)) {
+                        applyReportData(parsed);
+                        setLoadStatus('HTML/Word загружен: <strong>' + (entries && entries.length || 0) + '</strong> записей. Можно открыть просмотр.', true);
+                    } else {
+                        setLoadStatus('HTML открыт для просмотра, авто-разбор полей не удался — заполните ФИО вручную или нажмите «Взять данные».', null);
+                    }
+                    try {
+                        setTimeout(function () { openReportViewer(text, f.name); }, 100);
+                    } catch (e2) {
+                        console.warn(e2);
+                    }
+                    return;
+                }
+
+                setLoadStatus('Формат не поддерживается. Нужен JSON, HTML или Word (.doc от MMS).', false);
             } catch (err) {
                 console.error(err);
-                toast('Не удалось прочитать JSON');
+                setLoadStatus('Сбой: ' + (err && err.message ? err.message : err), false);
             }
         };
-        reader.onerror = function () { toast('Ошибка чтения файла'); };
-        reader.readAsText(f);
-        ev.target.value = '';
+        reader.readAsText(f, 'utf-8');
+        try { if (input) input.value = ''; } catch (e) {}
+    };
+
+    /** Разбор HTML-отчёта MMS в структуру данных */
+    function parseReportHtmlToData(html) {
+        const data = { employee: {}, entries: [], totalPoints: 0, reportDate: '', reportType: 'weekly' };
+        try {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const bodyText = (doc.body && doc.body.innerText) ? doc.body.innerText : '';
+
+            // ФИО / ID
+            let m = bodyText.match(/(?:Сотрудник|ФИО|Employee)\s*[:：]?\s*([^\n]+)/i);
+            if (m) data.employee.name = m[1].trim().slice(0, 80);
+            m = bodyText.match(/(?:Static\s*ID|ID)\s*[:：]?\s*(\d{3,12})/i);
+            if (m) data.employee.id = m[1];
+            m = bodyText.match(/(\d{2}[./]\d{2}[./]\d{4})/);
+            if (m) data.reportDate = m[1].replace(/\//g, '.');
+            m = bodyText.match(/(?:Итого|баллов|Total)\s*[:：]?\s*(\d{1,5})/i);
+            if (m) data.totalPoints = parseInt(m[1], 10) || 0;
+            if (/повышен/i.test(bodyText)) data.reportType = 'promotion';
+
+            // Строки таблицы
+            const rows = doc.querySelectorAll('table tr');
+            rows.forEach(function (tr, i) {
+                if (i === 0) return;
+                const cells = tr.querySelectorAll('td');
+                if (cells.length < 2) return;
+                const tds = Array.prototype.map.call(cells, function (c) { return (c.innerText || '').trim(); });
+                const dateM = (tds[0] || tds[1] || '').match(/(\d{2}[./]\d{2}[./]\d{4})/);
+                const ptsM = (tds[tds.length - 1] || '').match(/(\d{1,4})/);
+                const linkA = tr.querySelector('a[href]');
+                const imgs = tr.querySelectorAll('img');
+                const attachments = [];
+                imgs.forEach(function (img, ai) {
+                    const src = img.getAttribute('src') || '';
+                    if (src.indexOf('data:') === 0) {
+                        attachments.push({ name: 'foto' + (ai + 1), points: 0, dataUrl: src });
+                    }
+                });
+                data.entries.push({
+                    date: dateM ? dateM[1].replace(/\//g, '.') : (tds[0] || '').slice(0, 16),
+                    category: (tds.length > 2 ? tds[1] : 'прочее').slice(0, 40),
+                    link: linkA ? (linkA.getAttribute('href') || '') : '',
+                    points: ptsM ? parseInt(ptsM[1], 10) : 0,
+                    attachments: attachments
+                });
+            });
+            if (!data.totalPoints && data.entries.length) {
+                data.totalPoints = data.entries.reduce(function (s, e) { return s + (e.points || 0); }, 0);
+            }
+        } catch (e) {
+            console.warn('parseReportHtmlToData', e);
+        }
+        return data;
+    }
+
+    window.onFile = function (ev) {
+        // совместимость со старой кнопкой
+        window.onAnyReportFile(ev);
     };
 
     window.clearReport = function () {
@@ -1899,10 +2021,10 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
         // Header SANG + MMS
         ctx.fillStyle = '#1a1a1a';
         ctx.textAlign = 'center';
-        ctx.font = '700 13px Cinzel, serif';
+        ctx.font = '700 18px Cinzel, serif';
         ctx.fillText('SAN ANDREAS NATIONAL GUARD', W / 2, y);
         y += 18;
-        ctx.font = '600 11px Oswald, sans-serif';
+        ctx.font = '600 14px Oswald, sans-serif';
         ctx.fillStyle = '#333';
         ctx.fillText('MILITARY MEDICAL SERVICE', W / 2, y);
         y += 10;
@@ -1912,7 +2034,24 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
         ctx.moveTo(margin + 40, y);
         ctx.lineTo(W - margin - 40, y);
         ctx.stroke();
-        y += 28;
+        y += 22;
+
+        // Крупный вердикт
+        (function () {
+            const approved = decision === 'approve';
+            const boxH = 54;
+            ctx.fillStyle = approved ? 'rgba(26, 90, 40, 0.14)' : 'rgba(140, 30, 30, 0.14)';
+            ctx.strokeStyle = approved ? '#1a5a28' : '#8a1a1a';
+            ctx.lineWidth = 3;
+            roundRect(ctx, margin, y, contentW, boxH, 8);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = approved ? '#1a5a28' : '#8a1a1a';
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 28px Oswald, sans-serif';
+            ctx.fillText(approved ? 'ОДОБРЕНО' : 'НЕ ОДОБРЕНО', W / 2, y + 36);
+            y += boxH + 18;
+        })();
 
         // Doc meta
         ctx.textAlign = 'left';
@@ -1993,7 +2132,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
         y = wrapTextCenter(ctx, legalBlock, W / 2, y, contentW - 20, 17);
         y += 16;
 
-        ctx.font = '700 13px Cinzel, serif';
+        ctx.font = '700 18px Cinzel, serif';
         ctx.fillStyle = '#111';
         ctx.fillText('ЗАКЛЮЧЕНИЕ КОМАНДОВАНИЯ:', W / 2, y);
         y += 22;
@@ -2097,13 +2236,29 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
         });
     }
     drawA4();
+    (function () {
+        const c = document.getElementById('a4Canvas');
+        if (c) {
+            c.style.cursor = 'zoom-in';
+            c.title = 'Нажмите, чтобы увеличить';
+            c.addEventListener('click', function () { openBlankLightbox(); });
+        }
+    })();
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             closeEntryDetail();
             if (typeof closeLightbox === 'function') closeLightbox();
+            if (typeof closeBlankLightbox === 'function') closeBlankLightbox();
         }
     });
 })();
 </script>
+
+<div id="blankLightbox" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;padding:16px;overflow:auto;">
+  <div style="position:relative;max-width:920px;width:100%;margin:auto;">
+    <button type="button" onclick="closeBlankLightbox()" style="position:sticky;top:8px;float:right;z-index:2;background:#d4af37;border:none;color:#111;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;">Закрыть</button>
+    <img id="blankLightboxImg" alt="Бланк решения" style="width:100%;height:auto;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,0.5);background:#fff;" />
+  </div>
+</div>
 </body>
 </html>
