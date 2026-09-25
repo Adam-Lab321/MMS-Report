@@ -797,10 +797,105 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     font-size: 11px;
     flex-shrink: 0;
 }
+
+/* ========== LICENSE GATE ========== */
+        #licenseGate {
+            position: fixed;
+            inset: 0;
+            z-index: 2147483000;
+            pointer-events: auto;
+            background: radial-gradient(ellipse at center, #1a1510 0%, #0a0a0a 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: 'Oswald', sans-serif;
+        }
+        #licenseGate.hidden { display: none !important; }
+        .license-card {
+            max-width: 440px;
+            width: 100%;
+            background: #1e1e1e;
+            border: 2px solid var(--gold, #d4af37);
+            border-radius: 14px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.85), 0 0 40px rgba(212,175,55,0.08);
+            text-align: center;
+        }
+        .license-card h1 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold, #d4af37);
+            font-size: 22px;
+            letter-spacing: 3px;
+            margin-bottom: 6px;
+        }
+        .license-card .sub {
+            color: #b0a890;
+            font-size: 13px;
+            margin-bottom: 20px;
+            line-height: 1.45;
+        }
+        .license-card .sub strong { color: #d4af37; }
+        .license-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 12px 16px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            pointer-events: auto;
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(135deg, #d4af37, #b8960f);
+            color: #000;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .license-btn:hover { transform: scale(1.01); box-shadow: 0 0 18px rgba(212,175,55,0.25); }
+        .license-btn.ghost {
+            background: transparent;
+            border: 1px solid rgba(212,175,55,0.4);
+            color: #d4af37;
+            margin-top: 10px;
+        }
+        .license-status {
+            margin-top: 14px;
+            font-size: 13px;
+            color: #ff6b6b;
+            min-height: 1.2em;
+        }
+        .license-status.ok { color: #4caf50; }
+        
 </style>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
 <body>
+<div id="licenseGate" aria-modal="true" role="dialog">
+        <div class="license-card">
+            <h1>🔐 ЛИЦЕНЗИЯ MMS</h1>
+            <p class="sub">Для работы нужна именная лицензия подразделения.<br>
+            Загрузите <strong>license.key</strong> и введите <strong>пароль активации</strong> из генератора.<br>
+            Копирование и перепродажа ПО запрещены.</p>
+            <button type="button" class="license-btn" id="licenseLoadBtn" onclick="(function(){var i=document.getElementById('licenseFileInput'); if(i){i.value=''; i.click();}})()">📁 Загрузить license.key</button>
+            <input type="file" id="licenseFileInput" accept=".key,.json,application/json,text/plain" style="position:fixed;left:-9999px;width:1px;height:1px;opacity:0;" onchange="(function(inp){if(!inp.files||!inp.files[0])return;var f=inp.files[0];inp.value='';var st=document.getElementById('licenseStatus');if(typeof mmsActivateFromFile!=='function'){if(st)st.textContent='Ошибка: скрипт лицензии не загружен. Обновите страницу (Ctrl+F5).';return;}if(st){st.textContent='Читаю ключ…';st.classList.remove('ok');}Promise.resolve(mmsActivateFromFile(f)).catch(function(e){console.error(e);if(st){st.textContent='Ошибка: '+(e&&e.message?e.message:e);st.classList.remove('ok');}});})(this)" />
+            <div id="licensePasswordWrap" style="display:none;margin-top:12px;text-align:left;">
+                <label style="display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">Пароль активации (2FA)</label>
+                <input type="password" id="licensePasswordInput" autocomplete="off" placeholder="Пароль из генератора лицензий"
+                    style="width:100%;padding:10px 12px;background:#111;border:1px solid #333;border-radius:8px;color:#fff;font-family:Oswald,sans-serif;font-size:14px;box-sizing:border-box;" />
+                <button type="button" class="license-btn" id="licenseActivateBtn" style="margin-top:10px;" onclick="(function(){var p=document.getElementById('licensePasswordInput');var st=document.getElementById('licenseStatus');if(typeof mmsFinalizeActivation!=='function'){if(st)st.textContent='Скрипт не загружен';return;}if(st){st.textContent='Проверяю пароль…';st.classList.remove('ok');}Promise.resolve(mmsFinalizeActivation(null,p?p.value:'').catch(function(e){if(st)st.textContent='Ошибка: '+(e&&e.message?e.message:e);});})()">🔓 Активировать</button>
+            </div>
+            <button type="button" class="license-btn ghost" id="licenseRetryBtn" style="display:none;">Проверить снова</button>
+            <div class="license-status" id="licenseStatus"></div>
+        </div>
+    </div>
+    <div class="license-watermark" id="licenseWatermark" aria-hidden="true"></div>
+
+    
+
 <div class="app">
     <div class="topbar">
         <div class="brand-logo" aria-hidden="true">
@@ -1040,6 +1135,755 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
         <div class="report-viewer-hint">Внутренний просмотр. Закрытие окна не удаляет загруженный рапорт — можно открыть снова.</div>
     </div>
 </div>
+
+
+<script>
+/* ========== MMS LICENSE PROTECTION (same as main report client) ========== */
+const MMS_LICENSE_API = 'https://mms-report-proxy.asakulin874.workers.dev/license';
+const MMS_LICENSE_SECRET = 'MMS-SANG-2026-Grechkaaa-HMAC-Secret-Key-v1!';
+        const MMS_LICENSE_STORAGE = 'mmsLicenseActivation';
+        // Срок лицензии только из поля expires ключа (генератор)
+        const MMS_DEV_UNLOCK_KEY = 'mmsDevUnlock';
+        const MMS_USED_KEYS = 'mmsLicenseUsedSigs';
+
+        let mmsLicenseActive = false;
+        let mmsLicenseInfo = null;
+
+        function mmsGetOrCreateDeviceId() {
+            try {
+                let id = localStorage.getItem('mmsDeviceId');
+                if (id && /^dev_[a-z0-9]+$/i.test(id)) return id;
+                const rand = (window.crypto && crypto.getRandomValues)
+                    ? Array.from(crypto.getRandomValues(new Uint8Array(8))).map(function (b) {
+                        return b.toString(16).padStart(2, '0');
+                    }).join('')
+                    : String(Date.now()) + Math.random().toString(16).slice(2);
+                id = 'dev_' + rand;
+                localStorage.setItem('mmsDeviceId', id);
+                return id;
+            } catch (e) {
+                return 'dev_fallback';
+            }
+        }
+
+        function mmsGetFingerprint() {
+            try {
+                // Стабильный ID устройства в localStorage + мягкие признаки среды
+                const parts = [
+                    mmsGetOrCreateDeviceId(),
+                    navigator.language || '',
+                    Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+                    String(navigator.platform || ''),
+                    String(screen.width) + 'x' + String(screen.height)
+                ];
+                const s = parts.join('|');
+                let h = 2166136261;
+                for (let i = 0; i < s.length; i++) {
+                    h ^= s.charCodeAt(i);
+                    h = Math.imul(h, 16777619);
+                }
+                return ('00000000' + (h >>> 0).toString(16)).slice(-8);
+            } catch (e) {
+                return 'unknown';
+            }
+        }
+
+        async function mmsHmacSign(secret, data) {
+            if (!window.crypto || !crypto.subtle) {
+                throw new Error('Браузер блокирует криптографию (часто при открытии как file://). Откройте рапорт через GitHub Pages (https://) или localhost.');
+            }
+            const encoder = new TextEncoder();
+            const key = await crypto.subtle.importKey(
+                'raw', encoder.encode(secret),
+                { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+            );
+            const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(data));
+            return Array.from(new Uint8Array(sig)).map(function(b) {
+                return b.toString(16).padStart(2, '0');
+            }).join('');
+        }
+
+        function mmsLicensePayload(org, userId, issueDate, expires) {
+            return org + '|' + userId + '|' + issueDate + '|' + (expires || '');
+        }
+
+        async function mmsPasswordHash(signature, password) {
+            return mmsHmacSign(MMS_LICENSE_SECRET, 'pwd|' + signature + '|' + String(password || ''));
+        }
+
+        async function mmsActivationSeal(signature, lastActivated, fingerprint, passwordHash) {
+            return mmsHmacSign(MMS_LICENSE_SECRET, 'act|' + signature + '|' + (lastActivated || '') + '|' + (fingerprint || '') + '|' + (passwordHash || ''));
+        }
+
+        /** Локальная дата YYYY-MM-DD */
+        function mmsLocalDateStr(d) {
+            d = d || new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + day;
+        }
+
+        /**
+         * Проверка срока по полю expires из генератора.
+         * Пустая строка / отсутствие = бессрочный ключ.
+         * Дата = действует весь указанный день включительно (по локальному времени).
+         */
+        function mmsIsLicenseExpired(expires) {
+            const exp = String(expires || '').trim();
+            if (!exp) return false;
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(exp)) return true;
+            return mmsLocalDateStr() > exp;
+        }
+
+        async function mmsVerifyLicenseObject(lic) {
+            if (!lic || typeof lic !== 'object') {
+                return { ok: false, error: 'Неверный формат ключа' };
+            }
+            const org = String(lic.org || '').trim();
+            const userId = String(lic.userId || '').trim();
+            const issueDate = String(lic.issueDate || '').trim();
+            const expires = String(lic.expires || '').trim();
+            const signature = String(lic.signature || '').trim().toLowerCase();
+            const passwordHash = String(lic.passwordHash || '').trim().toLowerCase();
+            let lastActivated = lic.lastActivated;
+            if (lastActivated == null || lastActivated === false || lastActivated === 'null' || lastActivated === 'undefined') {
+                lastActivated = '';
+            } else {
+                lastActivated = String(lastActivated).trim();
+                if (lastActivated === 'null' || lastActivated === 'undefined') lastActivated = '';
+            }
+            const activationSeal = String(lic.activationSeal || '').trim().toLowerCase();
+            const activatedFingerprint = String(lic.activatedFingerprint || '').trim();
+            if (!org || !userId || !issueDate || !signature) {
+                return { ok: false, error: 'В ключе не хватает полей (org, userId, issueDate, signature)' };
+            }
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(issueDate)) {
+                return { ok: false, error: 'Некорректная дата выдачи' };
+            }
+            if (expires && !/^\d{4}-\d{2}-\d{2}$/.test(expires)) {
+                return { ok: false, error: 'Некорректный срок действия (expires)' };
+            }
+            // Срок только из поля expires генератора:
+            // пусто = бессрочно; дата = действует включительно до этого дня (локальная дата)
+            if (mmsIsLicenseExpired(expires)) {
+                return { ok: false, error: 'Срок действия лицензии истёк (' + expires + ')' };
+            }
+            const payload = mmsLicensePayload(org, userId, issueDate, expires);
+            const expected = await mmsHmacSign(MMS_LICENSE_SECRET, payload);
+            if (expected !== signature) {
+                // backward-compatible: old keys without expires field
+                const legacy = await mmsHmacSign(MMS_LICENSE_SECRET, org + '|' + userId + '|' + issueDate);
+                if (legacy !== signature) {
+                    return { ok: false, error: 'Подпись не совпала. Ключ подделан или секрет другой.' };
+                }
+            }
+            return {
+                ok: true,
+                org: org,
+                userId: userId,
+                issueDate: issueDate,
+                expires: expires || '',
+                signature: signature,
+                passwordHash: passwordHash,
+                lastActivated: lastActivated,
+                activationSeal: activationSeal,
+                activatedFingerprint: activatedFingerprint,
+                requiresPassword: !!passwordHash
+            };
+        }
+
+        let mmsPendingLicense = null;
+
+        async function mmsVerifyPasswordForLicense(licResult, password) {
+            if (!licResult || !licResult.passwordHash) return { ok: true };
+            if (!password || !String(password).trim()) {
+                return { ok: false, error: 'Введите пароль активации (2FA) из генератора лицензий' };
+            }
+            const hash = await mmsPasswordHash(licResult.signature, String(password).trim());
+            if (hash !== licResult.passwordHash) {
+                return { ok: false, error: 'Неверный пароль активации' };
+            }
+            return { ok: true };
+        }
+
+        function mmsBuildActivatedLicenseFile(licResult, passwordHash, fingerprint) {
+            const lastActivated = new Date().toISOString();
+            const obj = {
+                org: licResult.org,
+                userId: licResult.userId,
+                issueDate: licResult.issueDate,
+                signature: licResult.signature,
+                passwordHash: passwordHash || licResult.passwordHash || '',
+                lastActivated: lastActivated,
+                activatedFingerprint: fingerprint,
+                useCount: 1
+            };
+            if (licResult.expires) obj.expires = licResult.expires;
+            return obj;
+        }
+
+        async function mmsSealActivatedLicense(obj) {
+            obj.activationSeal = await mmsActivationSeal(obj.signature, obj.lastActivated, obj.activatedFingerprint, obj.passwordHash || '');
+            return obj;
+        }
+
+        function mmsDownloadActivatedKey(obj) {
+            try {
+                const jsonStr = JSON.stringify(obj, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'license_activated_' + (obj.userId || 'user') + '.key';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (e) {}
+        }
+
+        function mmsLicenseLine() {
+            if (!mmsLicenseInfo) return '';
+            const id = mmsLicenseInfo.userId || '';
+            return id ? ('LIC · ' + id) : 'LIC';
+        }
+
+        function mmsLicenseLineFull() {
+            if (!mmsLicenseInfo) return 'LIC: не активирована';
+            let s = 'LIC · ' + mmsLicenseInfo.org + ' · ' + mmsLicenseInfo.userId + ' · ' + mmsLicenseInfo.issueDate;
+            if (mmsLicenseInfo.expires) s += ' · до ' + mmsLicenseInfo.expires;
+            return s;
+        }
+
+        function mmsSaveActivation(info) {
+            const data = {
+                org: info.org,
+                userId: info.userId,
+                issueDate: info.issueDate,
+                expires: info.expires || '',
+                signature: info.signature,
+                passwordHash: info.passwordHash || '',
+                lastActivated: info.lastActivated || new Date().toISOString(),
+                activationSeal: info.activationSeal || '',
+                fingerprint: info.activatedFingerprint || mmsGetFingerprint(),
+                activatedAt: Date.now(),
+                lastCheck: Date.now()
+            };
+            try { localStorage.setItem(MMS_LICENSE_STORAGE, JSON.stringify(data)); } catch (e) {}
+            mmsLicenseInfo = data;
+            mmsLicenseActive = true;
+        }
+
+        function mmsLoadActivation() {
+            try {
+                const raw = localStorage.getItem(MMS_LICENSE_STORAGE);
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch (e) { return null; }
+        }
+
+        function mmsClearActivation() {
+            try { localStorage.removeItem(MMS_LICENSE_STORAGE); } catch (e) {}
+            mmsLicenseActive = false;
+            mmsLicenseInfo = null;
+            mmsLockDeveloperAccess();
+        }
+
+        function mmsUpdateWatermark() {
+            const el = document.getElementById('licenseWatermark');
+            if (el) el.textContent = mmsLicenseActive ? mmsLicenseLine() : '';
+            const leg = document.getElementById('legalFooterNotice');
+            if (leg && leg.parentNode) leg.parentNode.removeChild(leg);
+        }
+
+        function mmsShowGate(msg) {
+            const gate = document.getElementById('licenseGate');
+            const st = document.getElementById('licenseStatus');
+            if (gate) gate.classList.remove('hidden');
+            let text = msg || '';
+            if (!window.isSecureContext || !window.crypto || !crypto.subtle) {
+                text = (text ? text + ' ' : '') + '⚠️ Откройте рапорт по HTTPS (GitHub Pages), не файл с диска — иначе лицензия не активируется.';
+            }
+            if (st) { st.textContent = text; st.classList.remove('ok'); }
+            document.body.style.overflow = 'hidden';
+        }
+
+        function mmsHideGate() {
+            const gate = document.getElementById('licenseGate');
+            if (gate) gate.classList.add('hidden');
+            document.body.style.overflow = '';
+            mmsUpdateWatermark();
+        }
+
+        /** Проверка лицензии на Cloudflare (секрет только на Worker) */
+        async function mmsActivateOnCloudflare(lic, password) {
+            try {
+                const payload = {
+                    license: {
+                        org: lic.org,
+                        userId: lic.userId,
+                        issueDate: lic.issueDate,
+                        expires: lic.expires || '',
+                        signature: lic.signature,
+                        passwordHash: lic.passwordHash || ''
+                    },
+                    password: password || '',
+                    fingerprint: (typeof mmsGetFingerprint === 'function') ? mmsGetFingerprint() : ''
+                };
+                const res = await fetch(MMS_LICENSE_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                let data = null;
+                try { data = await res.json(); } catch (_) { data = null; }
+                if (!res.ok || !data || !data.ok) {
+                    const err = (data && data.error) ? data.error : ('HTTP ' + res.status);
+                    console.warn('CF license:', err);
+                    return { ok: false, error: err };
+                }
+                try {
+                    localStorage.setItem('mmsCfSession', JSON.stringify({
+                        sessionToken: data.sessionToken || '',
+                        userId: data.userId || '',
+                        org: data.org || '',
+                        at: Date.now()
+                    }));
+                } catch (_) {}
+                return { ok: true, data: data };
+            } catch (e) {
+                console.warn('CF license network:', e);
+                // Сеть недоступна — не блокируем локальную активацию
+                return { ok: false, error: 'Нет связи с сервером лицензий', offline: true };
+            }
+        }
+
+        async function mmsActivateFromFile(file) {
+            const st = document.getElementById('licenseStatus');
+            const pwdWrap = document.getElementById('licensePasswordWrap');
+            try {
+                if (!file) {
+                    if (st) { st.textContent = 'Файл не выбран'; st.classList.remove('ok'); }
+                    return false;
+                }
+                if (st) {
+                    st.textContent = 'Читаю «' + (file.name || 'license.key') + '»…';
+                    st.classList.remove('ok');
+                }
+                if (!window.crypto || !crypto.subtle) {
+                    if (st) {
+                        st.textContent = '❌ Нужен HTTPS: откройте сайт через GitHub Pages, не скачанный HTML с диска (file://).';
+                        st.classList.remove('ok');
+                    }
+                    return false;
+                }
+                let text = await file.text();
+                // Убрать BOM и лишние символы вокруг JSON
+                text = String(text || '').replace(/^\uFEFF/, '').trim();
+                if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+                let lic;
+                try {
+                    lic = JSON.parse(text);
+                } catch (parseErr) {
+                    // Попытка вырезать объект {...}
+                    try {
+                        const a = text.indexOf('{');
+                        const b = text.lastIndexOf('}');
+                        if (a >= 0 && b > a) lic = JSON.parse(text.slice(a, b + 1));
+                        else throw parseErr;
+                    } catch (e2) {
+                        if (st) {
+                            st.textContent = '❌ Файл не JSON. Нужен license.key из генератора.';
+                            st.classList.remove('ok');
+                        }
+                        return false;
+                    }
+                }
+                if (Array.isArray(lic)) {
+                    if (st) { st.textContent = '❌ Похоже на историю генератора, а не один license.key'; st.classList.remove('ok'); }
+                    return false;
+                }
+                const result = await mmsVerifyLicenseObject(lic);
+                if (!result.ok) {
+                    if (st) {
+                        st.textContent = '❌ ' + (result.error || 'Ключ отклонён');
+                        st.classList.remove('ok');
+                    }
+                    return false;
+                }
+
+                // Исходный ключ: один период до expires; повтор в том же периоде на этом ПК — OK
+                if (!result.lastActivated) {
+                    const fp0 = mmsGetFingerprint();
+                    const can = mmsCanActivateSignature(result.signature, result.expires, fp0);
+                    if (!can.ok) {
+                        if (st) {
+                            st.textContent = '❌ ' + (can.error || 'Ключ нельзя активировать');
+                            st.classList.remove('ok');
+                        }
+                        return false;
+                    }
+                }
+
+                // Уже активированный ключ (с печатью) — проверяем seal/fingerprint
+                if (result.lastActivated && result.activationSeal) {
+                    const fp = mmsGetFingerprint();
+                    if (result.activatedFingerprint && result.activatedFingerprint !== fp) {
+                        if (st) {
+                            st.textContent = '❌ Ключ привязан к другому устройству. Нужен исходный license.key + пароль на этом ПК.';
+                            st.classList.remove('ok');
+                        }
+                        return false;
+                    }
+                    if (result.activationSeal) {
+                        const expectedSeal = await mmsActivationSeal(result.signature, result.lastActivated, result.activatedFingerprint, result.passwordHash || '');
+                        if (expectedSeal !== result.activationSeal) {
+                            if (st) {
+                                st.textContent = '❌ Повреждена печать активации. Запросите новый license.key.';
+                                st.classList.remove('ok');
+                            }
+                            return false;
+                        }
+                    }
+                }
+
+                mmsPendingLicense = result;
+                if (result.requiresPassword) {
+                    if (pwdWrap) pwdWrap.style.display = 'block';
+                    if (st) {
+                        st.textContent = 'Ключ принят. Введите пароль активации (2FA) из генератора и нажмите «Активировать».';
+                        st.classList.remove('ok');
+                    }
+                    const pwdInput = document.getElementById('licensePasswordInput');
+                    if (pwdInput) { pwdInput.value = ''; pwdInput.focus(); }
+                    return false;
+                }
+                // Старые ключи без passwordHash — активируем сразу
+                return await mmsFinalizeActivation(result, '');
+            } catch (e) {
+                console.error('mmsActivateFromFile', e);
+                if (st) {
+                    st.textContent = '❌ Ошибка: ' + (e && e.message ? e.message : e);
+                    st.classList.remove('ok');
+                }
+                return false;
+            }
+        }
+
+        async function mmsFinalizeActivation(result, password) {
+            const st = document.getElementById('licenseStatus');
+            try {
+            if (!result) result = mmsPendingLicense;
+            if (!result) {
+                if (st) { st.textContent = 'Сначала загрузите license.key'; st.classList.remove('ok'); }
+                return false;
+            }
+            if (!window.crypto || !crypto.subtle) {
+                if (st) {
+                    st.textContent = '❌ Нужен HTTPS (GitHub Pages), не file://';
+                    st.classList.remove('ok');
+                }
+                return false;
+            }
+            if (result.requiresPassword) {
+                const pwdCheck = await mmsVerifyPasswordForLicense(result, password);
+                if (!pwdCheck.ok) {
+                    if (st) { st.textContent = '❌ ' + (pwdCheck.error || 'Неверный пароль'); st.classList.remove('ok'); }
+                    return false;
+                }
+            }
+
+            const fp = mmsGetFingerprint();
+            const isFirstActivation = !result.lastActivated;
+            let activatedObj = null;
+
+            // Один ключ = один срок (expires). Повтор после истечения — только новый ключ.
+            if (isFirstActivation) {
+                const can = mmsCanActivateSignature(result.signature, result.expires, fp);
+                if (!can.ok) {
+                    if (st) {
+                        st.textContent = '❌ ' + (can.error || 'Ключ нельзя активировать');
+                        st.classList.remove('ok');
+                    }
+                    try { if (typeof showToast === 'function') showToast('Ключ отклонён', 'error', 3500); } catch (_) {}
+                    return false;
+                }
+                activatedObj = mmsBuildActivatedLicenseFile(result, result.passwordHash, fp);
+                activatedObj = await mmsSealActivatedLicense(activatedObj);
+                result.lastActivated = activatedObj.lastActivated;
+                result.activationSeal = activatedObj.activationSeal;
+                result.activatedFingerprint = fp;
+            }
+
+            mmsSaveActivation(result);
+            mmsMarkSignatureUsed(result.signature, result.expires || '', fp);
+            mmsPendingLicense = null;
+
+            // Синхронизация с Cloudflare (секрет проверяется на Worker)
+            try {
+                const pwdForCf = (document.getElementById('licensePasswordInput') || {}).value || password || '';
+                const cf = await mmsActivateOnCloudflare(result, pwdForCf);
+                if (cf.ok) {
+                    console.log('CF license OK', cf.data && cf.data.userId);
+                } else if (!cf.offline) {
+                    console.warn('CF license rejected:', cf.error);
+                    // Не блокируем вход, если локальная подпись валидна — dual-mode
+                }
+            } catch (cfErr) {
+                console.warn('CF license:', cfErr);
+            }
+
+            const pwdWrap = document.getElementById('licensePasswordWrap');
+            if (pwdWrap) pwdWrap.style.display = 'none';
+
+            mmsLockDeveloperAccess();
+            if (isFirstActivation && activatedObj) {
+                mmsDownloadActivatedKey(activatedObj);
+                if (st) {
+                    const expTxt = result.expires ? (' до ' + result.expires) : ' (бессрочно)';
+                    st.textContent = '✅ Активировано: ' + result.userId + expTxt + '. Скачан license_activated_*.key. Исходный ключ повторно использовать нельзя.';
+                    st.classList.add('ok');
+                }
+            } else {
+                if (st) {
+                    const expTxt = result.expires ? (' до ' + result.expires) : ' (бессрочно)';
+                    st.textContent = '✅ Лицензия: ' + result.org + ' / ' + result.userId + expTxt;
+                    st.classList.add('ok');
+                }
+            }
+            try {
+                if (typeof showToast === 'function') showToast('🔐 Лицензия: ' + result.userId, 'success', 2500);
+            } catch (_) {}
+            try { mmsHideGate(); } catch (_) {}
+            setTimeout(function () { try { mmsHideGate(); } catch (_) {} }, 300);
+            return true;
+            } catch (finErr) {
+                console.error(finErr);
+                if (st) {
+                    st.textContent = '❌ Активация: ' + (finErr && finErr.message ? finErr.message : finErr);
+                    st.classList.remove('ok');
+                }
+                return false;
+            }
+        }
+
+        async function mmsCheckLicenseOnStart() {
+            const stored = mmsLoadActivation();
+            if (!stored || !stored.signature) {
+                mmsShowGate('Лицензия не найдена. Загрузите license.key');
+                return false;
+            }
+            const result = await mmsVerifyLicenseObject({
+                org: stored.org,
+                userId: stored.userId,
+                issueDate: stored.issueDate,
+                expires: stored.expires || '',
+                signature: stored.signature
+            });
+            if (!result.ok) {
+                mmsLockDeveloperAccess();
+                mmsClearActivation();
+                mmsShowGate(result.error + ' Загрузите корректный license.key');
+                return false;
+            }
+            // Soft fingerprint: другой ПК → снова ключ
+            const fp = mmsGetFingerprint();
+            if (stored.fingerprint && stored.fingerprint !== fp) {
+                mmsLockDeveloperAccess();
+                mmsShowGate('Лицензия привязана к другому устройству. Загрузите license.key на этом ПК.');
+                return false;
+            }
+            // Срок только по expires из генератора (1 день / 7 дней / бессрочно и т.д.)
+            // mmsVerifyLicenseObject уже проверил expires; дублируем для ясности сообщения
+            if (mmsIsLicenseExpired(stored.expires)) {
+                mmsLockDeveloperAccess();
+                mmsClearActivation();
+                mmsShowGate('Срок действия лицензии истёк (' + stored.expires + '). Запросите новый license.key.');
+                return false;
+            }
+            stored.lastCheck = Date.now();
+            if (!stored.fingerprint) stored.fingerprint = fp;
+            try { localStorage.setItem(MMS_LICENSE_STORAGE, JSON.stringify(stored)); } catch (e) {}
+            mmsLicenseActive = true;
+            mmsLicenseInfo = stored;
+            mmsHideGate();
+            return true;
+        }
+
+        function mmsLockDeveloperAccess() {
+            try { localStorage.removeItem(MMS_DEV_UNLOCK_KEY); } catch (e) {}
+            try {
+                if (typeof venus !== 'undefined' && venus) venus.developerMode = false;
+            } catch (e) {}
+        }
+
+        function mmsGrantDeveloperAccess() {
+            const sig = (mmsLicenseInfo && mmsLicenseInfo.signature) || '';
+            try {
+                localStorage.setItem(MMS_DEV_UNLOCK_KEY, JSON.stringify({
+                    signature: sig,
+                    at: Date.now()
+                }));
+            } catch (e) {}
+            try {
+                if (typeof venus !== 'undefined' && venus) venus.developerMode = true;
+            } catch (e) {}
+        }
+
+        function mmsRestoreDeveloperAccess() {
+            try {
+                const raw = localStorage.getItem(MMS_DEV_UNLOCK_KEY);
+                if (!raw) return false;
+                const data = JSON.parse(raw);
+                if (!mmsLicenseActive || !mmsLicenseInfo || !mmsLicenseInfo.signature) {
+                    mmsLockDeveloperAccess();
+                    return false;
+                }
+                if (!data.signature || data.signature !== mmsLicenseInfo.signature) {
+                    mmsLockDeveloperAccess();
+                    return false;
+                }
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        /**
+         * Журнал использованных ключей: [{signature, expires, fingerprint, activatedAt}, ...]
+         * Старый формат (массив строк) поддерживается.
+         * Правило: один ключ = один период (до expires). Повтор в том же периоде на том же ПК — OK.
+         * После expires или на другом устройстве — нужен новый ключ.
+         */
+        function mmsLoadUsedRecords() {
+            let raw = [];
+            try { raw = JSON.parse(localStorage.getItem(MMS_USED_KEYS) || '[]'); } catch (e) { raw = []; }
+            if (!Array.isArray(raw)) raw = [];
+            return raw.map(function (item) {
+                if (typeof item === 'string') {
+                    return { signature: String(item).toLowerCase(), expires: '', fingerprint: '', activatedAt: 0 };
+                }
+                if (item && typeof item === 'object') {
+                    return {
+                        signature: String(item.signature || '').toLowerCase(),
+                        expires: String(item.expires || '').trim(),
+                        fingerprint: String(item.fingerprint || ''),
+                        activatedAt: item.activatedAt || 0
+                    };
+                }
+                return null;
+            }).filter(function (x) { return x && x.signature; });
+        }
+
+        function mmsSaveUsedRecords(records) {
+            if (!Array.isArray(records)) return;
+            if (records.length > 200) records = records.slice(-200);
+            try { localStorage.setItem(MMS_USED_KEYS, JSON.stringify(records)); } catch (e) {}
+        }
+
+        function mmsFindUsedRecord(signature) {
+            if (!signature) return null;
+            const sig = String(signature).toLowerCase();
+            const list = mmsLoadUsedRecords();
+            for (let i = 0; i < list.length; i++) {
+                if (list[i].signature === sig) return list[i];
+            }
+            return null;
+        }
+
+        /** Можно ли активировать этот ключ сейчас на этом устройстве? */
+        function mmsCanActivateSignature(signature, expires, fingerprint) {
+            const rec = mmsFindUsedRecord(signature);
+            if (!rec) return { ok: true, restore: false };
+            const exp = String(expires || rec.expires || '').trim();
+            // Период ключа ещё действует и это то же устройство — разрешаем восстановление
+            if (fingerprint && rec.fingerprint && rec.fingerprint === fingerprint && !mmsIsLicenseExpired(exp)) {
+                return { ok: true, restore: true };
+            }
+            // Период ещё действует, fingerprint не записан (старые записи) — тоже разрешаем
+            if (!rec.fingerprint && !mmsIsLicenseExpired(exp)) {
+                return { ok: true, restore: true };
+            }
+            // Период истёк или другое устройство
+            if (mmsIsLicenseExpired(exp)) {
+                return { ok: false, error: 'Этот ключ уже был использован, срок действия закончился (' + (exp || '—') + '). Создайте новый ключ в генераторе.' };
+            }
+            return { ok: false, error: 'Этот ключ уже активирован на другом устройстве. Нужен новый license.key или license_activated_*.key с того ПК.' };
+        }
+
+        function mmsIsSignatureUsed(signature) {
+            return !!mmsFindUsedRecord(signature);
+        }
+
+        function mmsMarkSignatureUsed(signature, expires, fingerprint) {
+            if (!signature) return;
+            const sig = String(signature).toLowerCase();
+            let list = mmsLoadUsedRecords();
+            let found = false;
+            for (let i = 0; i < list.length; i++) {
+                if (list[i].signature === sig) {
+                    list[i].expires = String(expires || list[i].expires || '').trim();
+                    list[i].fingerprint = fingerprint || list[i].fingerprint || '';
+                    list[i].activatedAt = list[i].activatedAt || Date.now();
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                list.push({
+                    signature: sig,
+                    expires: String(expires || '').trim(),
+                    fingerprint: fingerprint || '',
+                    activatedAt: Date.now()
+                });
+            }
+            mmsSaveUsedRecords(list);
+        }
+
+        function mmsNoteLicenseUse(signature) {
+            const reused = mmsIsSignatureUsed(signature);
+            if (!reused) mmsMarkSignatureUsed(signature, '', '');
+            return reused;
+        }
+
+        function mmsInitLicenseUI() {
+            const btn = document.getElementById('licenseLoadBtn');
+            const input = document.getElementById('licenseFileInput');
+            if (btn && input) {
+                btn.addEventListener('click', function() { input.click(); });
+                input.addEventListener('change', function() {
+                    if (input.files && input.files[0]) {
+                        mmsActivateFromFile(input.files[0]);
+                        input.value = '';
+                    }
+                });
+            }
+            const actBtn = document.getElementById('licenseActivateBtn');
+            const pwdInput = document.getElementById('licensePasswordInput');
+            if (actBtn) {
+                actBtn.addEventListener('click', function() {
+                    const pwd = pwdInput ? pwdInput.value : '';
+                    mmsFinalizeActivation(mmsPendingLicense, pwd);
+                });
+            }
+            if (pwdInput) {
+                pwdInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const pwd = pwdInput.value;
+                        mmsFinalizeActivation(mmsPendingLicense, pwd);
+                    }
+                });
+            }
+        }
+
+        
+document.addEventListener('DOMContentLoaded', function () {
+    try { mmsInitLicenseUI(); } catch (e) { console.error('license UI', e); }
+    try { mmsCheckLicenseOnStart(); } catch (e) { console.error('license check', e); }
+});
+</script>
 
 <script>
 (function () {
