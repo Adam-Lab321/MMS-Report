@@ -1,53 +1,156 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="gold">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MMS · Проверка рапортов</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23000'/><path d='M18 33 L28 43 L48 21' fill='none' stroke='%23d4af37' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 72'><path d='M32 4 L57 12.5 V34 C57 49 47 60 32 67 C17 60 7 49 7 34 V12.5 Z' fill='%23111' stroke='%23d4af37' stroke-width='5' stroke-linejoin='round'/><path d='M20 36 L28.5 45 L45 26' fill='none' stroke='%23d4af37' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+<script>try{var __t=localStorage.getItem('mmsReviewerTheme_v1');if(__t)document.documentElement.setAttribute('data-theme',__t);}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Oswald:wght@300;400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
 <style>
-:root {
-    --gold: #d4af37;
-    --gold-dark: #b8960f;
-    --gold-light: #e8c84a;
-    --bg: #0c0b09;
-    --bg-card: #141210;
-    --bg-panel: #1a1712;
-    --text: #e8e0d4;
-    --text-dim: #9a9078;
-    --text-muted: #5c5648;
-    --border: rgba(212,175,55,0.2);
-    --blue-stamp: #1a4a8a;
-    --danger: #c0392b;
-    --ok: #2e7d32;
+/* ============ THEMES (12) — each theme = palette + its own geometric pattern ============ */
+:root, html[data-theme="gold"] {
+    --gold: #d4af37; --gold-dark: #b8960f; --gold-light: #e8c84a;
+    --bg: #0c0b09; --bg-card: #141210; --bg-panel: #1a1712;
+    --text: #e8e0d4; --text-dim: #bab4a0; --text-muted: #98917c;
+    --border: rgba(212,175,55,0.24); --accent: #d4af37; --accent-rgb: 212,175,55; --accent-soft: rgba(212,175,55,0.13);
+    --stamp-approve: #1a4a8a;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cg fill=%22none%22 stroke=%22rgba(212,175,55,0.085)%22 stroke-width=%221.412%22 stroke-linejoin=%22round%22%3E%3Cg transform=%22translate(23.50 23.50) scale(0.7083)%22%3E%3Crect x=%225%22 y=%225%22 width=%2214%22 height=%2214%22 rx=%221.6%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 -8.50) scale(0.7083)%22%3E%3Crect x=%225%22 y=%225%22 width=%2214%22 height=%2214%22 rx=%221.6%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 -8.50) scale(0.7083)%22%3E%3Crect x=%225%22 y=%225%22 width=%2214%22 height=%2214%22 rx=%221.6%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 55.50) scale(0.7083)%22%3E%3Crect x=%225%22 y=%225%22 width=%2214%22 height=%2214%22 rx=%221.6%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 55.50) scale(0.7083)%22%3E%3Crect x=%225%22 y=%225%22 width=%2214%22 height=%2214%22 rx=%221.6%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --pattern-size: 64px 64px;
 }
+html[data-theme="burgundy"] {
+    --gold: #c45c6a; --gold-dark: #8b2e3a; --gold-light: #e88a96;
+    --bg: #12090c; --bg-card: #1a1014; --bg-panel: #221418;
+    --text: #f0e4e6; --text-dim: #baa0a4; --text-muted: #987c7f;
+    --border: rgba(196,92,106,0.24); --accent: #c45c6a; --accent-rgb: 196,92,106; --accent-soft: rgba(196,92,106,0.13);
+    --stamp-approve: #5a1a2a;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cg fill=%22none%22 stroke=%22rgba(196,92,106,0.085)%22 stroke-width=%221.412%22 stroke-linejoin=%22round%22%3E%3Cg transform=%22translate(23.50 23.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.8 21.2,12 12,21.2 2.8,12%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 -8.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.8 21.2,12 12,21.2 2.8,12%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 -8.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.8 21.2,12 12,21.2 2.8,12%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 55.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.8 21.2,12 12,21.2 2.8,12%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 55.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.8 21.2,12 12,21.2 2.8,12%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --pattern-size: 64px 64px;
+}
+html[data-theme="sea"] {
+    --gold: #3d9ea8; --gold-dark: #2a6f78; --gold-light: #6bc4cc;
+    --bg: #071214; --bg-card: #0e1a1c; --bg-panel: #132428;
+    --text: #e0eef0; --text-dim: #a0b8ba; --text-muted: #7c9598;
+    --border: rgba(61,158,168,0.24); --accent: #3d9ea8; --accent-rgb: 61,158,168; --accent-soft: rgba(61,158,168,0.13);
+    --stamp-approve: #1a4a5a;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cg fill=%22none%22 stroke=%22rgba(61,158,168,0.085)%22 stroke-width=%221.412%22 stroke-linejoin=%22round%22%3E%3Cg transform=%22translate(23.50 23.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,3.6 21.6,19.8 2.4,19.8%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 -8.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,3.6 21.6,19.8 2.4,19.8%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 -8.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,3.6 21.6,19.8 2.4,19.8%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 55.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,3.6 21.6,19.8 2.4,19.8%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 55.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,3.6 21.6,19.8 2.4,19.8%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --pattern-size: 64px 64px;
+}
+html[data-theme="graphite"] {
+    --gold: #8f9bb0; --gold-dark: #626f86; --gold-light: #b0b8c7;
+    --bg: #0b0b0c; --bg-card: #121314; --bg-panel: #18191b;
+    --text: #dee2e7; --text-dim: #a0aaba; --text-muted: #7c8698;
+    --border: rgba(143,155,176,0.24); --accent: #8f9bb0; --accent-rgb: 143,155,176; --accent-soft: rgba(143,155,176,0.13);
+    --stamp-approve: #1f3b6b;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cg fill=%22none%22 stroke=%22rgba(143,155,176,0.085)%22 stroke-width=%221.412%22 stroke-linejoin=%22round%22%3E%3Cg transform=%22translate(23.50 23.50) scale(0.7083)%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%228.6%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 -8.50) scale(0.7083)%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%228.6%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 -8.50) scale(0.7083)%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%228.6%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 55.50) scale(0.7083)%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%228.6%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 55.50) scale(0.7083)%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%228.6%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --pattern-size: 64px 64px;
+}
+html[data-theme="sage"] {
+    --gold: #8fae8b; --gold-dark: #63835f; --gold-light: #afc5ac;
+    --bg: #0b0c0b; --bg-card: #121412; --bg-panel: #181b18;
+    --text: #dfe7de; --text-dim: #a3baa0; --text-muted: #7f987c;
+    --border: rgba(143,174,139,0.24); --accent: #8fae8b; --accent-rgb: 143,174,139; --accent-soft: rgba(143,174,139,0.13);
+    --stamp-approve: #286b1f;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cg fill=%22none%22 stroke=%22rgba(143,174,139,0.085)%22 stroke-width=%221.412%22 stroke-linejoin=%22round%22%3E%3Cg transform=%22translate(23.50 23.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.6 20.2,7.3 20.2,16.7 12,21.4 3.8,16.7 3.8,7.3%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 -8.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.6 20.2,7.3 20.2,16.7 12,21.4 3.8,16.7 3.8,7.3%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 -8.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.6 20.2,7.3 20.2,16.7 12,21.4 3.8,16.7 3.8,7.3%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 55.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.6 20.2,7.3 20.2,16.7 12,21.4 3.8,16.7 3.8,7.3%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 55.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.6 20.2,7.3 20.2,16.7 12,21.4 3.8,16.7 3.8,7.3%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --pattern-size: 64px 64px;
+}
+html[data-theme="lavender"] {
+    --gold: #a59ccb; --gold-dark: #7467a9; --gold-light: #c2bcdc;
+    --bg: #0a0a0d; --bg-card: #111115; --bg-panel: #18171c;
+    --text: #e0dee7; --text-dim: #a5a0ba; --text-muted: #817c98;
+    --border: rgba(165,156,203,0.24); --accent: #a59ccb; --accent-rgb: 165,156,203; --accent-soft: rgba(165,156,203,0.13);
+    --stamp-approve: #2d1f6b;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cg fill=%22none%22 stroke=%22rgba(165,156,203,0.085)%22 stroke-width=%221.412%22 stroke-linejoin=%22round%22%3E%3Cg transform=%22translate(23.50 23.50) scale(0.7083)%22%3E%3Cpolygon points=%2212.00,2.00 14.53,8.52 21.51,8.91 16.09,13.33 17.88,20.09 12.00,16.30 6.12,20.09 7.91,13.33 2.49,8.91 9.47,8.52%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 -8.50) scale(0.7083)%22%3E%3Cpolygon points=%2212.00,2.00 14.53,8.52 21.51,8.91 16.09,13.33 17.88,20.09 12.00,16.30 6.12,20.09 7.91,13.33 2.49,8.91 9.47,8.52%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 -8.50) scale(0.7083)%22%3E%3Cpolygon points=%2212.00,2.00 14.53,8.52 21.51,8.91 16.09,13.33 17.88,20.09 12.00,16.30 6.12,20.09 7.91,13.33 2.49,8.91 9.47,8.52%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 55.50) scale(0.7083)%22%3E%3Cpolygon points=%2212.00,2.00 14.53,8.52 21.51,8.91 16.09,13.33 17.88,20.09 12.00,16.30 6.12,20.09 7.91,13.33 2.49,8.91 9.47,8.52%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 55.50) scale(0.7083)%22%3E%3Cpolygon points=%2212.00,2.00 14.53,8.52 21.51,8.91 16.09,13.33 17.88,20.09 12.00,16.30 6.12,20.09 7.91,13.33 2.49,8.91 9.47,8.52%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --pattern-size: 64px 64px;
+}
+html[data-theme="indigo"] {
+    --gold: #7488c8; --gold-dark: #465b9f; --gold-light: #9caad8;
+    --bg: #090a0e; --bg-card: #101116; --bg-panel: #16171d;
+    --text: #dee1e7; --text-dim: #a0a7ba; --text-muted: #7c8298;
+    --border: rgba(116,136,200,0.24); --accent: #7488c8; --accent-rgb: 116,136,200; --accent-soft: rgba(116,136,200,0.13);
+    --stamp-approve: #1f316b;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cg fill=%22none%22 stroke=%22rgba(116,136,200,0.085)%22 stroke-width=%221.412%22 stroke-linejoin=%22round%22%3E%3Cg transform=%22translate(23.50 23.50) scale(0.7083)%22%3E%3Cpath d=%22M2.8 16.5a9.2 9.2 0 0 1 18.4 0z%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 -8.50) scale(0.7083)%22%3E%3Cpath d=%22M2.8 16.5a9.2 9.2 0 0 1 18.4 0z%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 -8.50) scale(0.7083)%22%3E%3Cpath d=%22M2.8 16.5a9.2 9.2 0 0 1 18.4 0z%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 55.50) scale(0.7083)%22%3E%3Cpath d=%22M2.8 16.5a9.2 9.2 0 0 1 18.4 0z%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 55.50) scale(0.7083)%22%3E%3Cpath d=%22M2.8 16.5a9.2 9.2 0 0 1 18.4 0z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --pattern-size: 64px 64px;
+}
+html[data-theme="mocha"] {
+    --gold: #b39577; --gold-dark: #856a4f; --gold-light: #c7b19b;
+    --bg: #0d0b0a; --bg-card: #151311; --bg-panel: #1c1a17;
+    --text: #e7e3de; --text-dim: #baada0; --text-muted: #988a7c;
+    --border: rgba(179,149,119,0.24); --accent: #b39577; --accent-rgb: 179,149,119; --accent-soft: rgba(179,149,119,0.13);
+    --stamp-approve: #6b451f;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cg fill=%22none%22 stroke=%22rgba(179,149,119,0.085)%22 stroke-width=%221.412%22 stroke-linejoin=%22round%22%3E%3Cg transform=%22translate(23.50 23.50) scale(0.7083)%22%3E%3Cellipse cx=%2212%22 cy=%2212%22 rx=%229.6%22 ry=%226.2%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 -8.50) scale(0.7083)%22%3E%3Cellipse cx=%2212%22 cy=%2212%22 rx=%229.6%22 ry=%226.2%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 -8.50) scale(0.7083)%22%3E%3Cellipse cx=%2212%22 cy=%2212%22 rx=%229.6%22 ry=%226.2%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 55.50) scale(0.7083)%22%3E%3Cellipse cx=%2212%22 cy=%2212%22 rx=%229.6%22 ry=%226.2%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 55.50) scale(0.7083)%22%3E%3Cellipse cx=%2212%22 cy=%2212%22 rx=%229.6%22 ry=%226.2%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --pattern-size: 64px 64px;
+}
+html[data-theme="mint"] {
+    --gold: #67b5a6; --gold-dark: #448176; --gold-light: #8dc7bc;
+    --bg: #0a0d0d; --bg-card: #101514; --bg-panel: #161d1b;
+    --text: #dee7e6; --text-dim: #a0bab5; --text-muted: #7c9892;
+    --border: rgba(103,181,166,0.24); --accent: #67b5a6; --accent-rgb: 103,181,166; --accent-soft: rgba(103,181,166,0.13);
+    --stamp-approve: #1f6b5c;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cg fill=%22none%22 stroke=%22rgba(103,181,166,0.085)%22 stroke-width=%221.412%22 stroke-linejoin=%22round%22%3E%3Cg transform=%22translate(23.50 23.50) scale(0.7083)%22%3E%3Cpath d=%22M9.4 3.4h5.2v6h6v5.2h-6v6H9.4v-6h-6V9.4h6z%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 -8.50) scale(0.7083)%22%3E%3Cpath d=%22M9.4 3.4h5.2v6h6v5.2h-6v6H9.4v-6h-6V9.4h6z%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 -8.50) scale(0.7083)%22%3E%3Cpath d=%22M9.4 3.4h5.2v6h6v5.2h-6v6H9.4v-6h-6V9.4h6z%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 55.50) scale(0.7083)%22%3E%3Cpath d=%22M9.4 3.4h5.2v6h6v5.2h-6v6H9.4v-6h-6V9.4h6z%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 55.50) scale(0.7083)%22%3E%3Cpath d=%22M9.4 3.4h5.2v6h6v5.2h-6v6H9.4v-6h-6V9.4h6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --pattern-size: 64px 64px;
+}
+html[data-theme="terracotta"] {
+    --gold: #c98467; --gold-dark: #9b5a3e; --gold-light: #d8a590;
+    --bg: #0e0a09; --bg-card: #16110f; --bg-panel: #1e1815;
+    --text: #e7e1de; --text-dim: #baa8a0; --text-muted: #98847c;
+    --border: rgba(201,132,103,0.24); --accent: #c98467; --accent-rgb: 201,132,103; --accent-soft: rgba(201,132,103,0.13);
+    --stamp-approve: #6b351f;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cg fill=%22none%22 stroke=%22rgba(201,132,103,0.085)%22 stroke-width=%221.412%22 stroke-linejoin=%22round%22%3E%3Cg transform=%22translate(23.50 23.50) scale(0.7083)%22%3E%3Cpath d=%22M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 -8.50) scale(0.7083)%22%3E%3Cpath d=%22M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 -8.50) scale(0.7083)%22%3E%3Cpath d=%22M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 55.50) scale(0.7083)%22%3E%3Cpath d=%22M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 55.50) scale(0.7083)%22%3E%3Cpath d=%22M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --pattern-size: 64px 64px;
+}
+html[data-theme="rose"] {
+    --gold: #c98ba0; --gold-dark: #a85571; --gold-light: #dbb1bf;
+    --bg: #0d0a0b; --bg-card: #161012; --bg-panel: #1d1618;
+    --text: #e7dee2; --text-dim: #baa0a9; --text-muted: #987c85;
+    --border: rgba(201,139,160,0.24); --accent: #c98ba0; --accent-rgb: 201,139,160; --accent-soft: rgba(201,139,160,0.13);
+    --stamp-approve: #6b1f39;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cg fill=%22none%22 stroke=%22rgba(201,139,160,0.085)%22 stroke-width=%221.412%22 stroke-linejoin=%22round%22%3E%3Cg transform=%22translate(23.50 23.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.8 21,9.4 17.6,20 6.4,20 3,9.4%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 -8.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.8 21,9.4 17.6,20 6.4,20 3,9.4%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 -8.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.8 21,9.4 17.6,20 6.4,20 3,9.4%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 55.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.8 21,9.4 17.6,20 6.4,20 3,9.4%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 55.50) scale(0.7083)%22%3E%3Cpolygon points=%2212,2.8 21,9.4 17.6,20 6.4,20 3,9.4%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --pattern-size: 64px 64px;
+}
+html[data-theme="olive"] {
+    --gold: #a3a870; --gold-dark: #72764b; --gold-light: #b9bd93;
+    --bg: #0d0d0a; --bg-card: #141511; --bg-panel: #1b1c17;
+    --text: #e7e7de; --text-dim: #b8baa0; --text-muted: #95987c;
+    --border: rgba(163,168,112,0.24); --accent: #a3a870; --accent-rgb: 163,168,112; --accent-soft: rgba(163,168,112,0.13);
+    --stamp-approve: #646b1f;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 64 64%22%3E%3Cg fill=%22none%22 stroke=%22rgba(163,168,112,0.085)%22 stroke-width=%221.412%22 stroke-linejoin=%22round%22%3E%3Cg transform=%22translate(23.50 23.50) scale(0.7083)%22%3E%3Cpolygon points=%228.4,3.2 15.6,3.2 20.8,8.4 20.8,15.6 15.6,20.8 8.4,20.8 3.2,15.6 3.2,8.4%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 -8.50) scale(0.7083)%22%3E%3Cpolygon points=%228.4,3.2 15.6,3.2 20.8,8.4 20.8,15.6 15.6,20.8 8.4,20.8 3.2,15.6 3.2,8.4%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 -8.50) scale(0.7083)%22%3E%3Cpolygon points=%228.4,3.2 15.6,3.2 20.8,8.4 20.8,15.6 15.6,20.8 8.4,20.8 3.2,15.6 3.2,8.4%22/%3E%3C/g%3E%3Cg transform=%22translate(-8.50 55.50) scale(0.7083)%22%3E%3Cpolygon points=%228.4,3.2 15.6,3.2 20.8,8.4 20.8,15.6 15.6,20.8 8.4,20.8 3.2,15.6 3.2,8.4%22/%3E%3C/g%3E%3Cg transform=%22translate(55.50 55.50) scale(0.7083)%22%3E%3Cpolygon points=%228.4,3.2 15.6,3.2 20.8,8.4 20.8,15.6 15.6,20.8 8.4,20.8 3.2,15.6 3.2,8.4%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --pattern-size: 64px 64px;
+}
+:root { --danger: #c0392b; --ok: #2e7d32; }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-    height: 100%;
-    background: var(--bg);
+html { background: var(--bg); color-scheme: dark; scroll-behavior: smooth; transition: background-color .35s ease; }
+body {
+    position: relative;
+    min-height: 100vh;
     color: var(--text);
     font-family: 'Oswald', sans-serif;
+    background-image: radial-gradient(ellipse 100% 560px at 50% -90px, var(--accent-soft), transparent 100%);
+    background-repeat: no-repeat;
+    background-position: top center;
+    transition: color .25s ease;
 }
-body {
-    min-height: 100vh;
-    background:
-        radial-gradient(ellipse 100% 60% at 50% -10%, rgba(212,175,55,0.08), transparent 55%),
-        #0c0b09;
+/* Pattern layer: spans the WHOLE document height and scrolls together with the page */
+body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--pattern);
+    background-size: var(--pattern-size);
+    background-repeat: repeat;
 }
-/* ===== LAYOUT ===== */
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
 .app {
+    position: relative;
+    z-index: 1;
     max-width: 1280px;
     margin: 0 auto;
     padding: 20px 18px 48px;
 }
+
+/* ===== TOPBAR ===== */
 .topbar {
     text-align: center;
-    padding: 18px 12px 22px;
+    padding: 18px 12px 20px;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 22px;
+    margin-bottom: 18px;
     position: relative;
 }
 .topbar::after {
@@ -59,7 +162,7 @@ body {
 }
 .topbar .brand {
     font-family: 'Cinzel', serif;
-    font-size: clamp(14px, 2.5vw, 18px);
+    font-size: clamp(13px, 2.4vw, 17px);
     letter-spacing: 4px;
     color: var(--gold);
     font-weight: 900;
@@ -75,17 +178,138 @@ body {
     display: flex;
     justify-content: center;
     margin-bottom: 10px;
+    color: var(--gold);
 }
 .brand-logo svg {
-    filter: drop-shadow(0 0 12px rgba(212,175,55,0.35));
+    width: 76px; height: 84px;
+    filter: drop-shadow(0 0 14px color-mix(in srgb, var(--gold) 45%, transparent));
 }
 .topbar h1 {
     font-family: 'Cinzel', serif;
-    font-size: clamp(18px, 3.5vw, 26px);
+    font-size: clamp(17px, 3.2vw, 24px);
     color: var(--gold-light);
     letter-spacing: 3px;
     margin-top: 10px;
 }
+
+/* ===== THEME PANEL ===== */
+.theme-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 16px 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+}
+.panel-head {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2.5px; color: var(--gold); text-transform: uppercase;
+}
+.panel-head .ph-title { display: flex; align-items: baseline; gap: 10px; }
+.panel-head .ph-current { font-family: 'Oswald', sans-serif; font-size: 12px; letter-spacing: 1px; color: var(--text-dim); text-transform: none; }
+.panel-head .ph-spacer { flex: 1; }
+.panel-toggle {
+    background: transparent; border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+    color: var(--text-dim); width: 26px; height: 26px; border-radius: 7px; cursor: pointer;
+    font-size: 15px; line-height: 1; font-family: 'Oswald', sans-serif; transition: all .2s;
+}
+.panel-toggle:hover { border-color: var(--gold); color: var(--gold); }
+.theme-strip { display: flex; gap: 6px; flex-wrap: wrap; }
+.theme-dot {
+    width: 28px; height: 28px; border-radius: 50%; padding: 0; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--bg) 60%, #000);
+    border: 1px solid rgba(var(--c-rgb), 0.35);
+    transition: transform .15s, border-color .2s, box-shadow .2s;
+}
+.theme-dot svg { width: 16px; height: 16px; fill: var(--c); }
+.theme-dot:hover { transform: translateY(-1px); border-color: var(--c); }
+.theme-dot.active { border-color: var(--c); box-shadow: 0 0 0 2px rgba(var(--c-rgb), 0.28), 0 0 14px rgba(var(--c-rgb), 0.35); }
+.theme-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(172px, 1fr)); gap: 10px; margin-top: 12px;
+}
+.theme-grid[hidden] { display: none; }
+@media (max-width: 560px) {
+    .theme-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .theme-card { padding: 10px 10px 11px; }
+    .tc-meta { font-size: 10px; letter-spacing: 0.3px; }
+    .tc-desc { font-size: 10.5px; }
+}
+.theme-card {
+    --c: var(--gold); --c-rgb: var(--accent-rgb);
+    text-align: left; font: inherit; color: inherit; cursor: pointer;
+    display: flex; flex-direction: column; gap: 4px;
+    background: color-mix(in srgb, var(--bg) 55%, #000);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 11px 12px 12px; position: relative;
+    transition: border-color .2s, box-shadow .2s, transform .15s, background .2s;
+}
+.theme-card:hover { border-color: rgba(var(--c-rgb), 0.55); transform: translateY(-1px); }
+.theme-card.active {
+    border-color: var(--c);
+    background: linear-gradient(180deg, rgba(var(--c-rgb), 0.09), color-mix(in srgb, var(--bg) 55%, #000));
+    box-shadow: inset 0 0 0 1px rgba(var(--c-rgb), 0.18), 0 0 22px rgba(var(--c-rgb), 0.12);
+}
+.tc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.tc-shape { width: 26px; height: 26px; fill: var(--c); filter: drop-shadow(0 0 8px rgba(var(--c-rgb), 0.4)); }
+.tc-check {
+    width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: transparent; border: 1.5px solid rgba(var(--c-rgb), 0.3); transition: all .2s;
+}
+.theme-card.active .tc-check { background: var(--c); border-color: var(--c); color: #111; }
+.tc-name { font-size: 14px; font-weight: 600; letter-spacing: 0.4px; color: var(--text); }
+.theme-card.active .tc-name { color: var(--c); }
+.tc-meta { font-size: 10.5px; letter-spacing: 0.6px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+.tc-meta i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); display: inline-block; flex-shrink: 0; }
+.tc-desc { font-size: 11px; line-height: 1.4; color: var(--text-muted); letter-spacing: 0.15px; margin-top: 2px; }
+
+/* ===== STEPS HELPER ===== */
+.steps-helper {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 16px 16px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+}
+.steps-helper .panel-head { margin-bottom: 12px; }
+.steps-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.steps-row[hidden] { display: none; }
+@media (max-width: 900px) { .steps-row { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .steps-row { grid-template-columns: 1fr; } }
+.step-card {
+    background: color-mix(in srgb, var(--bg) 55%, #000);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+    padding: 10px 12px 13px;
+    position: relative;
+    cursor: pointer;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.step-card:hover { border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
+.step-card.done { border-color: color-mix(in srgb, var(--ok) 55%, transparent); }
+.step-card.active {
+    border-color: var(--gold);
+    background: linear-gradient(180deg, var(--accent-soft), color-mix(in srgb, var(--bg) 55%, #000));
+    box-shadow: 0 0 0 1px var(--accent-soft), 0 0 20px var(--accent-soft);
+}
+.step-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.step-num { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 900; color: var(--text-dim); line-height: 1; letter-spacing: 1px; }
+.step-card.active .step-num { color: var(--gold); }
+.step-card.done .step-num { color: var(--text-dim); }
+.step-title { font-size: 13px; font-weight: 600; letter-spacing: 0.4px; color: var(--text); margin-bottom: 4px; }
+.step-card.active .step-title { color: var(--gold-light); }
+.step-desc { font-size: 11px; color: var(--text-muted); line-height: 1.45; letter-spacing: 0.2px; }
+.step-check {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid color-mix(in srgb, var(--gold) 28%, transparent);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: transparent; transition: all .25s;
+}
+.step-card.active .step-check { border-color: var(--gold); }
+.step-card.done .step-check { border-color: #4caf50; background: #2e7d32; color: #fff; box-shadow: 0 0 10px rgba(76,175,80,0.35); }
+
+/* ===== LAYOUT ===== */
 .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -109,13 +333,13 @@ body {
     text-transform: uppercase;
     margin-bottom: 14px;
     padding-bottom: 8px;
-    border-bottom: 1px solid rgba(212,175,55,0.12);
+    border-bottom: 1px solid color-mix(in srgb, var(--gold) 18%, transparent);
 }
 label.field-label {
     display: block;
     font-size: 9px;
     letter-spacing: 1.6px;
-    color: rgba(212,175,55,0.75);
+    color: color-mix(in srgb, var(--gold) 80%, transparent);
     text-transform: uppercase;
     margin-bottom: 5px;
 }
@@ -126,7 +350,7 @@ textarea,
 select {
     width: 100%;
     background: #0a0908;
-    border: 1px solid rgba(212,175,55,0.22);
+    border: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
     color: var(--text);
     border-radius: 8px;
     padding: 9px 12px;
@@ -137,7 +361,7 @@ select {
 }
 input:focus, textarea:focus, select:focus {
     border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(212,175,55,0.12);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 .row {
@@ -171,28 +395,18 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     gap: 6px;
 }
 .btn-gold {
-    background: linear-gradient(135deg, #e0c04a, #b8960f 55%, #9a7c0c);
+    background: linear-gradient(135deg, var(--gold-light), var(--gold-dark) 55%, color-mix(in srgb, var(--gold-dark) 80%, #000));
     color: #111;
     border-color: rgba(0,0,0,0.2);
-    box-shadow: 0 4px 16px rgba(212,175,55,0.25);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--gold) 30%, transparent);
 }
-.btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(212,175,55,0.4); }
+.btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 22px color-mix(in srgb, var(--gold) 45%, transparent); }
 .btn-ghost {
     background: transparent;
-    border-color: rgba(212,175,55,0.35);
+    border-color: color-mix(in srgb, var(--gold) 40%, transparent);
     color: var(--gold);
 }
-.btn-ghost:hover { background: rgba(212,175,55,0.1); }
-.btn-ok {
-    background: linear-gradient(135deg, #3d8b40, #2e7d32);
-    color: #fff;
-    border: none;
-}
-.btn-deny {
-    background: linear-gradient(135deg, #c0392b, #922b21);
-    color: #fff;
-    border: none;
-}
+.btn-ghost:hover { background: var(--accent-soft); }
 .btn-sm {
     padding: 6px 12px;
     font-size: 12px;
@@ -205,6 +419,32 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 }
 .file-hide { position: fixed; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
 
+.load-zone {
+    border: 1.5px dashed color-mix(in srgb, var(--gold) 35%, transparent);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    background: color-mix(in srgb, var(--gold) 4%, transparent);
+    margin-bottom: 14px;
+    transition: border-color .2s, background .2s;
+}
+.load-zone:hover, .load-zone.dragover {
+    border-color: var(--gold);
+    background: var(--accent-soft);
+}
+.load-zone .load-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    letter-spacing: 0.3px;
+}
+.load-zone .lh-formats { display: flex; justify-content: center; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+.format-pill {
+    font-size: 10px; letter-spacing: 1px; padding: 3px 9px; border-radius: 20px;
+    border: 1px solid color-mix(in srgb, var(--gold) 32%, transparent);
+    color: var(--text-dim); background: color-mix(in srgb, var(--gold) 6%, transparent);
+}
+
 /* decision cards */
 .decision-switch {
     display: grid;
@@ -213,7 +453,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     margin-bottom: 14px;
 }
 .decision-card {
-    border: 1px solid rgba(212,175,55,0.2);
+    border: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
     border-radius: 12px;
     padding: 14px 12px;
     text-align: center;
@@ -252,14 +492,14 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     letter-spacing: 0.4px;
     padding: 5px 11px;
     border-radius: 20px;
-    border: 1px solid rgba(212,175,55,0.28);
-    background: rgba(212,175,55,0.06);
+    border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+    background: var(--accent-soft);
     color: var(--text-dim);
     cursor: pointer;
     transition: all .2s;
 }
 .tpl:hover {
-    background: rgba(212,175,55,0.16);
+    background: color-mix(in srgb, var(--gold) 20%, transparent);
     border-color: var(--gold);
     color: var(--gold);
 }
@@ -279,7 +519,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     gap: 10px;
     padding: 8px 10px;
     border-radius: 8px;
-    border: 1px solid rgba(212,175,55,0.12);
+    border: 1px solid color-mix(in srgb, var(--gold) 14%, transparent);
     background: #0a0908;
 }
 .stamp-item input[type="checkbox"] {
@@ -289,10 +529,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     cursor: pointer;
 }
 .stamp-item .stamp-meta { flex: 1; min-width: 0; }
-.stamp-item .stamp-name {
-    font-size: 13px;
-    color: var(--text);
-}
+.stamp-item .stamp-name { font-size: 13px; color: var(--text); }
 .stamp-item .stamp-role {
     font-size: 10px;
     color: var(--text-muted);
@@ -301,7 +538,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 .stamp-item .stamp-actions { display: flex; gap: 4px; }
 .stamp-item .stamp-actions button {
     background: transparent;
-    border: 1px solid rgba(212,175,55,0.2);
+    border: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
     color: var(--text-dim);
     border-radius: 6px;
     padding: 3px 8px;
@@ -310,7 +547,6 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 }
 .stamp-item .stamp-actions button:hover { border-color: var(--gold); color: var(--gold); }
 
-/* report preview table */
 .report-summary {
     font-size: 13px;
     color: var(--text-dim);
@@ -330,15 +566,15 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     font-size: 10px;
     letter-spacing: 1px;
     padding: 6px 6px;
-    border-bottom: 1px solid rgba(212,175,55,0.25);
+    border-bottom: 1px solid color-mix(in srgb, var(--gold) 28%, transparent);
 }
 .mini-table td {
     padding: 6px;
-    border-bottom: 1px solid rgba(212,175,55,0.08);
+    border-bottom: 1px solid color-mix(in srgb, var(--gold) 8%, transparent);
     color: var(--text);
     vertical-align: top;
 }
-.mini-table tr:hover td { background: rgba(212,175,55,0.04); }
+.mini-table tr:hover td { background: var(--accent-soft); }
 .empty-hint {
     color: var(--text-muted);
     font-size: 13px;
@@ -346,15 +582,18 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     text-align: center;
 }
 
-/* ===== PREVIEW STAGE (black full-bleed) ===== */
+/* ===== PREVIEW STAGE ===== */
 .preview-stage {
     margin-top: 22px;
-    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: color-mix(in srgb, var(--bg) 40%, #000);
     border-radius: 16px;
-    border: 1px solid rgba(212,175,55,0.25);
+    border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
     padding: 28px 16px 32px;
     text-align: center;
-    box-shadow: 0 0 60px rgba(0,0,0,0.6), inset 0 0 80px rgba(212,175,55,0.03);
+    box-shadow: 0 0 60px rgba(0,0,0,0.6), inset 0 0 80px var(--accent-soft);
 }
 .preview-stage .stage-title {
     font-family: 'Cinzel', serif;
@@ -370,15 +609,15 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     gap: 10px;
     padding: 10px 22px;
     border-radius: 40px;
-    border: 1px solid rgba(212,175,55,0.4);
-    background: rgba(212,175,55,0.08);
+    border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+    background: var(--accent-soft);
     margin-bottom: 18px;
 }
 .preview-stage .status-badge .check {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #e0c04a, #b8960f);
+    background: linear-gradient(135deg, var(--gold-light), var(--gold-dark));
     color: #111;
     display: flex;
     align-items: center;
@@ -396,14 +635,17 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     letter-spacing: 2px;
     color: var(--gold-light);
 }
+.a4-holder { display: flex; justify-content: center; align-items: center; width: 100%; }
 .a4-wrap {
-    display: inline-block;
+    display: block;
+    margin: 0 auto;
     background: #fff;
     width: min(100%, 420px);
     aspect-ratio: 210 / 297;
     box-shadow: 0 12px 40px rgba(0,0,0,0.55);
     overflow: hidden;
     position: relative;
+    cursor: zoom-in;
 }
 #a4Canvas {
     width: 100%;
@@ -417,6 +659,8 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
 /* modal for stamp edit */
@@ -453,7 +697,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     bottom: 24px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: #1a1712;
+    background: var(--bg-panel);
     border: 1px solid var(--gold);
     color: var(--gold);
     padding: 10px 20px;
@@ -484,8 +728,8 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 }
 .report-viewer-modal.show { display: flex; }
 .report-viewer-content {
-    background: #12100c;
-    border: 1px solid rgba(212,175,55,0.35);
+    background: color-mix(in srgb, var(--bg-card) 88%, #000);
+    border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
     border-radius: 14px;
     width: min(1100px, 100%);
     max-height: 100%;
@@ -499,7 +743,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     align-items: center;
     gap: 10px;
     padding: 12px 14px;
-    border-bottom: 1px solid rgba(212,175,55,0.2);
+    border-bottom: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
     flex-wrap: wrap;
 }
 .report-viewer-title {
@@ -519,19 +763,19 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     font-size: 11px;
     padding: 4px 10px;
     border-radius: 6px;
-    border: 1px solid rgba(212,175,55,0.3);
+    border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
     background: transparent;
     color: var(--text-dim);
     cursor: pointer;
 }
 .report-viewer-theme button.active {
-    background: rgba(212,175,55,0.15);
+    background: var(--accent-soft);
     color: var(--gold);
     border-color: var(--gold);
 }
 .report-viewer-close {
     background: transparent;
-    border: 1px solid rgba(212,175,55,0.3);
+    border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
     color: var(--gold);
     border-radius: 8px;
     padding: 6px 12px;
@@ -542,7 +786,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     flex: 1;
     position: relative;
     min-height: 0;
-    background: #1a1a1a;
+    background: var(--bg);
 }
 .report-viewer-frame-wrap iframe {
     width: 100%;
@@ -569,7 +813,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     font-size: 11px;
     color: var(--text-muted);
     letter-spacing: 0.3px;
-    border-top: 1px solid rgba(212,175,55,0.12);
+    border-top: 1px solid color-mix(in srgb, var(--gold) 12%, transparent);
 }
 .reasons-list {
     margin: 8px 0 4px;
@@ -583,14 +827,13 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     gap: 8px;
     padding: 8px 10px;
     border-radius: 8px;
-    border: 1px solid rgba(212,175,55,0.18);
+    border: 1px solid color-mix(in srgb, var(--gold) 18%, transparent);
     background: #0a0908;
     font-size: 12px;
     color: var(--text);
     line-height: 1.4;
 }
 
-/* ===== entries with photos + veiled links ===== */
 .mini-table { font-size: 12px; }
 .mini-table th:nth-child(3), .mini-table td:nth-child(3) { min-width: 120px; }
 .veiled-link {
@@ -610,8 +853,8 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 }
 .entry-photo-card {
     width: 92px;
-    background: linear-gradient(180deg, rgba(212,175,55,0.08), rgba(0,0,0,0.25));
-    border: 1px solid rgba(212,175,55,0.35);
+    background: linear-gradient(180deg, var(--accent-soft), rgba(0,0,0,0.25));
+    border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 14px rgba(0,0,0,0.35);
@@ -620,7 +863,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 .entry-photo-card:hover {
     transform: translateY(-2px);
     border-color: var(--gold);
-    box-shadow: 0 8px 22px rgba(212,175,55,0.2);
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--gold) 25%, transparent);
 }
 .entry-photo-card img {
     width: 92px;
@@ -650,12 +893,12 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     font-size: 11px;
     padding: 3px 8px;
     border-radius: 6px;
-    border: 1px solid rgba(212,175,55,0.35);
+    border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
     background: transparent;
     color: var(--gold);
     cursor: pointer;
 }
-.btn-view-entry:hover { background: rgba(212,175,55,0.12); }
+.btn-view-entry:hover { background: var(--accent-soft); }
 #entriesTableWrap {
     overflow-x: auto;
     max-height: 320px;
@@ -665,7 +908,6 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     color: var(--text-muted);
     margin-left: 4px;
 }
-/* entry detail modal (inside app) */
 .entry-detail-modal {
     display: none;
     position: fixed;
@@ -703,8 +945,8 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     margin-top: 14px;
 }
 .entry-detail-photos > div {
-    background: linear-gradient(180deg, rgba(212,175,55,0.1), rgba(0,0,0,0.3));
-    border: 1px solid rgba(212,175,55,0.4);
+    background: linear-gradient(180deg, var(--accent-soft), rgba(0,0,0,0.3));
+    border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
     border-radius: 12px;
     padding: 8px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.4);
@@ -716,7 +958,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     width: 100%;
     object-fit: contain;
     border-radius: 8px;
-    border: 1px solid rgba(212,175,55,0.25);
+    border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent);
     cursor: zoom-in;
     background: #0a0a0a;
     display: block;
@@ -751,12 +993,12 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     min-width: 42px;
     padding: 6px 12px;
     border-radius: 8px;
-    border: 1px solid rgba(212,175,55,0.45);
-    background: #1a1712;
+    border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+    background: var(--bg-panel);
     color: var(--gold);
     cursor: pointer;
 }
-.lb-btn:hover { background: rgba(212,175,55,0.15); }
+.lb-btn:hover { background: var(--accent-soft); }
 .lightbox-stage {
     overflow: auto;
     max-width: 96vw;
@@ -765,7 +1007,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     align-items: center;
     justify-content: center;
     border-radius: 10px;
-    border: 1px solid rgba(212,175,55,0.25);
+    border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent);
     background: #0a0a0a;
 }
 #lightbox img {
@@ -785,7 +1027,6 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     color: var(--text-muted);
     letter-spacing: 0.5px;
 }
-
 .reason-chip button {
     margin-left: auto;
     background: transparent;
@@ -798,111 +1039,152 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     flex-shrink: 0;
 }
 
+/* blank lightbox — enlarged A4 */
+#blankLightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(0,0,0,0.94);
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    overflow: auto;
+}
+#blankLightbox.show { display: flex; }
+.blank-lightbox-inner {
+    position: relative;
+    max-width: min(920px, 96vw);
+    width: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.blank-toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.blank-toolbar .lb-btn { font-size: 14px; }
+#blankLightboxImg {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    background: #fff;
+    transform-origin: center top;
+    transition: transform 0.15s ease;
+}
+
 /* ========== LICENSE GATE ========== */
-        #licenseGate {
-            position: fixed;
-            inset: 0;
-            z-index: 2147483000;
-            pointer-events: auto;
-            background: radial-gradient(ellipse at center, #1a1510 0%, #0a0a0a 70%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            font-family: 'Oswald', sans-serif;
-        }
-        #licenseGate.hidden { display: none !important; }
-        .license-card {
-            max-width: 440px;
-            width: 100%;
-            background: #1e1e1e;
-            border: 2px solid var(--gold, #d4af37);
-            border-radius: 14px;
-            padding: 32px 28px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.85), 0 0 40px rgba(212,175,55,0.08);
-            text-align: center;
-        }
-        .license-card h1 {
-            font-family: 'Cinzel', serif;
-            color: var(--gold, #d4af37);
-            font-size: 22px;
-            letter-spacing: 3px;
-            margin-bottom: 6px;
-        }
-        .license-card .sub {
-            color: #b0a890;
-            font-size: 13px;
-            margin-bottom: 20px;
-            line-height: 1.45;
-        }
-        .license-card .sub strong { color: #d4af37; }
-        .license-btn {
-            display: inline-block;
-            width: 100%;
-            padding: 12px 16px;
-            margin-top: 8px;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Oswald', sans-serif;
-            font-size: 15px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            cursor: pointer;
-            pointer-events: auto;
-            position: relative;
-            z-index: 2;
-            background: linear-gradient(135deg, #d4af37, #b8960f);
-            color: #000;
-            transition: transform 0.15s, box-shadow 0.15s;
-        }
-        .license-btn:hover { transform: scale(1.01); box-shadow: 0 0 18px rgba(212,175,55,0.25); }
-        .license-btn.ghost {
-            background: transparent;
-            border: 1px solid rgba(212,175,55,0.4);
-            color: #d4af37;
-            margin-top: 10px;
-        }
-        .license-status {
-            margin-top: 14px;
-            font-size: 13px;
-            color: #ff6b6b;
-            min-height: 1.2em;
-        }
-        .license-status.ok { color: #4caf50; }
-        
+#licenseGate {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    pointer-events: auto;
+    background: radial-gradient(ellipse at center, #1a1510 0%, #0a0a0a 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    font-family: 'Oswald', sans-serif;
+}
+#licenseGate.hidden { display: none !important; }
+.license-card {
+    max-width: 440px;
+    width: 100%;
+    background: #1e1e1e;
+    border: 2px solid var(--gold, #d4af37);
+    border-radius: 14px;
+    padding: 32px 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.85), 0 0 40px rgba(212,175,55,0.08);
+    text-align: center;
+}
+.license-card h1 {
+    font-family: 'Cinzel', serif;
+    color: var(--gold, #d4af37);
+    font-size: 22px;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+}
+.license-card .sub {
+    color: #b0a890;
+    font-size: 13px;
+    margin-bottom: 20px;
+    line-height: 1.45;
+}
+.license-card .sub strong { color: #d4af37; }
+.license-btn {
+    display: inline-block;
+    width: 100%;
+    padding: 12px 16px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    pointer-events: auto;
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(135deg, #d4af37, #b8960f);
+    color: #000;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.license-btn:hover { transform: scale(1.01); box-shadow: 0 0 18px rgba(212,175,55,0.25); }
+.license-btn.ghost {
+    background: transparent;
+    border: 1px solid rgba(212,175,55,0.4);
+    color: #d4af37;
+    margin-top: 10px;
+}
+.license-status {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #ff6b6b;
+    min-height: 1.2em;
+}
+.license-status.ok { color: #4caf50; }
+/* licence tag is kept in the DOM for the licence logic but never shown to the user */
+.license-watermark { display: none !important; visibility: hidden !important; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
 <body>
 <div id="licenseGate" aria-modal="true" role="dialog">
-        <div class="license-card">
-            <h1>🔐 ЛИЦЕНЗИЯ MMS</h1>
-            <p class="sub">Для работы нужна именная лицензия подразделения.<br>
-            Загрузите <strong>license.key</strong> и введите <strong>пароль активации</strong> из генератора.<br>
-            Копирование и перепродажа ПО запрещены.</p>
-            <button type="button" class="license-btn" id="licenseLoadBtn" onclick="(function(){var i=document.getElementById('licenseFileInput'); if(i){i.value=''; i.click();}})()">📁 Загрузить license.key</button>
-            <input type="file" id="licenseFileInput" accept=".key,.json,application/json,text/plain" style="position:fixed;left:-9999px;width:1px;height:1px;opacity:0;" onchange="(function(inp){if(!inp.files||!inp.files[0])return;var f=inp.files[0];inp.value='';var st=document.getElementById('licenseStatus');if(typeof mmsActivateFromFile!=='function'){if(st)st.textContent='Ошибка: скрипт лицензии не загружен. Обновите страницу (Ctrl+F5).';return;}if(st){st.textContent='Читаю ключ…';st.classList.remove('ok');}Promise.resolve(mmsActivateFromFile(f)).catch(function(e){console.error(e);if(st){st.textContent='Ошибка: '+(e&&e.message?e.message:e);st.classList.remove('ok');}});})(this)" />
-            <div id="licensePasswordWrap" style="display:none;margin-top:12px;text-align:left;">
-                <label style="display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">Пароль активации (2FA)</label>
-                <input type="password" id="licensePasswordInput" autocomplete="off" placeholder="Пароль из генератора лицензий"
-                    style="width:100%;padding:10px 12px;background:#111;border:1px solid #333;border-radius:8px;color:#fff;font-family:Oswald,sans-serif;font-size:14px;box-sizing:border-box;" />
-                <button type="button" class="license-btn" id="licenseActivateBtn" style="margin-top:10px;" onclick="(function(){var p=document.getElementById('licensePasswordInput');var st=document.getElementById('licenseStatus');if(typeof mmsFinalizeActivation!=='function'){if(st)st.textContent='Скрипт не загружен';return;}if(st){st.textContent='Проверяю пароль…';st.classList.remove('ok');}Promise.resolve(mmsFinalizeActivation(null,p?p.value:'').catch(function(e){if(st)st.textContent='Ошибка: '+(e&&e.message?e.message:e);});})()">🔓 Активировать</button>
-            </div>
-            <button type="button" class="license-btn ghost" id="licenseRetryBtn" style="display:none;">Проверить снова</button>
-            <div class="license-status" id="licenseStatus"></div>
+    <div class="license-card">
+        <h1>🔐 ЛИЦЕНЗИЯ MMS</h1>
+        <p class="sub">Для работы нужна именная лицензия подразделения.<br>
+        Загрузите <strong>license.key</strong> и введите <strong>пароль активации</strong> из генератора.<br>
+        Копирование и перепродажа ПО запрещены.</p>
+        <button type="button" class="license-btn" id="licenseLoadBtn" onclick="(function(){var i=document.getElementById('licenseFileInput'); if(i){i.value=''; i.click();}})()">📁 Загрузить license.key</button>
+        <input type="file" id="licenseFileInput" accept=".key,.json,application/json,text/plain" style="position:fixed;left:-9999px;width:1px;height:1px;opacity:0;" onchange="(function(inp){if(!inp.files||!inp.files[0])return;var f=inp.files[0];inp.value='';var st=document.getElementById('licenseStatus');if(typeof mmsActivateFromFile!=='function'){if(st)st.textContent='Ошибка: скрипт лицензии не загружен. Обновите страницу (Ctrl+F5).';return;}if(st){st.textContent='Читаю ключ…';st.classList.remove('ok');}Promise.resolve(mmsActivateFromFile(f)).catch(function(e){console.error(e);if(st){st.textContent='Ошибка: '+(e&&e.message?e.message:e);st.classList.remove('ok');}});})(this)" />
+        <div id="licensePasswordWrap" style="display:none;margin-top:12px;text-align:left;">
+            <label style="display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">Пароль активации (2FA)</label>
+            <input type="password" id="licensePasswordInput" autocomplete="off" placeholder="Пароль из генератора лицензий"
+                style="width:100%;padding:10px 12px;background:#111;border:1px solid #333;border-radius:8px;color:#fff;font-family:Oswald,sans-serif;font-size:14px;box-sizing:border-box;" />
+            <button type="button" class="license-btn" id="licenseActivateBtn" style="margin-top:10px;" onclick="(function(){var p=document.getElementById('licensePasswordInput');var st=document.getElementById('licenseStatus');if(typeof mmsFinalizeActivation!=='function'){if(st)st.textContent='Скрипт не загружен';return;}if(st){st.textContent='Проверяю пароль…';st.classList.remove('ok');}Promise.resolve(mmsFinalizeActivation(null,p?p.value:'').catch(function(e){if(st)st.textContent='Ошибка: '+(e&&e.message?e.message:e);});})()">🔓 Активировать</button>
         </div>
+        <button type="button" class="license-btn ghost" id="licenseRetryBtn" style="display:none;">Проверить снова</button>
+        <div class="license-status" id="licenseStatus"></div>
     </div>
-    <div class="license-watermark" id="licenseWatermark" aria-hidden="true"></div>
-
-    
+</div>
+<div class="license-watermark" id="licenseWatermark" aria-hidden="true" hidden></div>
 
 <div class="app">
     <div class="topbar">
         <div class="brand-logo" aria-hidden="true">
-            <svg width="56" height="56" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-                <rect width="64" height="64" rx="14" fill="#000"/>
-                <rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="#d4af37" stroke-width="2"/>
-                <path d="M18 33 L28 43 L48 21" fill="none" stroke="#d4af37" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg" id="brandSvg" role="img" aria-label="SANG · проверка рапортов">
+                <path d="M32 3 L58 11.5 V34 C58 49.5 47.5 61 32 69 C16.5 61 6 49.5 6 34 V11.5 Z" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round"/>
+                <path d="M32 9.6 L51.6 16 V34 C51.6 46 43.4 54.8 32 60.6 C20.6 54.8 12.4 46 12.4 34 V16 Z" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.85" stroke-linejoin="round"/>
+                <circle cx="32" cy="17.6" r="2.3" fill="currentColor"/>
+                <path d="M32 19.8 V25" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                <path d="M20.2 36.2 L28.6 45 L44.6 26.6" fill="none" stroke="currentColor" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </div>
         <div class="brand">SAN ANDREAS NATIONAL GUARD</div>
@@ -910,26 +1192,81 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
         <h1>ПРОВЕРКА РАПОРТОВ</h1>
     </div>
 
+
+    <!-- THEME PANEL -->
+    <section class="theme-panel" id="themePanel" aria-label="Оформление">
+        <div class="panel-head">
+            <div class="ph-title"><span>Оформление</span><span class="ph-current" id="themeCurrent"></span></div>
+            <div class="theme-strip" id="themeStrip" role="group" aria-label="Быстрый выбор темы"></div>
+            <span class="ph-spacer"></span>
+            <button type="button" class="panel-toggle" id="themeToggle" aria-expanded="true" aria-controls="themeGrid" title="Свернуть / развернуть" onclick="toggleThemePanel()">−</button>
+        </div>
+        <div class="theme-grid" id="themeGrid" role="group" aria-label="Темы оформления"></div>
+    </section>
+
+    <!-- STEP HELPER -->
+    <section class="steps-helper" id="stepsHelper" aria-label="Как работать">
+        <div class="panel-head">
+            <div class="ph-title"><span>Как работать · 4 шага</span></div>
+            <span class="ph-spacer"></span>
+            <button type="button" class="panel-toggle" id="stepsToggle" aria-expanded="true" aria-controls="stepsRow" title="Свернуть / развернуть" onclick="toggleSteps()">−</button>
+        </div>
+        <div class="steps-row" id="stepsRow">
+            <div class="step-card" id="step1" data-target="loadZone" tabindex="0" role="button">
+                <div class="step-top"><span class="step-num">01</span><span class="step-check">✓</span></div>
+                <div class="step-title">Загрузить рапорт</div>
+                <div class="step-desc">JSON, HTML, Word (.doc) или пакет .mms / .zip с report.json</div>
+            </div>
+            <div class="step-card" id="step2" data-target="empName" tabindex="0" role="button">
+                <div class="step-top"><span class="step-num">02</span><span class="step-check">✓</span></div>
+                <div class="step-title">Проверить данные</div>
+                <div class="step-desc">ФИО, ID, баллы, фото и ссылки. Откройте просмотр при необходимости</div>
+            </div>
+            <div class="step-card" id="step3" data-target="cardOk" tabindex="0" role="button">
+                <div class="step-top"><span class="step-num">03</span><span class="step-check">✓</span></div>
+                <div class="step-title">Вынести решение</div>
+                <div class="step-desc">Одобрить или отклонить, выбрать шаблоны и печати руководства</div>
+            </div>
+            <div class="step-card" id="step4" data-target="previewStage" tabindex="0" role="button">
+                <div class="step-top"><span class="step-num">04</span><span class="step-check">✓</span></div>
+                <div class="step-title">Скачать бланк</div>
+                <div class="step-desc">PNG A4 · клик по бланку увеличивает · готово к выдаче</div>
+            </div>
+        </div>
+    </section>
+
     <div class="grid">
-        <!-- LEFT: load + employee -->
+        <!-- LEFT -->
         <div class="panel">
             <h2>1 · Данные сотрудника и рапорт</h2>
-            <div class="btn-row" style="margin-top:0;margin-bottom:12px;">
-                <button type="button" class="btn btn-gold btn-sm" id="btnLoadAny" onclick="document.getElementById('fileInAny').click()">Загрузить рапорт (JSON / HTML / Word / пакет MMS)</button>
-                <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('reportViewFileInput').click()">Только просмотр HTML</button>
-                <button type="button" class="btn btn-ghost btn-sm" onclick="clearReport()">Очистить</button>
-                <input type="file" id="fileInAny" class="file-hide" accept=".json,.html,.htm,.doc,.zip,.mms,.mms.json,application/json,text/html,application/msword,application/zip" onchange="onAnyReportFile(event)" />
-                <input type="file" id="fileIn" class="file-hide" accept=".json,application/json" onchange="onFile(event)" />
-                <input type="file" id="reportViewFileInput" class="file-hide" accept=".html,.htm,.doc,text/html" onchange="handleReportViewImport(event)" />
+
+            <div class="load-zone" id="loadZone"
+                 ondragover="event.preventDefault(); this.classList.add('dragover')"
+                 ondragleave="this.classList.remove('dragover')"
+                 ondrop="onDropReport(event)">
+                <button type="button" class="btn btn-gold" id="btnLoadAny" onclick="document.getElementById('fileInAny').click()">
+                    📁 Загрузить рапорт
+                </button>
+                <div class="lh-formats"><span class="format-pill">.JSON</span><span class="format-pill">.HTML</span><span class="format-pill">.DOC</span><span class="format-pill">.MMS</span><span class="format-pill">.ZIP</span></div>
+                <div class="load-hint">или перетащите файл сюда</div>
+                <input type="file" id="fileInAny" class="file-hide"
+                    accept=".json,.html,.htm,.doc,.zip,.mms,.mms.json,application/json,text/html,application/msword,application/zip"
+                    onchange="onAnyReportFile(event)" />
             </div>
+
+            <div class="btn-row" style="margin-top:0;margin-bottom:12px;">
+                <button type="button" class="btn btn-ghost btn-sm" id="btnViewFullReport" onclick="openJsonAsViewer()" disabled>Просмотр рапорта</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="clearReport()">Очистить</button>
+            </div>
+
             <div class="row">
                 <div>
                     <label class="field-label">ФИО</label>
-                    <input type="text" id="empName" placeholder="Алекс Иванов" oninput="scheduleDraw()" />
+                    <input type="text" id="empName" placeholder="Алекс Иванов" oninput="scheduleDraw(); updateSteps()" />
                 </div>
                 <div>
                     <label class="field-label">ID</label>
-                    <input type="text" id="empId" placeholder="774912" oninput="scheduleDraw()" />
+                    <input type="text" id="empId" placeholder="774912" oninput="scheduleDraw(); updateSteps()" />
                 </div>
             </div>
             <div class="row">
@@ -957,10 +1294,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
                 <input type="text" id="docNo" oninput="scheduleDraw()" />
             </div>
             <div class="report-summary" id="reportSummary">
-                Рапорт не загружен. Загрузите JSON, HTML, Word или единый пакет <b>.mms.zip</b>.
-            </div>
-            <div class="btn-row" style="margin-top:8px;margin-bottom:8px;">
-                <button type="button" class="btn btn-gold btn-sm" id="btnViewFullReport" onclick="openJsonAsViewer()" disabled>Просмотр рапорта внутри</button>
+                Рапорт не загружен. Нажмите «Загрузить рапорт» или перетащите файл.
             </div>
             <div id="entriesTableWrap">
                 <table class="mini-table" id="entriesTable">
@@ -979,7 +1313,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
             </div>
         </div>
 
-        <!-- RIGHT: decision + stamps -->
+        <!-- RIGHT -->
         <div class="panel">
             <h2>2 · Решение проверяющего</h2>
             <div class="decision-switch">
@@ -1005,7 +1339,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
                 </div>
             </div>
             <div id="denyBlock" style="display:none;">
-                <label class="field-label">Формулировки отказа (можно несколько — добавляются списком)</label>
+                <label class="field-label">Формулировки отказа (можно несколько)</label>
                 <div class="templates">
                     <button type="button" class="tpl" onclick="tplPoints()">Недостаточно баллов</button>
                     <button type="button" class="tpl" onclick="tplPoint()">Не выполнен пункт</button>
@@ -1023,17 +1357,17 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
                 </div>
             </div>
             <div class="full">
-                <label class="field-label">Текст решения / комментарий (можно дописать вручную)</label>
-                <textarea id="decisionText" placeholder="Текст, который попадёт в бланк… Шаблоны отказа добавляются ниже списком." oninput="scheduleDraw()"></textarea>
+                <label class="field-label">Текст решения / комментарий</label>
+                <textarea id="decisionText" placeholder="Текст, который попадёт в бланк…" oninput="scheduleDraw(); updateSteps()"></textarea>
             </div>
             <div class="full">
                 <label class="field-label">Дополнение (необязательно)</label>
-                <textarea id="extraText" placeholder="Например: срок на исправление, рекомендации…" oninput="scheduleDraw()"></textarea>
+                <textarea id="extraText" placeholder="Срок на исправление, рекомендации…" oninput="scheduleDraw()"></textarea>
             </div>
 
             <h2 style="margin-top:18px;">3 · Печати руководства</h2>
             <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;letter-spacing:0.3px;">
-                Отметьте нужные печати. Можно добавить новые — руководство меняется.
+                Отметьте нужные печати. Можно добавить новые.
             </p>
             <div class="stamp-list" id="stampList"></div>
             <div class="btn-row" style="margin-top:4px;">
@@ -1043,20 +1377,22 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     </div>
 
     <!-- PREVIEW -->
-    <div class="preview-stage">
+    <div class="preview-stage" id="previewStage">
         <div class="stage-title">Предпросмотр бланка решения</div>
         <div class="status-badge" id="statusBadge">
             <div class="check" id="statusCheck">✓</div>
             <span id="statusLabel">ОДОБРЕНО · ГОТОВО К ВЫДАЧЕ</span>
         </div>
-        <div class="a4-wrap">
-            <canvas id="a4Canvas" width="794" height="1123"></canvas>
+        <div class="a4-holder">
+            <div class="a4-wrap" id="a4Wrap" title="Нажмите, чтобы увеличить">
+                <canvas id="a4Canvas" width="794" height="1123"></canvas>
+            </div>
         </div>
         <div class="export-row">
             <button type="button" class="btn btn-gold" onclick="downloadPng()">Скачать PNG (A4)</button>
             <button type="button" class="btn btn-ghost" onclick="drawA4()">Обновить бланк</button>
-            <button type="button" class="btn btn-ghost" onclick="openBlankLightbox()">Увеличить бланк</button>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Клик по бланку — крупный просмотр. Решение выделено цветом сверху.</div>
+            <button type="button" class="btn btn-ghost" onclick="openBlankLightbox()">🔍 Увеличить бланк</button>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:6px;width:100%;text-align:center;">Клик по бланку — крупный просмотр · колёсико и кнопки — масштаб</div>
         </div>
     </div>
 </div>
@@ -1087,9 +1423,6 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 
 <div class="toast" id="toast"></div>
 
-<!-- Report viewer -->
-
-<!-- Entry detail (inside app) -->
 <div class="entry-detail-modal" id="entryDetailModal" onclick="if(event.target===this)closeEntryDetail()">
     <div class="entry-detail-box" onclick="event.stopPropagation()">
         <h3 id="entryDetailTitle">Запись</h3>
@@ -1122,7 +1455,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
                 <button type="button" id="reportThemeLight" onclick="setReportViewerTheme('light')">Светлая</button>
                 <button type="button" id="reportThemeDark" class="active" onclick="setReportViewerTheme('dark')">Тёмная</button>
             </div>
-            <button type="button" class="btn btn-ghost btn-sm" onclick="extractFromViewer()" title="Подтянуть ФИО/баллы из открытого отчёта, если удастся">Взять данные</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="extractFromViewer()" title="Подтянуть ФИО/баллы из открытого отчёта">Взять данные</button>
             <button type="button" class="report-viewer-close" onclick="closeReportViewer()">Закрыть</button>
         </div>
         <div class="report-viewer-frame-wrap">
@@ -1132,753 +1465,669 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
             </div>
             <iframe id="reportViewerFrame" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" title="Просмотр отчёта"></iframe>
         </div>
-        <div class="report-viewer-hint">Внутренний просмотр. Закрытие окна не удаляет загруженный рапорт — можно открыть снова.</div>
+        <div class="report-viewer-hint">Внутренний просмотр. Закрытие окна не удаляет загруженный рапорт.</div>
     </div>
 </div>
 
+<!-- Blank (A4) lightbox -->
+<div id="blankLightbox" onclick="if(event.target===this)closeBlankLightbox()">
+  <div class="blank-lightbox-inner" onclick="event.stopPropagation()">
+    <div class="blank-toolbar">
+      <button type="button" class="lb-btn" onclick="blankZoom(1.25)">＋</button>
+      <button type="button" class="lb-btn" onclick="blankZoom(0.8)">－</button>
+      <button type="button" class="lb-btn" onclick="blankZoom(0)">1:1</button>
+      <button type="button" class="lb-btn" onclick="downloadPng()">⬇ PNG</button>
+      <button type="button" class="lb-btn" onclick="closeBlankLightbox()">✕</button>
+    </div>
+    <img id="blankLightboxImg" alt="Бланк решения" />
+    <div class="lightbox-hint" style="margin-top:10px;">Колёсико — масштаб · Esc — закрыть</div>
+  </div>
+</div>
 
 <script>
-/* ========== MMS LICENSE PROTECTION (same as main report client) ========== */
+/* ========== MMS LICENSE PROTECTION ========== */
 const MMS_LICENSE_API = 'https://mms-report-proxy.asakulin874.workers.dev/license';
 const MMS_LICENSE_SECRET = 'MMS-SANG-2026-Grechkaaa-HMAC-Secret-Key-v1!';
-        const MMS_LICENSE_STORAGE = 'mmsLicenseActivation';
-        // Срок лицензии только из поля expires ключа (генератор)
-        const MMS_DEV_UNLOCK_KEY = 'mmsDevUnlock';
-        const MMS_USED_KEYS = 'mmsLicenseUsedSigs';
+const MMS_LICENSE_STORAGE = 'mmsLicenseActivation';
+const MMS_DEV_UNLOCK_KEY = 'mmsDevUnlock';
+const MMS_USED_KEYS = 'mmsLicenseUsedSigs';
 
-        let mmsLicenseActive = false;
-        let mmsLicenseInfo = null;
+let mmsLicenseActive = false;
+let mmsLicenseInfo = null;
 
-        function mmsGetOrCreateDeviceId() {
-            try {
-                let id = localStorage.getItem('mmsDeviceId');
-                if (id && /^dev_[a-z0-9]+$/i.test(id)) return id;
-                const rand = (window.crypto && crypto.getRandomValues)
-                    ? Array.from(crypto.getRandomValues(new Uint8Array(8))).map(function (b) {
-                        return b.toString(16).padStart(2, '0');
-                    }).join('')
-                    : String(Date.now()) + Math.random().toString(16).slice(2);
-                id = 'dev_' + rand;
-                localStorage.setItem('mmsDeviceId', id);
-                return id;
-            } catch (e) {
-                return 'dev_fallback';
-            }
-        }
-
-        function mmsGetFingerprint() {
-            try {
-                // Стабильный ID устройства в localStorage + мягкие признаки среды
-                const parts = [
-                    mmsGetOrCreateDeviceId(),
-                    navigator.language || '',
-                    Intl.DateTimeFormat().resolvedOptions().timeZone || '',
-                    String(navigator.platform || ''),
-                    String(screen.width) + 'x' + String(screen.height)
-                ];
-                const s = parts.join('|');
-                let h = 2166136261;
-                for (let i = 0; i < s.length; i++) {
-                    h ^= s.charCodeAt(i);
-                    h = Math.imul(h, 16777619);
-                }
-                return ('00000000' + (h >>> 0).toString(16)).slice(-8);
-            } catch (e) {
-                return 'unknown';
-            }
-        }
-
-        async function mmsHmacSign(secret, data) {
-            if (!window.crypto || !crypto.subtle) {
-                throw new Error('Браузер блокирует криптографию (часто при открытии как file://). Откройте рапорт через GitHub Pages (https://) или localhost.');
-            }
-            const encoder = new TextEncoder();
-            const key = await crypto.subtle.importKey(
-                'raw', encoder.encode(secret),
-                { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
-            );
-            const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(data));
-            return Array.from(new Uint8Array(sig)).map(function(b) {
+function mmsGetOrCreateDeviceId() {
+    try {
+        let id = localStorage.getItem('mmsDeviceId');
+        if (id && /^dev_[a-z0-9]+$/i.test(id)) return id;
+        const rand = (window.crypto && crypto.getRandomValues)
+            ? Array.from(crypto.getRandomValues(new Uint8Array(8))).map(function (b) {
                 return b.toString(16).padStart(2, '0');
-            }).join('');
-        }
+            }).join('')
+            : String(Date.now()) + Math.random().toString(16).slice(2);
+        id = 'dev_' + rand;
+        localStorage.setItem('mmsDeviceId', id);
+        return id;
+    } catch (e) {
+        return 'dev_fallback';
+    }
+}
 
-        function mmsLicensePayload(org, userId, issueDate, expires) {
-            return org + '|' + userId + '|' + issueDate + '|' + (expires || '');
+function mmsGetFingerprint() {
+    try {
+        const parts = [
+            mmsGetOrCreateDeviceId(),
+            navigator.language || '',
+            Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+            String(navigator.platform || ''),
+            String(screen.width) + 'x' + String(screen.height)
+        ];
+        const s = parts.join('|');
+        let h = 2166136261;
+        for (let i = 0; i < s.length; i++) {
+            h ^= s.charCodeAt(i);
+            h = Math.imul(h, 16777619);
         }
+        return ('00000000' + (h >>> 0).toString(16)).slice(-8);
+    } catch (e) {
+        return 'unknown';
+    }
+}
 
-        async function mmsPasswordHash(signature, password) {
-            return mmsHmacSign(MMS_LICENSE_SECRET, 'pwd|' + signature + '|' + String(password || ''));
+async function mmsHmacSign(secret, data) {
+    if (!window.crypto || !crypto.subtle) {
+        throw new Error('Браузер блокирует криптографию (часто при открытии как file://). Откройте через HTTPS или localhost.');
+    }
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+        'raw', encoder.encode(secret),
+        { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+    );
+    const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(data));
+    return Array.from(new Uint8Array(sig)).map(function(b) {
+        return b.toString(16).padStart(2, '0');
+    }).join('');
+}
+
+function mmsLicensePayload(org, userId, issueDate, expires) {
+    return org + '|' + userId + '|' + issueDate + '|' + (expires || '');
+}
+
+async function mmsPasswordHash(signature, password) {
+    return mmsHmacSign(MMS_LICENSE_SECRET, 'pwd|' + signature + '|' + String(password || ''));
+}
+
+async function mmsActivationSeal(signature, lastActivated, fingerprint, passwordHash) {
+    return mmsHmacSign(MMS_LICENSE_SECRET, 'act|' + signature + '|' + (lastActivated || '') + '|' + (fingerprint || '') + '|' + (passwordHash || ''));
+}
+
+function mmsLocalDateStr(d) {
+    d = d || new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+}
+
+function mmsIsLicenseExpired(expires) {
+    const exp = String(expires || '').trim();
+    if (!exp) return false;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(exp)) return true;
+    return mmsLocalDateStr() > exp;
+}
+
+async function mmsVerifyLicenseObject(lic) {
+    if (!lic || typeof lic !== 'object') {
+        return { ok: false, error: 'Неверный формат ключа' };
+    }
+    const org = String(lic.org || '').trim();
+    const userId = String(lic.userId || '').trim();
+    const issueDate = String(lic.issueDate || '').trim();
+    const expires = String(lic.expires || '').trim();
+    const signature = String(lic.signature || '').trim().toLowerCase();
+    const passwordHash = String(lic.passwordHash || '').trim().toLowerCase();
+    let lastActivated = lic.lastActivated;
+    if (lastActivated == null || lastActivated === false || lastActivated === 'null' || lastActivated === 'undefined') {
+        lastActivated = '';
+    } else {
+        lastActivated = String(lastActivated).trim();
+        if (lastActivated === 'null' || lastActivated === 'undefined') lastActivated = '';
+    }
+    const activationSeal = String(lic.activationSeal || '').trim().toLowerCase();
+    const activatedFingerprint = String(lic.activatedFingerprint || '').trim();
+    if (!org || !userId || !issueDate || !signature) {
+        return { ok: false, error: 'В ключе не хватает полей (org, userId, issueDate, signature)' };
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(issueDate)) {
+        return { ok: false, error: 'Некорректная дата выдачи' };
+    }
+    if (expires && !/^\d{4}-\d{2}-\d{2}$/.test(expires)) {
+        return { ok: false, error: 'Некорректный срок действия (expires)' };
+    }
+    if (mmsIsLicenseExpired(expires)) {
+        return { ok: false, error: 'Срок действия лицензии истёк (' + expires + ')' };
+    }
+    const payload = mmsLicensePayload(org, userId, issueDate, expires);
+    const expected = await mmsHmacSign(MMS_LICENSE_SECRET, payload);
+    if (expected !== signature) {
+        const legacy = await mmsHmacSign(MMS_LICENSE_SECRET, org + '|' + userId + '|' + issueDate);
+        if (legacy !== signature) {
+            return { ok: false, error: 'Подпись не совпала. Ключ подделан или секрет другой.' };
         }
+    }
+    return {
+        ok: true,
+        org: org,
+        userId: userId,
+        issueDate: issueDate,
+        expires: expires || '',
+        signature: signature,
+        passwordHash: passwordHash,
+        lastActivated: lastActivated,
+        activationSeal: activationSeal,
+        activatedFingerprint: activatedFingerprint,
+        requiresPassword: !!passwordHash
+    };
+}
 
-        async function mmsActivationSeal(signature, lastActivated, fingerprint, passwordHash) {
-            return mmsHmacSign(MMS_LICENSE_SECRET, 'act|' + signature + '|' + (lastActivated || '') + '|' + (fingerprint || '') + '|' + (passwordHash || ''));
+let mmsPendingLicense = null;
+
+async function mmsVerifyPasswordForLicense(licResult, password) {
+    if (!licResult || !licResult.passwordHash) return { ok: true };
+    if (!password || !String(password).trim()) {
+        return { ok: false, error: 'Введите пароль активации (2FA) из генератора лицензий' };
+    }
+    const hash = await mmsPasswordHash(licResult.signature, String(password).trim());
+    if (hash !== licResult.passwordHash) {
+        return { ok: false, error: 'Неверный пароль активации' };
+    }
+    return { ok: true };
+}
+
+function mmsBuildActivatedLicenseFile(licResult, passwordHash, fingerprint) {
+    const lastActivated = new Date().toISOString();
+    const obj = {
+        org: licResult.org,
+        userId: licResult.userId,
+        issueDate: licResult.issueDate,
+        signature: licResult.signature,
+        passwordHash: passwordHash || licResult.passwordHash || '',
+        lastActivated: lastActivated,
+        activatedFingerprint: fingerprint,
+        useCount: 1
+    };
+    if (licResult.expires) obj.expires = licResult.expires;
+    return obj;
+}
+
+async function mmsSealActivatedLicense(obj) {
+    obj.activationSeal = await mmsActivationSeal(obj.signature, obj.lastActivated, obj.activatedFingerprint, obj.passwordHash || '');
+    return obj;
+}
+
+function mmsDownloadActivatedKey(obj) {
+    try {
+        const jsonStr = JSON.stringify(obj, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'license_activated_' + (obj.userId || 'user') + '.key';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (e) {}
+}
+
+function mmsLicenseLine() {
+    if (!mmsLicenseInfo) return '';
+    const id = mmsLicenseInfo.userId || '';
+    return id ? ('LIC · ' + id) : 'LIC';
+}
+
+function mmsSaveActivation(info) {
+    const data = {
+        org: info.org,
+        userId: info.userId,
+        issueDate: info.issueDate,
+        expires: info.expires || '',
+        signature: info.signature,
+        passwordHash: info.passwordHash || '',
+        lastActivated: info.lastActivated || new Date().toISOString(),
+        activationSeal: info.activationSeal || '',
+        fingerprint: info.activatedFingerprint || mmsGetFingerprint(),
+        activatedAt: Date.now(),
+        lastCheck: Date.now()
+    };
+    try { localStorage.setItem(MMS_LICENSE_STORAGE, JSON.stringify(data)); } catch (e) {}
+    mmsLicenseInfo = data;
+    mmsLicenseActive = true;
+}
+
+function mmsLoadActivation() {
+    try {
+        const raw = localStorage.getItem(MMS_LICENSE_STORAGE);
+        if (!raw) return null;
+        return JSON.parse(raw);
+    } catch (e) { return null; }
+}
+
+function mmsClearActivation() {
+    try { localStorage.removeItem(MMS_LICENSE_STORAGE); } catch (e) {}
+    mmsLicenseActive = false;
+    mmsLicenseInfo = null;
+    mmsLockDeveloperAccess();
+}
+
+function mmsUpdateWatermark() {
+    const el = document.getElementById('licenseWatermark');
+    if (el) el.textContent = mmsLicenseActive ? mmsLicenseLine() : '';
+}
+
+function mmsShowGate(msg) {
+    const gate = document.getElementById('licenseGate');
+    const st = document.getElementById('licenseStatus');
+    if (gate) gate.classList.remove('hidden');
+    let text = msg || '';
+    if (!window.isSecureContext || !window.crypto || !crypto.subtle) {
+        text = (text ? text + ' ' : '') + '⚠️ Откройте по HTTPS, не файл с диска.';
+    }
+    if (st) { st.textContent = text; st.classList.remove('ok'); }
+    document.body.style.overflow = 'hidden';
+}
+
+function mmsHideGate() {
+    const gate = document.getElementById('licenseGate');
+    if (gate) gate.classList.add('hidden');
+    document.body.style.overflow = '';
+    mmsUpdateWatermark();
+}
+
+async function mmsActivateOnCloudflare(lic, password) {
+    try {
+        const payload = {
+            license: {
+                org: lic.org,
+                userId: lic.userId,
+                issueDate: lic.issueDate,
+                expires: lic.expires || '',
+                signature: lic.signature,
+                passwordHash: lic.passwordHash || ''
+            },
+            password: password || '',
+            fingerprint: (typeof mmsGetFingerprint === 'function') ? mmsGetFingerprint() : ''
+        };
+        const res = await fetch(MMS_LICENSE_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        let data = null;
+        try { data = await res.json(); } catch (_) { data = null; }
+        if (!res.ok || !data || !data.ok) {
+            const err = (data && data.error) ? data.error : ('HTTP ' + res.status);
+            return { ok: false, error: err };
         }
+        try {
+            localStorage.setItem('mmsCfSession', JSON.stringify({
+                sessionToken: data.sessionToken || '',
+                userId: data.userId || '',
+                org: data.org || '',
+                at: Date.now()
+            }));
+        } catch (_) {}
+        return { ok: true, data: data };
+    } catch (e) {
+        return { ok: false, error: 'Нет связи с сервером лицензий', offline: true };
+    }
+}
 
-        /** Локальная дата YYYY-MM-DD */
-        function mmsLocalDateStr(d) {
-            d = d || new Date();
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return y + '-' + m + '-' + day;
+async function mmsActivateFromFile(file) {
+    const st = document.getElementById('licenseStatus');
+    const pwdWrap = document.getElementById('licensePasswordWrap');
+    try {
+        if (!file) {
+            if (st) { st.textContent = 'Файл не выбран'; st.classList.remove('ok'); }
+            return false;
         }
-
-        /**
-         * Проверка срока по полю expires из генератора.
-         * Пустая строка / отсутствие = бессрочный ключ.
-         * Дата = действует весь указанный день включительно (по локальному времени).
-         */
-        function mmsIsLicenseExpired(expires) {
-            const exp = String(expires || '').trim();
-            if (!exp) return false;
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(exp)) return true;
-            return mmsLocalDateStr() > exp;
+        if (st) {
+            st.textContent = 'Читаю «' + (file.name || 'license.key') + '»…';
+            st.classList.remove('ok');
         }
-
-        async function mmsVerifyLicenseObject(lic) {
-            if (!lic || typeof lic !== 'object') {
-                return { ok: false, error: 'Неверный формат ключа' };
+        if (!window.crypto || !crypto.subtle) {
+            if (st) {
+                st.textContent = '❌ Нужен HTTPS: откройте сайт через GitHub Pages, не скачанный HTML.';
+                st.classList.remove('ok');
             }
-            const org = String(lic.org || '').trim();
-            const userId = String(lic.userId || '').trim();
-            const issueDate = String(lic.issueDate || '').trim();
-            const expires = String(lic.expires || '').trim();
-            const signature = String(lic.signature || '').trim().toLowerCase();
-            const passwordHash = String(lic.passwordHash || '').trim().toLowerCase();
-            let lastActivated = lic.lastActivated;
-            if (lastActivated == null || lastActivated === false || lastActivated === 'null' || lastActivated === 'undefined') {
-                lastActivated = '';
-            } else {
-                lastActivated = String(lastActivated).trim();
-                if (lastActivated === 'null' || lastActivated === 'undefined') lastActivated = '';
-            }
-            const activationSeal = String(lic.activationSeal || '').trim().toLowerCase();
-            const activatedFingerprint = String(lic.activatedFingerprint || '').trim();
-            if (!org || !userId || !issueDate || !signature) {
-                return { ok: false, error: 'В ключе не хватает полей (org, userId, issueDate, signature)' };
-            }
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(issueDate)) {
-                return { ok: false, error: 'Некорректная дата выдачи' };
-            }
-            if (expires && !/^\d{4}-\d{2}-\d{2}$/.test(expires)) {
-                return { ok: false, error: 'Некорректный срок действия (expires)' };
-            }
-            // Срок только из поля expires генератора:
-            // пусто = бессрочно; дата = действует включительно до этого дня (локальная дата)
-            if (mmsIsLicenseExpired(expires)) {
-                return { ok: false, error: 'Срок действия лицензии истёк (' + expires + ')' };
-            }
-            const payload = mmsLicensePayload(org, userId, issueDate, expires);
-            const expected = await mmsHmacSign(MMS_LICENSE_SECRET, payload);
-            if (expected !== signature) {
-                // backward-compatible: old keys without expires field
-                const legacy = await mmsHmacSign(MMS_LICENSE_SECRET, org + '|' + userId + '|' + issueDate);
-                if (legacy !== signature) {
-                    return { ok: false, error: 'Подпись не совпала. Ключ подделан или секрет другой.' };
-                }
-            }
-            return {
-                ok: true,
-                org: org,
-                userId: userId,
-                issueDate: issueDate,
-                expires: expires || '',
-                signature: signature,
-                passwordHash: passwordHash,
-                lastActivated: lastActivated,
-                activationSeal: activationSeal,
-                activatedFingerprint: activatedFingerprint,
-                requiresPassword: !!passwordHash
-            };
+            return false;
         }
-
-        let mmsPendingLicense = null;
-
-        async function mmsVerifyPasswordForLicense(licResult, password) {
-            if (!licResult || !licResult.passwordHash) return { ok: true };
-            if (!password || !String(password).trim()) {
-                return { ok: false, error: 'Введите пароль активации (2FA) из генератора лицензий' };
-            }
-            const hash = await mmsPasswordHash(licResult.signature, String(password).trim());
-            if (hash !== licResult.passwordHash) {
-                return { ok: false, error: 'Неверный пароль активации' };
-            }
-            return { ok: true };
-        }
-
-        function mmsBuildActivatedLicenseFile(licResult, passwordHash, fingerprint) {
-            const lastActivated = new Date().toISOString();
-            const obj = {
-                org: licResult.org,
-                userId: licResult.userId,
-                issueDate: licResult.issueDate,
-                signature: licResult.signature,
-                passwordHash: passwordHash || licResult.passwordHash || '',
-                lastActivated: lastActivated,
-                activatedFingerprint: fingerprint,
-                useCount: 1
-            };
-            if (licResult.expires) obj.expires = licResult.expires;
-            return obj;
-        }
-
-        async function mmsSealActivatedLicense(obj) {
-            obj.activationSeal = await mmsActivationSeal(obj.signature, obj.lastActivated, obj.activatedFingerprint, obj.passwordHash || '');
-            return obj;
-        }
-
-        function mmsDownloadActivatedKey(obj) {
+        let text = await file.text();
+        text = String(text || '').replace(/^\uFEFF/, '').trim();
+        if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+        let lic;
+        try {
+            lic = JSON.parse(text);
+        } catch (parseErr) {
             try {
-                const jsonStr = JSON.stringify(obj, null, 2);
-                const blob = new Blob([jsonStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'license_activated_' + (obj.userId || 'user') + '.key';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            } catch (e) {}
-        }
-
-        function mmsLicenseLine() {
-            if (!mmsLicenseInfo) return '';
-            const id = mmsLicenseInfo.userId || '';
-            return id ? ('LIC · ' + id) : 'LIC';
-        }
-
-        function mmsLicenseLineFull() {
-            if (!mmsLicenseInfo) return 'LIC: не активирована';
-            let s = 'LIC · ' + mmsLicenseInfo.org + ' · ' + mmsLicenseInfo.userId + ' · ' + mmsLicenseInfo.issueDate;
-            if (mmsLicenseInfo.expires) s += ' · до ' + mmsLicenseInfo.expires;
-            return s;
-        }
-
-        function mmsSaveActivation(info) {
-            const data = {
-                org: info.org,
-                userId: info.userId,
-                issueDate: info.issueDate,
-                expires: info.expires || '',
-                signature: info.signature,
-                passwordHash: info.passwordHash || '',
-                lastActivated: info.lastActivated || new Date().toISOString(),
-                activationSeal: info.activationSeal || '',
-                fingerprint: info.activatedFingerprint || mmsGetFingerprint(),
-                activatedAt: Date.now(),
-                lastCheck: Date.now()
-            };
-            try { localStorage.setItem(MMS_LICENSE_STORAGE, JSON.stringify(data)); } catch (e) {}
-            mmsLicenseInfo = data;
-            mmsLicenseActive = true;
-        }
-
-        function mmsLoadActivation() {
-            try {
-                const raw = localStorage.getItem(MMS_LICENSE_STORAGE);
-                if (!raw) return null;
-                return JSON.parse(raw);
-            } catch (e) { return null; }
-        }
-
-        function mmsClearActivation() {
-            try { localStorage.removeItem(MMS_LICENSE_STORAGE); } catch (e) {}
-            mmsLicenseActive = false;
-            mmsLicenseInfo = null;
-            mmsLockDeveloperAccess();
-        }
-
-        function mmsUpdateWatermark() {
-            const el = document.getElementById('licenseWatermark');
-            if (el) el.textContent = mmsLicenseActive ? mmsLicenseLine() : '';
-            const leg = document.getElementById('legalFooterNotice');
-            if (leg && leg.parentNode) leg.parentNode.removeChild(leg);
-        }
-
-        function mmsShowGate(msg) {
-            const gate = document.getElementById('licenseGate');
-            const st = document.getElementById('licenseStatus');
-            if (gate) gate.classList.remove('hidden');
-            let text = msg || '';
-            if (!window.isSecureContext || !window.crypto || !crypto.subtle) {
-                text = (text ? text + ' ' : '') + '⚠️ Откройте рапорт по HTTPS (GitHub Pages), не файл с диска — иначе лицензия не активируется.';
-            }
-            if (st) { st.textContent = text; st.classList.remove('ok'); }
-            document.body.style.overflow = 'hidden';
-        }
-
-        function mmsHideGate() {
-            const gate = document.getElementById('licenseGate');
-            if (gate) gate.classList.add('hidden');
-            document.body.style.overflow = '';
-            mmsUpdateWatermark();
-        }
-
-        /** Проверка лицензии на Cloudflare (секрет только на Worker) */
-        async function mmsActivateOnCloudflare(lic, password) {
-            try {
-                const payload = {
-                    license: {
-                        org: lic.org,
-                        userId: lic.userId,
-                        issueDate: lic.issueDate,
-                        expires: lic.expires || '',
-                        signature: lic.signature,
-                        passwordHash: lic.passwordHash || ''
-                    },
-                    password: password || '',
-                    fingerprint: (typeof mmsGetFingerprint === 'function') ? mmsGetFingerprint() : ''
-                };
-                const res = await fetch(MMS_LICENSE_API, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                let data = null;
-                try { data = await res.json(); } catch (_) { data = null; }
-                if (!res.ok || !data || !data.ok) {
-                    const err = (data && data.error) ? data.error : ('HTTP ' + res.status);
-                    console.warn('CF license:', err);
-                    return { ok: false, error: err };
-                }
-                try {
-                    localStorage.setItem('mmsCfSession', JSON.stringify({
-                        sessionToken: data.sessionToken || '',
-                        userId: data.userId || '',
-                        org: data.org || '',
-                        at: Date.now()
-                    }));
-                } catch (_) {}
-                return { ok: true, data: data };
-            } catch (e) {
-                console.warn('CF license network:', e);
-                // Сеть недоступна — не блокируем локальную активацию
-                return { ok: false, error: 'Нет связи с сервером лицензий', offline: true };
-            }
-        }
-
-        async function mmsActivateFromFile(file) {
-            const st = document.getElementById('licenseStatus');
-            const pwdWrap = document.getElementById('licensePasswordWrap');
-            try {
-                if (!file) {
-                    if (st) { st.textContent = 'Файл не выбран'; st.classList.remove('ok'); }
-                    return false;
-                }
+                const a = text.indexOf('{');
+                const b = text.lastIndexOf('}');
+                if (a >= 0 && b > a) lic = JSON.parse(text.slice(a, b + 1));
+                else throw parseErr;
+            } catch (e2) {
                 if (st) {
-                    st.textContent = 'Читаю «' + (file.name || 'license.key') + '»…';
+                    st.textContent = '❌ Файл не JSON. Нужен license.key из генератора.';
                     st.classList.remove('ok');
                 }
-                if (!window.crypto || !crypto.subtle) {
-                    if (st) {
-                        st.textContent = '❌ Нужен HTTPS: откройте сайт через GitHub Pages, не скачанный HTML с диска (file://).';
-                        st.classList.remove('ok');
-                    }
-                    return false;
-                }
-                let text = await file.text();
-                // Убрать BOM и лишние символы вокруг JSON
-                text = String(text || '').replace(/^\uFEFF/, '').trim();
-                if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-                let lic;
-                try {
-                    lic = JSON.parse(text);
-                } catch (parseErr) {
-                    // Попытка вырезать объект {...}
-                    try {
-                        const a = text.indexOf('{');
-                        const b = text.lastIndexOf('}');
-                        if (a >= 0 && b > a) lic = JSON.parse(text.slice(a, b + 1));
-                        else throw parseErr;
-                    } catch (e2) {
-                        if (st) {
-                            st.textContent = '❌ Файл не JSON. Нужен license.key из генератора.';
-                            st.classList.remove('ok');
-                        }
-                        return false;
-                    }
-                }
-                if (Array.isArray(lic)) {
-                    if (st) { st.textContent = '❌ Похоже на историю генератора, а не один license.key'; st.classList.remove('ok'); }
-                    return false;
-                }
-                const result = await mmsVerifyLicenseObject(lic);
-                if (!result.ok) {
-                    if (st) {
-                        st.textContent = '❌ ' + (result.error || 'Ключ отклонён');
-                        st.classList.remove('ok');
-                    }
-                    return false;
-                }
+                return false;
+            }
+        }
+        if (Array.isArray(lic)) {
+            if (st) { st.textContent = '❌ Похоже на историю генератора, а не один license.key'; st.classList.remove('ok'); }
+            return false;
+        }
+        const result = await mmsVerifyLicenseObject(lic);
+        if (!result.ok) {
+            if (st) {
+                st.textContent = '❌ ' + (result.error || 'Ключ отклонён');
+                st.classList.remove('ok');
+            }
+            return false;
+        }
 
-                // Исходный ключ: один период до expires; повтор в том же периоде на этом ПК — OK
-                if (!result.lastActivated) {
-                    const fp0 = mmsGetFingerprint();
-                    const can = mmsCanActivateSignature(result.signature, result.expires, fp0);
-                    if (!can.ok) {
-                        if (st) {
-                            st.textContent = '❌ ' + (can.error || 'Ключ нельзя активировать');
-                            st.classList.remove('ok');
-                        }
-                        return false;
-                    }
-                }
-
-                // Уже активированный ключ (с печатью) — проверяем seal/fingerprint
-                if (result.lastActivated && result.activationSeal) {
-                    const fp = mmsGetFingerprint();
-                    if (result.activatedFingerprint && result.activatedFingerprint !== fp) {
-                        if (st) {
-                            st.textContent = '❌ Ключ привязан к другому устройству. Нужен исходный license.key + пароль на этом ПК.';
-                            st.classList.remove('ok');
-                        }
-                        return false;
-                    }
-                    if (result.activationSeal) {
-                        const expectedSeal = await mmsActivationSeal(result.signature, result.lastActivated, result.activatedFingerprint, result.passwordHash || '');
-                        if (expectedSeal !== result.activationSeal) {
-                            if (st) {
-                                st.textContent = '❌ Повреждена печать активации. Запросите новый license.key.';
-                                st.classList.remove('ok');
-                            }
-                            return false;
-                        }
-                    }
-                }
-
-                mmsPendingLicense = result;
-                if (result.requiresPassword) {
-                    if (pwdWrap) pwdWrap.style.display = 'block';
-                    if (st) {
-                        st.textContent = 'Ключ принят. Введите пароль активации (2FA) из генератора и нажмите «Активировать».';
-                        st.classList.remove('ok');
-                    }
-                    const pwdInput = document.getElementById('licensePasswordInput');
-                    if (pwdInput) { pwdInput.value = ''; pwdInput.focus(); }
-                    return false;
-                }
-                // Старые ключи без passwordHash — активируем сразу
-                return await mmsFinalizeActivation(result, '');
-            } catch (e) {
-                console.error('mmsActivateFromFile', e);
+        if (!result.lastActivated) {
+            const fp0 = mmsGetFingerprint();
+            const can = mmsCanActivateSignature(result.signature, result.expires, fp0);
+            if (!can.ok) {
                 if (st) {
-                    st.textContent = '❌ Ошибка: ' + (e && e.message ? e.message : e);
+                    st.textContent = '❌ ' + (can.error || 'Ключ нельзя активировать');
                     st.classList.remove('ok');
                 }
                 return false;
             }
         }
 
-        async function mmsFinalizeActivation(result, password) {
-            const st = document.getElementById('licenseStatus');
-            try {
-            if (!result) result = mmsPendingLicense;
-            if (!result) {
-                if (st) { st.textContent = 'Сначала загрузите license.key'; st.classList.remove('ok'); }
-                return false;
-            }
-            if (!window.crypto || !crypto.subtle) {
-                if (st) {
-                    st.textContent = '❌ Нужен HTTPS (GitHub Pages), не file://';
-                    st.classList.remove('ok');
-                }
-                return false;
-            }
-            if (result.requiresPassword) {
-                const pwdCheck = await mmsVerifyPasswordForLicense(result, password);
-                if (!pwdCheck.ok) {
-                    if (st) { st.textContent = '❌ ' + (pwdCheck.error || 'Неверный пароль'); st.classList.remove('ok'); }
-                    return false;
-                }
-            }
-
+        if (result.lastActivated && result.activationSeal) {
             const fp = mmsGetFingerprint();
-            const isFirstActivation = !result.lastActivated;
-            let activatedObj = null;
-
-            // Один ключ = один срок (expires). Повтор после истечения — только новый ключ.
-            if (isFirstActivation) {
-                const can = mmsCanActivateSignature(result.signature, result.expires, fp);
-                if (!can.ok) {
-                    if (st) {
-                        st.textContent = '❌ ' + (can.error || 'Ключ нельзя активировать');
-                        st.classList.remove('ok');
-                    }
-                    try { if (typeof showToast === 'function') showToast('Ключ отклонён', 'error', 3500); } catch (_) {}
-                    return false;
-                }
-                activatedObj = mmsBuildActivatedLicenseFile(result, result.passwordHash, fp);
-                activatedObj = await mmsSealActivatedLicense(activatedObj);
-                result.lastActivated = activatedObj.lastActivated;
-                result.activationSeal = activatedObj.activationSeal;
-                result.activatedFingerprint = fp;
-            }
-
-            mmsSaveActivation(result);
-            mmsMarkSignatureUsed(result.signature, result.expires || '', fp);
-            mmsPendingLicense = null;
-
-            // Синхронизация с Cloudflare (секрет проверяется на Worker)
-            try {
-                const pwdForCf = (document.getElementById('licensePasswordInput') || {}).value || password || '';
-                const cf = await mmsActivateOnCloudflare(result, pwdForCf);
-                if (cf.ok) {
-                    console.log('CF license OK', cf.data && cf.data.userId);
-                } else if (!cf.offline) {
-                    console.warn('CF license rejected:', cf.error);
-                    // Не блокируем вход, если локальная подпись валидна — dual-mode
-                }
-            } catch (cfErr) {
-                console.warn('CF license:', cfErr);
-            }
-
-            const pwdWrap = document.getElementById('licensePasswordWrap');
-            if (pwdWrap) pwdWrap.style.display = 'none';
-
-            mmsLockDeveloperAccess();
-            if (isFirstActivation && activatedObj) {
-                mmsDownloadActivatedKey(activatedObj);
+            if (result.activatedFingerprint && result.activatedFingerprint !== fp) {
                 if (st) {
-                    const expTxt = result.expires ? (' до ' + result.expires) : ' (бессрочно)';
-                    st.textContent = '✅ Активировано: ' + result.userId + expTxt + '. Скачан license_activated_*.key. Исходный ключ повторно использовать нельзя.';
-                    st.classList.add('ok');
-                }
-            } else {
-                if (st) {
-                    const expTxt = result.expires ? (' до ' + result.expires) : ' (бессрочно)';
-                    st.textContent = '✅ Лицензия: ' + result.org + ' / ' + result.userId + expTxt;
-                    st.classList.add('ok');
-                }
-            }
-            try {
-                if (typeof showToast === 'function') showToast('🔐 Лицензия: ' + result.userId, 'success', 2500);
-            } catch (_) {}
-            try { mmsHideGate(); } catch (_) {}
-            setTimeout(function () { try { mmsHideGate(); } catch (_) {} }, 300);
-            return true;
-            } catch (finErr) {
-                console.error(finErr);
-                if (st) {
-                    st.textContent = '❌ Активация: ' + (finErr && finErr.message ? finErr.message : finErr);
+                    st.textContent = '❌ Ключ привязан к другому устройству.';
                     st.classList.remove('ok');
                 }
                 return false;
             }
-        }
-
-        async function mmsCheckLicenseOnStart() {
-            const stored = mmsLoadActivation();
-            if (!stored || !stored.signature) {
-                mmsShowGate('Лицензия не найдена. Загрузите license.key');
-                return false;
-            }
-            const result = await mmsVerifyLicenseObject({
-                org: stored.org,
-                userId: stored.userId,
-                issueDate: stored.issueDate,
-                expires: stored.expires || '',
-                signature: stored.signature
-            });
-            if (!result.ok) {
-                mmsLockDeveloperAccess();
-                mmsClearActivation();
-                mmsShowGate(result.error + ' Загрузите корректный license.key');
-                return false;
-            }
-            // Soft fingerprint: другой ПК → снова ключ
-            const fp = mmsGetFingerprint();
-            if (stored.fingerprint && stored.fingerprint !== fp) {
-                mmsLockDeveloperAccess();
-                mmsShowGate('Лицензия привязана к другому устройству. Загрузите license.key на этом ПК.');
-                return false;
-            }
-            // Срок только по expires из генератора (1 день / 7 дней / бессрочно и т.д.)
-            // mmsVerifyLicenseObject уже проверил expires; дублируем для ясности сообщения
-            if (mmsIsLicenseExpired(stored.expires)) {
-                mmsLockDeveloperAccess();
-                mmsClearActivation();
-                mmsShowGate('Срок действия лицензии истёк (' + stored.expires + '). Запросите новый license.key.');
-                return false;
-            }
-            stored.lastCheck = Date.now();
-            if (!stored.fingerprint) stored.fingerprint = fp;
-            try { localStorage.setItem(MMS_LICENSE_STORAGE, JSON.stringify(stored)); } catch (e) {}
-            mmsLicenseActive = true;
-            mmsLicenseInfo = stored;
-            mmsHideGate();
-            return true;
-        }
-
-        function mmsLockDeveloperAccess() {
-            try { localStorage.removeItem(MMS_DEV_UNLOCK_KEY); } catch (e) {}
-            try {
-                if (typeof venus !== 'undefined' && venus) venus.developerMode = false;
-            } catch (e) {}
-        }
-
-        function mmsGrantDeveloperAccess() {
-            const sig = (mmsLicenseInfo && mmsLicenseInfo.signature) || '';
-            try {
-                localStorage.setItem(MMS_DEV_UNLOCK_KEY, JSON.stringify({
-                    signature: sig,
-                    at: Date.now()
-                }));
-            } catch (e) {}
-            try {
-                if (typeof venus !== 'undefined' && venus) venus.developerMode = true;
-            } catch (e) {}
-        }
-
-        function mmsRestoreDeveloperAccess() {
-            try {
-                const raw = localStorage.getItem(MMS_DEV_UNLOCK_KEY);
-                if (!raw) return false;
-                const data = JSON.parse(raw);
-                if (!mmsLicenseActive || !mmsLicenseInfo || !mmsLicenseInfo.signature) {
-                    mmsLockDeveloperAccess();
-                    return false;
-                }
-                if (!data.signature || data.signature !== mmsLicenseInfo.signature) {
-                    mmsLockDeveloperAccess();
-                    return false;
-                }
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
-
-        /**
-         * Журнал использованных ключей: [{signature, expires, fingerprint, activatedAt}, ...]
-         * Старый формат (массив строк) поддерживается.
-         * Правило: один ключ = один период (до expires). Повтор в том же периоде на том же ПК — OK.
-         * После expires или на другом устройстве — нужен новый ключ.
-         */
-        function mmsLoadUsedRecords() {
-            let raw = [];
-            try { raw = JSON.parse(localStorage.getItem(MMS_USED_KEYS) || '[]'); } catch (e) { raw = []; }
-            if (!Array.isArray(raw)) raw = [];
-            return raw.map(function (item) {
-                if (typeof item === 'string') {
-                    return { signature: String(item).toLowerCase(), expires: '', fingerprint: '', activatedAt: 0 };
-                }
-                if (item && typeof item === 'object') {
-                    return {
-                        signature: String(item.signature || '').toLowerCase(),
-                        expires: String(item.expires || '').trim(),
-                        fingerprint: String(item.fingerprint || ''),
-                        activatedAt: item.activatedAt || 0
-                    };
-                }
-                return null;
-            }).filter(function (x) { return x && x.signature; });
-        }
-
-        function mmsSaveUsedRecords(records) {
-            if (!Array.isArray(records)) return;
-            if (records.length > 200) records = records.slice(-200);
-            try { localStorage.setItem(MMS_USED_KEYS, JSON.stringify(records)); } catch (e) {}
-        }
-
-        function mmsFindUsedRecord(signature) {
-            if (!signature) return null;
-            const sig = String(signature).toLowerCase();
-            const list = mmsLoadUsedRecords();
-            for (let i = 0; i < list.length; i++) {
-                if (list[i].signature === sig) return list[i];
-            }
-            return null;
-        }
-
-        /** Можно ли активировать этот ключ сейчас на этом устройстве? */
-        function mmsCanActivateSignature(signature, expires, fingerprint) {
-            const rec = mmsFindUsedRecord(signature);
-            if (!rec) return { ok: true, restore: false };
-            const exp = String(expires || rec.expires || '').trim();
-            // Период ключа ещё действует и это то же устройство — разрешаем восстановление
-            if (fingerprint && rec.fingerprint && rec.fingerprint === fingerprint && !mmsIsLicenseExpired(exp)) {
-                return { ok: true, restore: true };
-            }
-            // Период ещё действует, fingerprint не записан (старые записи) — тоже разрешаем
-            if (!rec.fingerprint && !mmsIsLicenseExpired(exp)) {
-                return { ok: true, restore: true };
-            }
-            // Период истёк или другое устройство
-            if (mmsIsLicenseExpired(exp)) {
-                return { ok: false, error: 'Этот ключ уже был использован, срок действия закончился (' + (exp || '—') + '). Создайте новый ключ в генераторе.' };
-            }
-            return { ok: false, error: 'Этот ключ уже активирован на другом устройстве. Нужен новый license.key или license_activated_*.key с того ПК.' };
-        }
-
-        function mmsIsSignatureUsed(signature) {
-            return !!mmsFindUsedRecord(signature);
-        }
-
-        function mmsMarkSignatureUsed(signature, expires, fingerprint) {
-            if (!signature) return;
-            const sig = String(signature).toLowerCase();
-            let list = mmsLoadUsedRecords();
-            let found = false;
-            for (let i = 0; i < list.length; i++) {
-                if (list[i].signature === sig) {
-                    list[i].expires = String(expires || list[i].expires || '').trim();
-                    list[i].fingerprint = fingerprint || list[i].fingerprint || '';
-                    list[i].activatedAt = list[i].activatedAt || Date.now();
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                list.push({
-                    signature: sig,
-                    expires: String(expires || '').trim(),
-                    fingerprint: fingerprint || '',
-                    activatedAt: Date.now()
-                });
-            }
-            mmsSaveUsedRecords(list);
-        }
-
-        function mmsNoteLicenseUse(signature) {
-            const reused = mmsIsSignatureUsed(signature);
-            if (!reused) mmsMarkSignatureUsed(signature, '', '');
-            return reused;
-        }
-
-        function mmsInitLicenseUI() {
-            const btn = document.getElementById('licenseLoadBtn');
-            const input = document.getElementById('licenseFileInput');
-            if (btn && input) {
-                btn.addEventListener('click', function() { input.click(); });
-                input.addEventListener('change', function() {
-                    if (input.files && input.files[0]) {
-                        mmsActivateFromFile(input.files[0]);
-                        input.value = '';
+            if (result.activationSeal) {
+                const expectedSeal = await mmsActivationSeal(result.signature, result.lastActivated, result.activatedFingerprint, result.passwordHash || '');
+                if (expectedSeal !== result.activationSeal) {
+                    if (st) {
+                        st.textContent = '❌ Повреждена печать активации.';
+                        st.classList.remove('ok');
                     }
-                });
+                    return false;
+                }
             }
-            const actBtn = document.getElementById('licenseActivateBtn');
+        }
+
+        mmsPendingLicense = result;
+        if (result.requiresPassword) {
+            if (pwdWrap) pwdWrap.style.display = 'block';
+            if (st) {
+                st.textContent = 'Ключ принят. Введите пароль активации (2FA) и нажмите «Активировать».';
+                st.classList.remove('ok');
+            }
             const pwdInput = document.getElementById('licensePasswordInput');
-            if (actBtn) {
-                actBtn.addEventListener('click', function() {
-                    const pwd = pwdInput ? pwdInput.value : '';
-                    mmsFinalizeActivation(mmsPendingLicense, pwd);
-                });
+            if (pwdInput) { pwdInput.value = ''; pwdInput.focus(); }
+            return false;
+        }
+        return await mmsFinalizeActivation(result, '');
+    } catch (e) {
+        console.error('mmsActivateFromFile', e);
+        if (st) {
+            st.textContent = '❌ Ошибка: ' + (e && e.message ? e.message : e);
+            st.classList.remove('ok');
+        }
+        return false;
+    }
+}
+
+async function mmsFinalizeActivation(result, password) {
+    const st = document.getElementById('licenseStatus');
+    try {
+        if (!result) result = mmsPendingLicense;
+        if (!result) {
+            if (st) { st.textContent = 'Сначала загрузите license.key'; st.classList.remove('ok'); }
+            return false;
+        }
+        if (!window.crypto || !crypto.subtle) {
+            if (st) {
+                st.textContent = '❌ Нужен HTTPS, не file://';
+                st.classList.remove('ok');
             }
-            if (pwdInput) {
-                pwdInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const pwd = pwdInput.value;
-                        mmsFinalizeActivation(mmsPendingLicense, pwd);
-                    }
-                });
+            return false;
+        }
+        if (result.requiresPassword) {
+            const pwdCheck = await mmsVerifyPasswordForLicense(result, password);
+            if (!pwdCheck.ok) {
+                if (st) { st.textContent = '❌ ' + (pwdCheck.error || 'Неверный пароль'); st.classList.remove('ok'); }
+                return false;
             }
         }
 
-        
+        const fp = mmsGetFingerprint();
+        const isFirstActivation = !result.lastActivated;
+        let activatedObj = null;
+
+        if (isFirstActivation) {
+            const can = mmsCanActivateSignature(result.signature, result.expires, fp);
+            if (!can.ok) {
+                if (st) {
+                    st.textContent = '❌ ' + (can.error || 'Ключ нельзя активировать');
+                    st.classList.remove('ok');
+                }
+                return false;
+            }
+            activatedObj = mmsBuildActivatedLicenseFile(result, result.passwordHash, fp);
+            activatedObj = await mmsSealActivatedLicense(activatedObj);
+            result.lastActivated = activatedObj.lastActivated;
+            result.activationSeal = activatedObj.activationSeal;
+            result.activatedFingerprint = fp;
+        }
+
+        mmsSaveActivation(result);
+        mmsMarkSignatureUsed(result.signature, result.expires || '', fp);
+        mmsPendingLicense = null;
+
+        try {
+            const pwdForCf = (document.getElementById('licensePasswordInput') || {}).value || password || '';
+            const cf = await mmsActivateOnCloudflare(result, pwdForCf);
+            if (cf.ok) {
+                console.log('CF license OK', cf.data && cf.data.userId);
+            }
+        } catch (cfErr) {
+            console.warn('CF license:', cfErr);
+        }
+
+        const pwdWrap = document.getElementById('licensePasswordWrap');
+        if (pwdWrap) pwdWrap.style.display = 'none';
+
+        mmsLockDeveloperAccess();
+        if (isFirstActivation && activatedObj) {
+            mmsDownloadActivatedKey(activatedObj);
+            if (st) {
+                const expTxt = result.expires ? (' до ' + result.expires) : ' (бессрочно)';
+                st.textContent = '✅ Активировано: ' + result.userId + expTxt + '. Скачан license_activated_*.key.';
+                st.classList.add('ok');
+            }
+        } else {
+            if (st) {
+                const expTxt = result.expires ? (' до ' + result.expires) : ' (бессрочно)';
+                st.textContent = '✅ Лицензия: ' + result.org + ' / ' + result.userId + expTxt;
+                st.classList.add('ok');
+            }
+        }
+        try { mmsHideGate(); } catch (_) {}
+        setTimeout(function () { try { mmsHideGate(); } catch (_) {} }, 300);
+        return true;
+    } catch (finErr) {
+        console.error(finErr);
+        if (st) {
+            st.textContent = '❌ Активация: ' + (finErr && finErr.message ? finErr.message : finErr);
+            st.classList.remove('ok');
+        }
+        return false;
+    }
+}
+
+async function mmsCheckLicenseOnStart() {
+    const stored = mmsLoadActivation();
+    if (!stored || !stored.signature) {
+        mmsShowGate('Лицензия не найдена. Загрузите license.key');
+        return false;
+    }
+    const result = await mmsVerifyLicenseObject({
+        org: stored.org,
+        userId: stored.userId,
+        issueDate: stored.issueDate,
+        expires: stored.expires || '',
+        signature: stored.signature
+    });
+    if (!result.ok) {
+        mmsLockDeveloperAccess();
+        mmsClearActivation();
+        mmsShowGate(result.error + ' Загрузите корректный license.key');
+        return false;
+    }
+    const fp = mmsGetFingerprint();
+    if (stored.fingerprint && stored.fingerprint !== fp) {
+        mmsLockDeveloperAccess();
+        mmsShowGate('Лицензия привязана к другому устройству. Загрузите license.key на этом ПК.');
+        return false;
+    }
+    if (mmsIsLicenseExpired(stored.expires)) {
+        mmsLockDeveloperAccess();
+        mmsClearActivation();
+        mmsShowGate('Срок действия лицензии истёк (' + stored.expires + '). Запросите новый license.key.');
+        return false;
+    }
+    stored.lastCheck = Date.now();
+    if (!stored.fingerprint) stored.fingerprint = fp;
+    try { localStorage.setItem(MMS_LICENSE_STORAGE, JSON.stringify(stored)); } catch (e) {}
+    mmsLicenseActive = true;
+    mmsLicenseInfo = stored;
+    mmsHideGate();
+    return true;
+}
+
+function mmsLockDeveloperAccess() {
+    try { localStorage.removeItem(MMS_DEV_UNLOCK_KEY); } catch (e) {}
+}
+
+function mmsLoadUsedRecords() {
+    let raw = [];
+    try { raw = JSON.parse(localStorage.getItem(MMS_USED_KEYS) || '[]'); } catch (e) { raw = []; }
+    if (!Array.isArray(raw)) raw = [];
+    return raw.map(function (item) {
+        if (typeof item === 'string') {
+            return { signature: String(item).toLowerCase(), expires: '', fingerprint: '', activatedAt: 0 };
+        }
+        if (item && typeof item === 'object') {
+            return {
+                signature: String(item.signature || '').toLowerCase(),
+                expires: String(item.expires || '').trim(),
+                fingerprint: String(item.fingerprint || ''),
+                activatedAt: item.activatedAt || 0
+            };
+        }
+        return null;
+    }).filter(function (x) { return x && x.signature; });
+}
+
+function mmsSaveUsedRecords(records) {
+    if (!Array.isArray(records)) return;
+    if (records.length > 200) records = records.slice(-200);
+    try { localStorage.setItem(MMS_USED_KEYS, JSON.stringify(records)); } catch (e) {}
+}
+
+function mmsFindUsedRecord(signature) {
+    if (!signature) return null;
+    const sig = String(signature).toLowerCase();
+    const list = mmsLoadUsedRecords();
+    for (let i = 0; i < list.length; i++) {
+        if (list[i].signature === sig) return list[i];
+    }
+    return null;
+}
+
+function mmsCanActivateSignature(signature, expires, fingerprint) {
+    const rec = mmsFindUsedRecord(signature);
+    if (!rec) return { ok: true, restore: false };
+    const exp = String(expires || rec.expires || '').trim();
+    if (fingerprint && rec.fingerprint && rec.fingerprint === fingerprint && !mmsIsLicenseExpired(exp)) {
+        return { ok: true, restore: true };
+    }
+    if (!rec.fingerprint && !mmsIsLicenseExpired(exp)) {
+        return { ok: true, restore: true };
+    }
+    if (mmsIsLicenseExpired(exp)) {
+        return { ok: false, error: 'Этот ключ уже был использован, срок действия закончился (' + (exp || '—') + ').' };
+    }
+    return { ok: false, error: 'Этот ключ уже активирован на другом устройстве.' };
+}
+
+function mmsMarkSignatureUsed(signature, expires, fingerprint) {
+    if (!signature) return;
+    const sig = String(signature).toLowerCase();
+    let list = mmsLoadUsedRecords();
+    let found = false;
+    for (let i = 0; i < list.length; i++) {
+        if (list[i].signature === sig) {
+            list[i].expires = String(expires || list[i].expires || '').trim();
+            list[i].fingerprint = fingerprint || list[i].fingerprint || '';
+            list[i].activatedAt = list[i].activatedAt || Date.now();
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        list.push({
+            signature: sig,
+            expires: String(expires || '').trim(),
+            fingerprint: fingerprint || '',
+            activatedAt: Date.now()
+        });
+    }
+    mmsSaveUsedRecords(list);
+}
+
+function mmsInitLicenseUI() {
+    const btn = document.getElementById('licenseLoadBtn');
+    const input = document.getElementById('licenseFileInput');
+    if (btn && input) {
+        btn.addEventListener('click', function() { input.click(); });
+        input.addEventListener('change', function() {
+            if (input.files && input.files[0]) {
+                mmsActivateFromFile(input.files[0]);
+                input.value = '';
+            }
+        });
+    }
+    const actBtn = document.getElementById('licenseActivateBtn');
+    const pwdInput = document.getElementById('licensePasswordInput');
+    if (actBtn) {
+        actBtn.addEventListener('click', function() {
+            const pwd = pwdInput ? pwdInput.value : '';
+            mmsFinalizeActivation(mmsPendingLicense, pwd);
+        });
+    }
+    if (pwdInput) {
+        pwdInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                mmsFinalizeActivation(mmsPendingLicense, pwdInput.value);
+            }
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     try { mmsInitLicenseUI(); } catch (e) { console.error('license UI', e); }
     try { mmsCheckLicenseOnStart(); } catch (e) { console.error('license check', e); }
@@ -1891,15 +2140,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const STORAGE_STAMPS = 'mmsReviewerStamps_v1';
     const STORAGE_DOC_SEQ = 'mmsReviewerDocSeq_v1';
-    let decision = 'approve'; // approve | deny
+    const STORAGE_THEME = 'mmsReviewerTheme_v1';
+    let decision = 'approve';
     let entries = [];
     let stamps = [];
-    let denyReasons = []; // multiple rejection lines
+    let denyReasons = [];
     let drawTimer = null;
     let lastViewerHtml = '';
     let lastViewerTitle = '';
     let lastLoadedPayload = null;
     let reportViewerObjectUrl = null;
+    let blankScale = 1;
+    let blankDownloaded = false;
 
     const DEFAULT_STAMPS = [
         { id: 's1', name: 'Bret Hoffman', role: 'Military Medical Service · SANG', short: 'ОДОБРЕНО', selected: true },
@@ -1915,6 +2167,115 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => t.classList.remove('show'), 2600);
     }
 
+    /* ===== THEMES ===== */
+    const SHAPES = {"square": "<rect x=\"5\" y=\"5\" width=\"14\" height=\"14\" rx=\"1.6\"/>", "diamond": "<polygon points=\"12,2.8 21.2,12 12,21.2 2.8,12\"/>", "triangle": "<polygon points=\"12,3.6 21.6,19.8 2.4,19.8\"/>", "circle": "<circle cx=\"12\" cy=\"12\" r=\"8.6\"/>", "hexagon": "<polygon points=\"12,2.6 20.2,7.3 20.2,16.7 12,21.4 3.8,16.7 3.8,7.3\"/>", "star": "<polygon points=\"12.00,2.00 14.53,8.52 21.51,8.91 16.09,13.33 17.88,20.09 12.00,16.30 6.12,20.09 7.91,13.33 2.49,8.91 9.47,8.52\"/>", "semicircle": "<path d=\"M2.8 16.5a9.2 9.2 0 0 1 18.4 0z\"/>", "oval": "<ellipse cx=\"12\" cy=\"12\" rx=\"9.6\" ry=\"6.2\"/>", "cross": "<path d=\"M9.4 3.4h5.2v6h6v5.2h-6v6H9.4v-6h-6V9.4h6z\"/>", "crescent": "<path d=\"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z\"/>", "pentagon": "<polygon points=\"12,2.8 21,9.4 17.6,20 6.4,20 3,9.4\"/>", "octagon": "<polygon points=\"8.4,3.2 15.6,3.2 20.8,8.4 20.8,15.6 15.6,20.8 8.4,20.8 3.2,15.6 3.2,8.4\"/>"};
+    const THEMES = [{"id": "gold", "name": "Золото", "shape": "square", "shape_ru": "квадрат", "hex": "#D4AF37", "rgb": "212,175,55", "desc": "Классика: официальные рапорты и заключения", "print": "#c9a227", "stamp": "#1a4a8a", "dark": "#b8960f"}, {"id": "burgundy", "name": "Бордо", "shape": "diamond", "shape_ru": "ромб", "hex": "#C45C6A", "rgb": "196,92,106", "desc": "Строгий тон: приказы, дисциплинарные отчёты", "print": "#c45c6a", "stamp": "#5a1a2a", "dark": "#8b2e3a"}, {"id": "sea", "name": "Море", "shape": "triangle", "shape_ru": "треугольник", "hex": "#3D9EA8", "rgb": "61,158,168", "desc": "Холодный фокус: аналитика, оперативные сводки", "print": "#3d9ea8", "stamp": "#1a4a5a", "dark": "#2a6f78"}, {"id": "graphite", "name": "Графит", "shape": "circle", "shape_ru": "круг", "hex": "#8F9BB0", "rgb": "143,155,176", "desc": "Финансы, аудит, юридические документы", "print": "#5e697e", "stamp": "#1f3b6b", "dark": "#626f86"}, {"id": "sage", "name": "Шалфей", "shape": "hexagon", "shape_ru": "шестиугольник", "hex": "#8FAE8B", "rgb": "143,174,139", "desc": "Экология, природопользование, устойчивое развитие", "print": "#617e5d", "stamp": "#286b1f", "dark": "#63835f"}, {"id": "lavender", "name": "Лаванда", "shape": "star", "shape_ru": "звезда", "hex": "#A59CCB", "rgb": "165,156,203", "desc": "Аналитика, стратегия, исследования", "print": "#5c518b", "stamp": "#2d1f6b", "dark": "#7467a9"}, {"id": "indigo", "name": "Индиго", "shape": "semicircle", "shape_ru": "полукруг", "hex": "#7488C8", "rgb": "116,136,200", "desc": "IT, инженерные и технические отчёты", "print": "#455996", "stamp": "#1f316b", "dark": "#465b9f"}, {"id": "mocha", "name": "Мокко", "shape": "oval", "shape_ru": "овал", "hex": "#B39577", "rgb": "179,149,119", "desc": "HR, коммуникации, внутренние отчёты", "print": "#886e53", "stamp": "#6b451f", "dark": "#856a4f"}, {"id": "mint", "name": "Мята", "shape": "cross", "shape_ru": "крест", "hex": "#67B5A6", "rgb": "103,181,166", "desc": "Медицина, здравоохранение, wellness", "print": "#4d8e81", "stamp": "#1f6b5c", "dark": "#448176"}, {"id": "terracotta", "name": "Терракота", "shape": "crescent", "shape_ru": "полумесяц", "hex": "#C98467", "rgb": "201,132,103", "desc": "Маркетинг, дизайн, творческие проекты", "print": "#9a5c41", "stamp": "#6b351f", "dark": "#9b5a3e"}, {"id": "rose", "name": "Роза", "shape": "pentagon", "shape_ru": "пятиугольник", "hex": "#C98BA0", "rgb": "201,139,160", "desc": "Клиентские отчёты, сервис и поддержка", "print": "#904c63", "stamp": "#6b1f39", "dark": "#a85571"}, {"id": "olive", "name": "Олива", "shape": "octagon", "shape_ru": "восьмиугольник", "hex": "#A3A870", "rgb": "163,168,112", "desc": "Логистика, снабжение, полевые отчёты", "print": "#808457", "stamp": "#646b1f", "dark": "#72764b"}];
+    const STORAGE_THEME_PANEL = 'mmsThemePanelCollapsed_v1';
+    const STORAGE_STEPS_PANEL = 'mmsOnboardingCollapsed_v1';
+
+    function shapeSvg(shape, cls) {
+        return '<svg class="' + cls + '" viewBox="0 0 24 24" aria-hidden="true">' + (SHAPES[shape] || SHAPES.circle) + '</svg>';
+    }
+    function findTheme(id) {
+        for (let i = 0; i < THEMES.length; i++) if (THEMES[i].id === id) return THEMES[i];
+        return THEMES[0];
+    }
+    function buildThemePicker() {
+        const grid = $('themeGrid');
+        const strip = $('themeStrip');
+        if (!grid || !strip) return;
+        grid.innerHTML = THEMES.map(function (t) {
+            return '<button type="button" class="theme-card" data-theme="' + t.id + '" aria-pressed="false" ' +
+                'style="--c:' + t.hex + ';--c-rgb:' + t.rgb + '" onclick="setTheme(\'' + t.id + '\')">' +
+                '<span class="tc-top">' + shapeSvg(t.shape, 'tc-shape') + '<span class="tc-check">✓</span></span>' +
+                '<span class="tc-name">' + t.name + '</span>' +
+                '<span class="tc-meta"><i></i>' + t.hex + ' · ' + t.shape_ru + '</span>' +
+                '<span class="tc-desc">' + t.desc + '</span></button>';
+        }).join('');
+        strip.innerHTML = THEMES.map(function (t) {
+            return '<button type="button" class="theme-dot" data-theme="' + t.id + '" aria-pressed="false" ' +
+                'title="' + t.name + ' · ' + t.shape_ru + '" aria-label="' + t.name + '" ' +
+                'style="--c:' + t.hex + ';--c-rgb:' + t.rgb + '" onclick="setTheme(\'' + t.id + '\')">' +
+                shapeSvg(t.shape, '') + '</button>';
+        }).join('');
+    }
+    window.setTheme = function (name) {
+        const t = findTheme(name);
+        document.documentElement.setAttribute('data-theme', t.id);
+        document.querySelectorAll('.theme-card, .theme-dot').forEach(function (el) {
+            const on = el.getAttribute('data-theme') === t.id;
+            el.classList.toggle('active', on);
+            el.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        const cur = $('themeCurrent');
+        if (cur) cur.textContent = t.name + ' · ' + t.shape_ru;
+        try { localStorage.setItem(STORAGE_THEME, t.id); } catch (_) {}
+        scheduleDraw();
+    };
+    function loadTheme() {
+        buildThemePicker();
+        let t = 'gold';
+        try { t = localStorage.getItem(STORAGE_THEME) || 'gold'; } catch (_) {}
+        setTheme(t);
+        applyPanelState('themeGrid', 'themeToggle', STORAGE_THEME_PANEL);
+        applyPanelState('stepsRow', 'stepsToggle', STORAGE_STEPS_PANEL);
+    }
+
+    /* ===== COLLAPSIBLE PANELS (themes / steps) ===== */
+    function applyPanelState(bodyId, btnId, key) {
+        let saved = null;
+        try { saved = localStorage.getItem(key); } catch (_) {}
+        let collapsed = saved === '1';
+        if (saved === null && bodyId === 'themeGrid' && window.innerWidth < 700) collapsed = true;
+        setPanelCollapsed(bodyId, btnId, key, collapsed, true);
+    }
+    function setPanelCollapsed(bodyId, btnId, key, collapsed, skipSave) {
+        const body = $(bodyId), btn = $(btnId);
+        if (body) body.hidden = collapsed;
+        if (btn) { btn.textContent = collapsed ? '+' : '−'; btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true'); }
+        if (!skipSave) { try { localStorage.setItem(key, collapsed ? '1' : '0'); } catch (_) {} }
+    }
+    window.toggleThemePanel = function () {
+        const g = $('themeGrid');
+        setPanelCollapsed('themeGrid', 'themeToggle', STORAGE_THEME_PANEL, !(g && g.hidden));
+    };
+    window.toggleSteps = function () {
+        const g = $('stepsRow');
+        setPanelCollapsed('stepsRow', 'stepsToggle', STORAGE_STEPS_PANEL, !(g && g.hidden));
+    };
+
+    /* ===== STEPS ===== */
+    window.updateSteps = function () {
+        const hasName = !!(($('empName').value || '').trim());
+        const hasReport = entries.length > 0 || hasName;
+        const hasDecision = !!(($('decisionText').value || '').trim()) || denyReasons.length > 0;
+        const hasStamps = stamps.some(function (s) { return s.selected; });
+
+        const done1 = hasReport;
+        const done2 = done1 && hasName;
+        const done3 = done2 && hasDecision && hasStamps;
+        const done4 = done3 && blankDownloaded;
+        const flags = [done1, done2, done3, done4];
+        let activeIdx = flags.indexOf(false);
+        flags.forEach(function (isDone, i) {
+            const el = $('step' + (i + 1));
+            if (!el) return;
+            el.classList.toggle('done', isDone);
+            el.classList.toggle('active', i === activeIdx);
+        });
+    };
+    (function bindSteps() {
+        function go(card) {
+            const t = $(card.getAttribute('data-target'));
+            if (!t) return;
+            t.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) { try { t.focus({ preventScroll: true }); } catch (_) {} }
+        }
+        document.querySelectorAll('.step-card').forEach(function (card) {
+            card.addEventListener('click', function () { go(card); });
+            card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(card); } });
+        });
+    })();
     function todayISO() {
         const d = new Date();
         const p = n => String(n).padStart(2, '0');
@@ -1954,10 +2315,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return 'MMS-' + kind + '-' + datePart + '-' + seq;
     }
 
-    function refreshDocNo() {
+    window.refreshDocNo = function () {
         if ($('docNo')) $('docNo').value = genDocNo();
         scheduleDraw();
-    }
+    };
 
     /* ===== STAMPS ===== */
     function loadStamps() {
@@ -1998,6 +2359,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             </div>
         `).join('');
+        updateSteps();
     }
 
     window.toggleStamp = function (id, checked) {
@@ -2005,6 +2367,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (s) s.selected = !!checked;
         saveStampsStore();
         scheduleDraw();
+        updateSteps();
     };
 
     window.removeStamp = function (id) {
@@ -2087,16 +2450,17 @@ document.addEventListener('DOMContentLoaded', function () {
             renderReasons();
         }
         scheduleDraw();
+        updateSteps();
     };
 
     window.applyTpl = function (text) {
-        // для одобрения — одна формулировка; для отказа лучше addReason
         if (decision === 'deny') {
             addReason(text);
             return;
         }
         $('decisionText').value = text;
         scheduleDraw();
+        updateSteps();
     };
 
     function syncDecisionTextFromReasons() {
@@ -2110,7 +2474,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const box = $('reasonsList');
         if (!box) return;
         if (!denyReasons.length) {
-            box.innerHTML = '<div class="empty-hint" style="padding:8px;">Формулировки не добавлены — нажмите шаблон (можно несколько).</div>';
+            box.innerHTML = '<div class="empty-hint" style="padding:8px;">Формулировки не добавлены — нажмите шаблон.</div>';
             return;
         }
         box.innerHTML = denyReasons.map((r, i) =>
@@ -2126,6 +2490,7 @@ document.addEventListener('DOMContentLoaded', function () {
         syncDecisionTextFromReasons();
         renderReasons();
         scheduleDraw();
+        updateSteps();
         toast('Формулировка добавлена (' + denyReasons.length + ')');
     };
 
@@ -2135,6 +2500,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!denyReasons.length) $('decisionText').value = '';
         renderReasons();
         scheduleDraw();
+        updateSteps();
     };
 
     window.clearReasons = function () {
@@ -2142,6 +2508,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $('decisionText').value = '';
         renderReasons();
         scheduleDraw();
+        updateSteps();
     };
 
     window.tplPoints = function () {
@@ -2190,17 +2557,13 @@ document.addEventListener('DOMContentLoaded', function () {
         return 'Доказательство';
     }
 
-    function entryPhotoCount(e) {
-        if (!Array.isArray(e.attachments)) return 0;
-        return e.attachments.filter(function (a) { return a && a.dataUrl; }).length;
-    }
-
     function renderEntries() {
         const tb = $('entriesTable').querySelector('tbody');
         const btnFull = $('btnViewFullReport');
-        if (btnFull) btnFull.disabled = !entries.length;
+        if (btnFull) btnFull.disabled = !entries.length && !lastViewerHtml;
         if (!entries.length) {
             tb.innerHTML = '<tr><td colspan="6" class="empty-hint">Нет строк рапорта</td></tr>';
+            updateSteps();
             return;
         }
         tb.innerHTML = entries.map(function (e, i) {
@@ -2232,6 +2595,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<td><button type="button" class="btn-view-entry" onclick="openEntryDetail(' + i + ')">👁</button></td>' +
                 '</tr>';
         }).join('');
+        updateSteps();
     }
 
     let lightboxScale = 1;
@@ -2262,9 +2626,16 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     document.addEventListener('wheel', function (e) {
         const lb = $('lightbox');
-        if (!lb || !lb.classList.contains('show')) return;
-        e.preventDefault();
-        lightboxZoom(e.deltaY < 0 ? 1.12 : 0.9);
+        if (lb && lb.classList.contains('show')) {
+            e.preventDefault();
+            lightboxZoom(e.deltaY < 0 ? 1.12 : 0.9);
+            return;
+        }
+        const bl = $('blankLightbox');
+        if (bl && bl.classList.contains('show')) {
+            e.preventDefault();
+            blankZoom(e.deltaY < 0 ? 1.12 : 0.9);
+        }
     }, { passive: false });
 
     window.openEntryDetail = function (idx) {
@@ -2310,6 +2681,26 @@ document.addEventListener('DOMContentLoaded', function () {
         if (modal) modal.classList.remove('show');
     };
 
+    function cssVar(name, fallback) {
+        const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return v || fallback;
+    }
+    function hexToRgbStr(h) {
+        const m = /^#?([0-9a-f]{6})$/i.exec(h || '');
+        if (!m) return '212,175,55';
+        const n = parseInt(m[1], 16);
+        return ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255);
+    }
+    function themeViewerHtml(html) {
+        const gold = cssVar('--gold', '#d4af37');
+        return html.split('#d4af37').join(gold)
+            .split('rgba(212,175,55,').join('rgba(' + hexToRgbStr(gold) + ',')
+            .split('#0c0b09').join(cssVar('--bg', '#0c0b09'))
+            .split('#141210').join(cssVar('--bg-card', '#141210'))
+            .split('#9a9078').join(cssVar('--text-dim', '#9a9078'))
+            .split('#e8e0d4').join(cssVar('--text', '#e8e0d4'));
+    }
+
     function buildEntriesViewerHtml() {
         const name = ($('empName').value || '').trim() || 'Сотрудник';
         const id = ($('empId').value || '').trim() || '—';
@@ -2342,7 +2733,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 (photos ? ('<div class="photos">' + photos + '</div>') : '') + '</td>' +
                 '<td class="c pts">' + pts + '</td></tr>';
         });
-        return '<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"/>' +
+        const viewerHtml = '<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"/>' +
             '<meta name="viewport" content="width=device-width,initial-scale=1"/>' +
             '<title>MMS</title><style>' +
             '*{box-sizing:border-box}body{margin:0;padding:20px;font-family:Oswald,Segoe UI,sans-serif;background:#0c0b09;color:#e8e0d4;}' +
@@ -2372,8 +2763,8 @@ document.addEventListener('DOMContentLoaded', function () {
             '<table><thead><tr><th style="width:110px">Дата</th><th>Доказательство</th><th style="width:72px">Баллы</th></tr></thead><tbody>' +
             (rows || '<tr><td colspan="3" class="c" style="color:#777;padding:24px">Нет записей</td></tr>') +
             '</tbody></table></div></body></html>';
+        return themeViewerHtml(viewerHtml);
     }
-
 
     function applyReportData(data) {
         if (!data || typeof data !== 'object') return;
@@ -2418,13 +2809,14 @@ document.addEventListener('DOMContentLoaded', function () {
             (isArch ? ' · <strong style="color:#e74c3c;">📜 АРХИВНАЯ КОПИЯ</strong>' : '');
         renderEntries();
         scheduleDraw();
-        // авто-сборка HTML для повторного просмотра
         try {
             lastViewerHtml = buildEntriesViewerHtml();
             lastViewerTitle = 'Рапорт · ' + (($('empName').value || '').trim() || 'JSON');
         } catch (e) {}
         const btnFull = $('btnViewFullReport');
         if (btnFull) btnFull.disabled = !(entries.length || lastViewerHtml);
+        blankDownloaded = false;
+        updateSteps();
         toast(photoN ? ('Рапорт загружен · фото: ' + photoN) : 'Рапорт загружен');
     }
 
@@ -2435,8 +2827,17 @@ document.addEventListener('DOMContentLoaded', function () {
             el.style.color = ok === false ? '#e74c3c' : (ok === true ? '#6abf69' : '');
         }
         try { toast(String(msg).replace(/<[^>]+>/g, ' ').slice(0, 120)); } catch (e) {}
-        console.log('[MMS load]', msg);
     }
+
+    window.onDropReport = function (ev) {
+        ev.preventDefault();
+        const zone = $('loadZone');
+        if (zone) zone.classList.remove('dragover');
+        const files = ev.dataTransfer && ev.dataTransfer.files;
+        if (!files || !files[0]) return;
+        const fake = { target: { files: files, value: '' } };
+        onAnyReportFile(fake);
+    };
 
     window.onAnyReportFile = function (ev) {
         const input = ev && ev.target;
@@ -2448,7 +2849,6 @@ document.addEventListener('DOMContentLoaded', function () {
         setLoadStatus('Читаю файл: <strong>' + f.name + '</strong> (' + Math.round(f.size / 1024) + ' КБ)…', null);
         const name = String(f.name || '').toLowerCase();
 
-        // JSON-пакет без ZIP
         if (name.endsWith('.mms.json')) {
             const readerJ = new FileReader();
             readerJ.onerror = function () { setLoadStatus('Ошибка чтения .mms.json', false); };
@@ -2457,8 +2857,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const pack = JSON.parse(String(readerJ.result || ''));
                     if (pack && pack.format === 'mms-package-v1-json' && pack.report) {
                         applyReportData(pack.report);
-                        const n = entries && entries.length || 0;
-                        setLoadStatus('Пакет MMS (.json): <strong>' + n + '</strong> записей', true);
+                        setLoadStatus('Пакет MMS (.json): <strong>' + (entries.length || 0) + '</strong> записей', true);
                     } else if (pack && pack.entries) {
                         applyReportData(pack);
                         setLoadStatus('JSON загружен', true);
@@ -2474,7 +2873,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Единый пакет MMS (.mms.zip / .zip)
         if (name.endsWith('.zip') || name.endsWith('.mms') || name.endsWith('.mms.zip')) {
             if (typeof JSZip === 'undefined') {
                 setLoadStatus('JSZip не загружен — нужен интернет для CDN', false);
@@ -2486,7 +2884,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (/report\.json$/i.test(path)) jsonPath = path;
                 });
                 if (!jsonPath) {
-                    // fallback: any .json
                     zip.forEach(function (path) {
                         if (/\.json$/i.test(path) && !jsonPath) jsonPath = path;
                     });
@@ -2505,7 +2902,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     setLoadStatus('Пакет MMS: <strong>' + n + '</strong> записей · фото: <strong>' + ph + '</strong>', true);
                 });
             }).catch(function (err) {
-                console.error(err);
                 setLoadStatus('Ошибка пакета: ' + (err && err.message ? err.message : err), false);
             });
             try { if (input) input.value = ''; } catch (e) {}
@@ -2514,12 +2910,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const reader = new FileReader();
         reader.onerror = function () {
-            setLoadStatus('Ошибка чтения файла (FileReader). Откройте страницу через GitHub Pages, не как file://', false);
+            setLoadStatus('Ошибка чтения файла. Откройте страницу через HTTPS.', false);
         };
         reader.onload = function () {
             try {
                 let text = String(reader.result || '');
-                // убрать BOM
                 if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
 
                 if (name.endsWith('.json') || (f.type && f.type.indexOf('json') >= 0) || text.trim().charAt(0) === '{') {
@@ -2535,10 +2930,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                // HTML / Word(.doc от MMS = HTML)
                 if (name.endsWith('.html') || name.endsWith('.htm') || name.endsWith('.doc') || /<\s*html/i.test(text)) {
                     if (!/<\s*(?:!doctype|html|head|body|table|div)[\s>]/i.test(text)) {
-                        setLoadStatus('Файл не похож на HTML/Word-отчёт MMS. Нужен .html или .doc, созданный программой сотрудника.', false);
+                        setLoadStatus('Файл не похож на HTML/Word-отчёт MMS.', false);
                         return;
                     }
                     lastViewerHtml = text;
@@ -2546,7 +2940,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     const btnFull = document.getElementById('btnViewFullReport');
                     if (btnFull) btnFull.disabled = false;
 
-                    // Парсим данные из HTML без iframe (работает и с file://)
                     const parsed = parseReportHtmlToData(text);
                     const nEnt = parsed && parsed.entries ? parsed.entries.length : 0;
                     const nPh = parsed && parsed.entries
@@ -2559,21 +2952,18 @@ document.addEventListener('DOMContentLoaded', function () {
                             (parsed.employee && parsed.employee.name ? (' · ' + parsed.employee.name) : ''), true);
                     } else if (parsed && (parsed.employee && (parsed.employee.name || parsed.employee.id))) {
                         applyReportData(parsed);
-                        setLoadStatus('Данные сотрудника подтянуты, строки таблицы не найдены. Откройте просмотр или загрузите JSON.', null);
+                        setLoadStatus('Данные сотрудника подтянуты, строки таблицы не найдены.', null);
                     } else {
-                        setLoadStatus('Файл открыт, авто-разбор не нашёл записи. Нажмите «Взять данные» после просмотра или загрузите JSON.', null);
+                        setLoadStatus('Файл открыт, авто-разбор не нашёл записи. Откройте просмотр.', null);
                     }
                     try {
                         setTimeout(function () { openReportViewer(text, f.name); }, 100);
-                    } catch (e2) {
-                        console.warn(e2);
-                    }
+                    } catch (e2) {}
                     return;
                 }
 
                 setLoadStatus('Формат не поддерживается. Нужен JSON, HTML или Word (.doc от MMS).', false);
             } catch (err) {
-                console.error(err);
                 setLoadStatus('Сбой: ' + (err && err.message ? err.message : err), false);
             }
         };
@@ -2581,7 +2971,6 @@ document.addEventListener('DOMContentLoaded', function () {
         try { if (input) input.value = ''; } catch (e) {}
     };
 
-    /** Разбор HTML-отчёта MMS в структуру данных */
     function parseReportHtmlToData(html) {
         const data = {
             employee: {},
@@ -2595,7 +2984,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const doc = new DOMParser().parseFromString(html, 'text/html');
             const bodyText = (doc.body && (doc.body.innerText || doc.body.textContent)) ? (doc.body.innerText || doc.body.textContent) : '';
 
-            // ФИО (ID: 123)
             let m = bodyText.match(/([A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё\-\s]{1,40})\s*\(\s*ID\s*[:：]?\s*(\d{3,12})\s*\)/i);
             if (m) {
                 data.employee.name = m[1].replace(/\s+/g, ' ').trim();
@@ -2621,12 +3009,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const rows = doc.querySelectorAll('table tr');
             rows.forEach(function (tr) {
                 const ths = tr.querySelectorAll('th');
-                if (ths.length) return; // заголовок
+                if (ths.length) return;
                 const cells = tr.querySelectorAll('td');
                 if (cells.length < 2) return;
 
                 const rowText = (tr.innerText || tr.textContent || '').replace(/\s+/g, ' ').trim();
-                // пропуск служебных строк
                 if (/НА ПРОВЕРКЕ|ОЖИДАЕТ ПРОВЕРКИ|ИТОГО|MMS\s*·|ПОДПИСЬ|ПЕЧАТ/i.test(rowText) && !/\d{2}[./]\d{2}[./]\d{4}/.test(rowText)) {
                     return;
                 }
@@ -2635,27 +3022,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     return (c.innerText || c.textContent || '').replace(/\s+/g, ' ').trim();
                 });
 
-                // Дата: в первой или второй ячейке
                 let dateStr = '';
                 let dateIdx = -1;
                 for (let ci = 0; ci < Math.min(3, tds.length); ci++) {
                     const dm = tds[ci].match(/(\d{2}[./]\d{2}[./]\d{4})/);
                     if (dm) { dateStr = dm[1].replace(/\//g, '.'); dateIdx = ci; break; }
                 }
-                // Если нет даты — возможно это не строка рапорта
                 if (!dateStr && cells.length < 3) return;
                 if (!dateStr) {
-                    // всё же пробуем, если есть картинки/ссылка
                     if (!tr.querySelector('img, a[href]')) return;
                 }
 
-                // Баллы — обычно последняя ячейка
                 let points = 0;
                 const last = tds[tds.length - 1] || '';
                 const ptsM = last.match(/^(\d{1,4})$/) || last.match(/(\d{1,4})\s*(?:б\.|балл)?/i);
                 if (ptsM) points = parseInt(ptsM[1], 10) || 0;
 
-                // Ссылка
                 const linkA = tr.querySelector('a[href]');
                 let link = linkA ? (linkA.getAttribute('href') || '') : '';
                 if (!link) {
@@ -2663,23 +3045,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (urlM) link = urlM[0];
                 }
 
-                // Категория: ищем известные слова или среднюю ячейку
                 let category = 'прочее';
                 const catM = rowText.match(/(заявк|экзамен|при[её]м|присяг|аудит|агитац|мед\.?\s*экзамен|кадров|прочее|patrol|report)/i);
                 if (catM) category = catM[1];
                 else if (tds.length >= 3) {
-                    // ячейка после даты часто содержит категорию/доказательство
                     const mid = tds[dateIdx >= 0 ? Math.min(dateIdx + 1, tds.length - 1) : 1] || '';
                     category = mid.split(/\s{2,}|\n/)[0].slice(0, 40) || 'прочее';
                 }
 
-                // Фото (data: и обычные http)
                 const attachments = [];
                 const imgs = tr.querySelectorAll('img');
                 imgs.forEach(function (img, ai) {
                     let src = img.getAttribute('src') || '';
                     if (!src) return;
-                    // подпись рядом
                     let name = img.getAttribute('alt') || '';
                     const parent = img.parentElement;
                     if (parent) {
@@ -2723,11 +3101,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return data;
     }
 
-    window.onFile = function (ev) {
-        // совместимость со старой кнопкой
-        window.onAnyReportFile(ev);
-    };
-
     window.clearReport = function () {
         entries = [];
         lastLoadedPayload = null;
@@ -2738,67 +3111,15 @@ document.addEventListener('DOMContentLoaded', function () {
         $('totalPts').value = '0';
         $('docNo').value = genDocNo();
         $('reportSummary').textContent = 'Рапорт очищен.';
-        if (typeof denyReasons !== 'undefined') {
-            denyReasons = [];
-            if (typeof renderReasons === 'function') renderReasons();
-        }
+        denyReasons = [];
+        if (typeof renderReasons === 'function') renderReasons();
         renderEntries();
         scheduleDraw();
         const btnFull = $('btnViewFullReport');
         if (btnFull) btnFull.disabled = true;
+        blankDownloaded = false;
+        updateSteps();
     };
-
-    window.handleReportViewImport = function (event) {
-        const file = event.target.files && event.target.files[0];
-        if (!file) return;
-        const fileName = file.name.toLowerCase();
-        if (!fileName.endsWith('.html') && !fileName.endsWith('.htm') && !fileName.endsWith('.doc')) {
-            toast('Нужен файл .html / .htm / .doc');
-            event.target.value = '';
-            return;
-        }
-        const modal = $('reportViewerModal');
-        const loading = $('reportViewerLoading');
-        const loaderName = $('loaderFileName');
-        if ($('reportViewerTitle')) $('reportViewerTitle').textContent = 'ПРОСМОТР: ' + file.name;
-        if (loaderName) loaderName.textContent = file.name;
-        if (loading) loading.classList.add('show');
-        if (modal) modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            try {
-                const src = String(e.target.result || '');
-                if (!/<\s*(?:!doctype|html|head|body)[\s>]/i.test(src)) {
-                    if (loading) loading.classList.remove('show');
-                    if (modal) modal.classList.remove('show');
-                    document.body.style.overflow = '';
-                    toast('Файл не похож на HTML-отчёт');
-                    return;
-                }
-                lastViewerHtml = src;
-                lastViewerTitle = file.name;
-                const btnFull = $('btnViewFullReport');
-                if (btnFull) btnFull.disabled = false;
-                setTimeout(function () { openReportViewer(src, file.name); }, 200);
-            } catch (err) {
-                if (loading) loading.classList.remove('show');
-                if (modal) modal.classList.remove('show');
-                document.body.style.overflow = '';
-                toast('Ошибка чтения файла');
-            }
-        };
-        reader.onerror = function () {
-            if (loading) loading.classList.remove('show');
-            if (modal) modal.classList.remove('show');
-            document.body.style.overflow = '';
-            toast('Не удалось прочитать файл');
-        };
-        reader.readAsText(file, 'utf-8');
-        event.target.value = '';
-    };
-
 
     window.openJsonAsViewer = function () {
         try {
@@ -2807,14 +3128,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             if (!entries || !entries.length) {
-                toast('Сначала загрузите JSON или HTML рапорта');
+                toast('Сначала загрузите рапорт');
                 return;
             }
             const html = buildEntriesViewerHtml();
             const name = ($('empName').value || '').trim() || 'Рапорт';
             openReportViewer(html, 'Рапорт · ' + name);
         } catch (err) {
-            console.error(err);
             toast('Ошибка просмотра: ' + (err && err.message ? err.message : err));
         }
     };
@@ -2836,7 +3156,6 @@ document.addEventListener('DOMContentLoaded', function () {
         lastViewerHtml = String(html);
         lastViewerTitle = fileName || 'отчёт';
 
-        // Не ломаем data:image URL — не трогаем атрибуты src
         let cleaned = String(html)
             .replace(/<script[\s\S]*?<\/script>/gi, '')
             .replace(/\son[a-z]+\s*=\s*(["']).*?\1/gi, '')
@@ -2852,9 +3171,6 @@ document.addEventListener('DOMContentLoaded', function () {
             cleaned = '<head><meta charset="UTF-8"><base target="_blank" rel="noopener noreferrer"></head>' + cleaned;
         }
         if (!/<body[\s>]/i.test(cleaned)) {
-            cleaned = cleaned + '<body style="background:' + paperBg + ';color:' + paperFg +
-                ';font-family:Oswald,Segoe UI,sans-serif;padding:18px;margin:0;min-height:100vh;"></body>';
-            // wrap properly
             cleaned = '<!DOCTYPE html><html><head><meta charset="UTF-8"><base target="_blank"></head>' +
                 '<body style="background:' + paperBg + ';color:' + paperFg +
                 ';font-family:Oswald,Segoe UI,sans-serif;padding:18px;margin:0;min-height:100vh;">' +
@@ -2871,7 +3187,6 @@ document.addEventListener('DOMContentLoaded', function () {
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
 
-        // Надёжная перезагрузка iframe
         frame.onload = function () {
             setTimeout(function () {
                 if (loading) loading.classList.remove('show');
@@ -2882,8 +3197,7 @@ document.addEventListener('DOMContentLoaded', function () {
             frame.removeAttribute('src');
             frame.srcdoc = cleaned;
         } catch (err) {
-            console.error(err);
-            toast('Не удалось показать отчёт в окне');
+            toast('Не удалось показать отчёт');
             if (loading) loading.classList.remove('show');
         }
         setTimeout(function () { if (loading) loading.classList.remove('show'); }, 2500);
@@ -2899,12 +3213,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (modal) modal.classList.remove('show');
         document.body.style.overflow = '';
         if (loading) loading.classList.remove('show');
-        // НЕ очищаем lastViewerHtml и entries — повторное открытие без повторной загрузки
         if (frame) {
             try {
                 frame.onload = null;
-                // оставляем содержимое или blank — данные формы не трогаем
-                frame.srcdoc = '<!DOCTYPE html><html><body style="background:#0c0b09;color:#666;font-family:sans-serif;padding:24px;text-align:center">Закрыто. Нажмите «Просмотр рапорта внутри», чтобы открыть снова.</body></html>';
+                frame.srcdoc = '<!DOCTYPE html><html><body style="background:#0c0b09;color:#666;font-family:sans-serif;padding:24px;text-align:center">Закрыто. Нажмите «Просмотр рапорта», чтобы открыть снова.</body></html>';
             } catch (e) {}
         }
         if (reportViewerObjectUrl) {
@@ -2912,6 +3224,33 @@ document.addEventListener('DOMContentLoaded', function () {
             reportViewerObjectUrl = null;
         }
     };
+
+    function getReportViewerTheme() {
+        try { return localStorage.getItem('mmsReportViewerTheme') || 'dark'; } catch (_) { return 'dark'; }
+    }
+    window.setReportViewerTheme = function (t) {
+        try { localStorage.setItem('mmsReportViewerTheme', t); } catch (_) {}
+        const light = $('reportThemeLight');
+        const dark = $('reportThemeDark');
+        if (light) light.classList.toggle('active', t === 'light');
+        if (dark) dark.classList.toggle('active', t === 'dark');
+        applyReportViewerThemeToFrame(t);
+    };
+    function applyReportViewerThemeToFrame(t) {
+        const frame = $('reportViewerFrame');
+        if (!frame) return;
+        try {
+            const doc = frame.contentDocument;
+            if (!doc || !doc.body) return;
+            if (t === 'dark') {
+                doc.body.style.background = cssVar('--bg', '#0c0b09');
+                doc.body.style.color = cssVar('--text', '#e8e0d4');
+            } else {
+                doc.body.style.background = '#f7f3ea';
+                doc.body.style.color = '#2a241e';
+            }
+        } catch (_) {}
+    }
 
     function tryParseViewerIntoForm(forceApply) {
         const frame = $('reportViewerFrame');
@@ -2922,23 +3261,18 @@ document.addEventListener('DOMContentLoaded', function () {
             const text = (doc.body && doc.body.innerText) || '';
             const data = { employee: {}, entries: [] };
 
-            // ID
             let m = text.match(/ID[:\s]*([0-9]{3,8})/i);
             if (m) data.employee.id = m[1];
-            // Name near "Сотрудник" or signature
             m = text.match(/Сотрудник[^A-Za-zА-Яа-я]{0,40}([A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё\s\-]{2,40})/i);
             if (m) data.employee.name = m[1].trim();
             if (!data.employee.name) {
                 m = text.match(/([A-Za-zА-Яа-яЁё]+\s+[A-Za-zА-Яа-яЁё]+)(?:\s*\(ID)/);
                 if (m) data.employee.name = m[1].trim();
             }
-            // Total points
             m = text.match(/ИТОГО[^\d]{0,20}(\d{1,5})/i) || text.match(/TOTAL[^\d]{0,12}(\d{1,5})/i);
             if (m) data.totalPoints = parseInt(m[1], 10);
-            // Promotion?
             if (/повышен/i.test(text) || /PROMOTION/i.test(text)) data.mode = 'promotion';
 
-            // Table rows: crude date + points
             const rows = doc.querySelectorAll('table tr');
             rows.forEach(function (tr, idx) {
                 if (idx === 0) return;
@@ -2949,7 +3283,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const pm = rowText.match(/\b(\d{1,4})\b/);
                 if (dm) {
                     data.entries.push({
-                        evidenceNumber: '№' + data.entries.length + 1,
+                        evidenceNumber: '№' + (data.entries.length + 1),
                         date: dm[1].replace(/\//g, '.'),
                         category: 'прочее',
                         points: pm ? parseInt(pm[1], 10) : 0
@@ -2977,6 +3311,7 @@ document.addEventListener('DOMContentLoaded', function () {
         clearTimeout(drawTimer);
         drawTimer = setTimeout(drawA4, 120);
     }
+    window.scheduleDraw = scheduleDraw;
 
     function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
         const paragraphs = String(text || '').split(/\n/);
@@ -3006,12 +3341,17 @@ document.addEventListener('DOMContentLoaded', function () {
         return yy;
     }
 
+    function getThemeAccent() {
+        const t = findTheme(document.documentElement.getAttribute('data-theme') || 'gold');
+        return { gold: t.print, dark: t.dark, stamp: t.stamp };
+    }
+
     function drawStamp(ctx, x, y, stamp, approved) {
         const w = 150;
         const h = 68;
-        // всегда по решению: ОДОБРЕНО (синяя) / ОТКЛОНЕНО (красная)
         const statusText = approved ? 'ОДОБРЕНО' : 'ОТКЛОНЕНО';
-        const color = approved ? '#1a4a8a' : '#8a1a1a';
+        const accent = getThemeAccent();
+        const color = approved ? accent.stamp : '#8a1a1a';
         ctx.save();
         ctx.translate(x + w / 2, y + h / 2);
         ctx.rotate((approved ? -7 : 6) * Math.PI / 180);
@@ -3054,13 +3394,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const H = canvas.height;
         const margin = 56;
         const contentW = W - margin * 2;
+        const accent = getThemeAccent();
 
-        // white sheet
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, W, H);
 
-        // thin gold frame
-        ctx.strokeStyle = '#c9a227';
+        ctx.strokeStyle = accent.gold;
         ctx.lineWidth = 2;
         ctx.strokeRect(18, 18, W - 36, H - 36);
         ctx.lineWidth = 0.6;
@@ -3068,7 +3407,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let y = margin;
 
-        // Header SANG + MMS
         ctx.fillStyle = '#1a1a1a';
         ctx.textAlign = 'center';
         ctx.font = '700 18px Cinzel, serif';
@@ -3078,7 +3416,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ctx.fillStyle = '#333';
         ctx.fillText('MILITARY MEDICAL SERVICE', W / 2, y);
         y += 10;
-        ctx.strokeStyle = '#c9a227';
+        ctx.strokeStyle = accent.gold;
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(margin + 40, y);
@@ -3086,7 +3424,6 @@ document.addEventListener('DOMContentLoaded', function () {
         ctx.stroke();
         y += 22;
 
-        // Крупный вердикт
         (function () {
             const approved = decision === 'approve';
             const boxH = 54;
@@ -3103,7 +3440,6 @@ document.addEventListener('DOMContentLoaded', function () {
             y += boxH + 18;
         })();
 
-        // Doc meta
         ctx.textAlign = 'left';
         ctx.fillStyle = '#222';
         ctx.font = '12px Libre Baskerville, serif';
@@ -3111,12 +3447,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const dateStr = formatDateRu($('repDate').value || todayISO());
         ctx.fillText('Служебный № ' + docNo, margin, y);
         ctx.textAlign = 'right';
-        ctx.fillStyle = '#1a4a8a';
+        ctx.fillStyle = accent.stamp;
         ctx.font = 'italic 12px Libre Baskerville, serif';
         ctx.fillText('«' + dateStr + '»', W - margin, y);
         y += 32;
 
-        // Title — армейский стиль
         ctx.textAlign = 'center';
         ctx.fillStyle = '#111';
         ctx.font = '700 15px Cinzel, serif';
@@ -3131,7 +3466,6 @@ document.addEventListener('DOMContentLoaded', function () {
         ctx.fillText(title, W / 2, y);
         y += 28;
 
-        // Body — центрированный служебный текст + юридический блок для заполнения листа
         const name = $('empName').value.trim() || '____________________';
         const id = $('empId').value.trim() || '—';
         const total = $('totalPts').value || '0';
@@ -3172,7 +3506,6 @@ document.addEventListener('DOMContentLoaded', function () {
         y = wrapTextCenter(ctx, body, W / 2, y, contentW, 20);
         y += 14;
 
-        // Юридический / регламентный блок — заполняет середину бланка
         ctx.font = '11px Libre Baskerville, serif';
         ctx.fillStyle = '#333';
         const legalBlock =
@@ -3220,7 +3553,6 @@ document.addEventListener('DOMContentLoaded', function () {
             : 'Отметка: НЕ ОДОБРЕНО. Рапорт на зачёт не принимается до устранения указанных замечаний.';
         y = wrapTextCenter(ctx, verdict, W / 2, y, contentW, 20);
 
-        // Stamps area
         const selected = stamps.filter(s => s.selected);
         const approved = decision === 'approve';
         let stampY = Math.max(y + 40, H - 230);
@@ -3233,7 +3565,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const gap = 16;
             const stampW = 150;
             let sx = margin;
-            selected.forEach((s, i) => {
+            selected.forEach((s) => {
                 if (sx + stampW > W - margin) {
                     sx = margin;
                     stampY += 80;
@@ -3247,7 +3579,6 @@ document.addEventListener('DOMContentLoaded', function () {
             ctx.fillText('Печати не выбраны', margin, stampY);
         }
 
-        // Footer
         ctx.fillStyle = '#888';
         ctx.font = '9px Oswald, sans-serif';
         ctx.textAlign = 'center';
@@ -3263,16 +3594,51 @@ document.addEventListener('DOMContentLoaded', function () {
         a.download = 'MMS_Decision_' + name + '_' + id + '_' + ($('docNo').value || 'doc') + '.png';
         a.href = canvas.toDataURL('image/png');
         a.click();
+        blankDownloaded = true;
+        updateSteps();
         toast('PNG сохранён');
+    };
+
+    /* ===== BLANK LIGHTBOX (enlarge A4) ===== */
+    window.openBlankLightbox = function () {
+        drawA4();
+        const canvas = $('a4Canvas');
+        const img = $('blankLightboxImg');
+        const lb = $('blankLightbox');
+        if (!canvas || !img || !lb) return;
+        blankScale = 1;
+        img.src = canvas.toDataURL('image/png');
+        img.style.transform = 'scale(1)';
+        lb.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closeBlankLightbox = function () {
+        const lb = $('blankLightbox');
+        if (lb) lb.classList.remove('show');
+        document.body.style.overflow = '';
+        blankScale = 1;
+        const img = $('blankLightboxImg');
+        if (img) img.style.transform = 'scale(1)';
+    };
+
+    window.blankZoom = function (factor) {
+        const img = $('blankLightboxImg');
+        if (!img) return;
+        if (factor === 0) blankScale = 1;
+        else blankScale = Math.min(4, Math.max(0.4, blankScale * factor));
+        img.style.transform = 'scale(' + blankScale + ')';
     };
 
     /* init */
     $('repDate').value = todayISO();
     $('docNo').value = genDocNo();
+    loadTheme();
     loadStamps();
     setDecision('approve');
     renderEntries();
     renderReasons();
+    updateSteps();
     if ($('repType')) {
         $('repType').addEventListener('change', function () {
             $('docNo').value = genDocNo();
@@ -3287,11 +3653,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     drawA4();
     (function () {
+        const wrap = document.getElementById('a4Wrap');
         const c = document.getElementById('a4Canvas');
+        if (wrap) {
+            wrap.addEventListener('click', function () { openBlankLightbox(); });
+        }
         if (c) {
             c.style.cursor = 'zoom-in';
             c.title = 'Нажмите, чтобы увеличить';
-            c.addEventListener('click', function () { openBlankLightbox(); });
         }
     })();
     document.addEventListener('keydown', function (e) {
@@ -3299,16 +3668,10 @@ document.addEventListener('DOMContentLoaded', function () {
             closeEntryDetail();
             if (typeof closeLightbox === 'function') closeLightbox();
             if (typeof closeBlankLightbox === 'function') closeBlankLightbox();
+            if (typeof closeReportViewer === 'function') closeReportViewer();
         }
     });
 })();
 </script>
-
-<div id="blankLightbox" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;padding:16px;overflow:auto;">
-  <div style="position:relative;max-width:920px;width:100%;margin:auto;">
-    <button type="button" onclick="closeBlankLightbox()" style="position:sticky;top:8px;float:right;z-index:2;background:#d4af37;border:none;color:#111;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;">Закрыть</button>
-    <img id="blankLightboxImg" alt="Бланк решения" style="width:100%;height:auto;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,0.5);background:#fff;" />
-  </div>
-</div>
 </body>
 </html>
