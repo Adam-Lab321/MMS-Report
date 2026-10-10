@@ -2810,8 +2810,13 @@ document.addEventListener('DOMContentLoaded', function () {
         renderEntries();
         scheduleDraw();
         try {
-            lastViewerHtml = buildEntriesViewerHtml();
-            lastViewerTitle = 'Рапорт · ' + (($('empName').value || '').trim() || 'JSON');
+            /* Не затираем исходный HTML/.doc (там уже есть фото для просмотра) */
+            if (!lastViewerHtml || !String(lastViewerHtml).trim()) {
+                lastViewerHtml = buildEntriesViewerHtml();
+                lastViewerTitle = 'Рапорт · ' + (($('empName').value || '').trim() || 'JSON');
+            } else if (!lastViewerTitle) {
+                lastViewerTitle = 'Рапорт · ' + (($('empName').value || '').trim() || 'файл');
+            }
         } catch (e) {}
         const btnFull = $('btnViewFullReport');
         if (btnFull) btnFull.disabled = !(entries.length || lastViewerHtml);
@@ -3006,6 +3011,102 @@ document.addEventListener('DOMContentLoaded', function () {
             if (m) data.totalPoints = parseInt(m[1], 10) || 0;
             if (/повышен/i.test(bodyText) || /PROMOTION/i.test(bodyText)) data.reportType = 'promotion';
 
+            /* ---- helpers: extract usable image URLs from Word/HTML ---- */
+            function isUsableSrc(src) {
+                if (!src) return false;
+                src = String(src).trim();
+                if (!src || src === '#' || /^javascript:/i.test(src)) return false;
+                if (/^data:image\//i.test(src)) return true;
+                if (/^https?:\/\//i.test(src)) return true;
+                if (/^blob:/i.test(src)) return true;
+                /* relative / file paths often break; still keep if looks like image */
+                if (/\.(png|jpe?g|gif|webp|bmp)(\?|$)/i.test(src)) return true;
+                return false;
+            }
+            function normalizeSrc(src) {
+                src = String(src || '').trim();
+                if (!src) return '';
+                /* Word sometimes wraps URL in quotes or adds file:/// */
+                src = src.replace(/^['"]|['"]$/g, '');
+                return src;
+            }
+            function extractImgFromNode(node) {
+                const out = [];
+                if (!node) return out;
+                const seen = {};
+                function push(src, nameHint) {
+                    src = normalizeSrc(src);
+                    if (!isUsableSrc(src)) return;
+                    const key = src.slice(0, 120);
+                    if (seen[key]) return;
+                    seen[key] = true;
+                    let name = (nameHint || '').trim();
+                    let pts = 0;
+                    const pm = name.match(/\+?\s*(\d{1,3})\s*(?:б|балл)?/i);
+                    if (pm) pts = parseInt(pm[1], 10) || 0;
+                    if (!name) name = 'снимок';
+                    out.push({ name: String(name).slice(0, 60), points: pts, dataUrl: src });
+                }
+                /* standard <img> */
+                try {
+                    node.querySelectorAll('img').forEach(function (img, ai) {
+                        let src = img.getAttribute('src') || img.getAttribute('data-src') || '';
+                        if (!src) {
+                            const style = img.getAttribute('style') || '';
+                            const bm = style.match(/url\(\s*['"]?(data:image[^'")\s]+|https?:\/\/[^'")\s]+)['"]?\s*\)/i);
+                            if (bm) src = bm[1];
+                        }
+                        let name = img.getAttribute('alt') || img.getAttribute('title') || '';
+                        const parent = img.parentElement;
+                        if (parent) {
+                            const capEl = parent.querySelector('div, span, figcaption, p');
+                            if (capEl && capEl !== img) {
+                                const cap = (capEl.innerText || '').trim();
+                                if (cap && cap.length < 80) name = name || cap;
+                            }
+                        }
+                        if (!name) name = 'снимок ' + (ai + 1);
+                        push(src, name);
+                    });
+                } catch (e) {}
+                /* Word VML: v:imagedata / imagedata */
+                try {
+                    const vml = node.querySelectorAll('v\\:imagedata, imagedata, [src*="data:image"]');
+                    vml.forEach(function (el) {
+                        let src = el.getAttribute('src') || el.getAttribute('o:href') || '';
+                        push(src, el.getAttribute('o:title') || el.getAttribute('title') || '');
+                    });
+                } catch (e) {}
+                /* background-image on elements */
+                try {
+                    node.querySelectorAll('[style*="background"]').forEach(function (el) {
+                        const style = el.getAttribute('style') || '';
+                        const bm = style.match(/url\(\s*['"]?(data:image[^'")\s]+)['"]?\s*\)/i);
+                        if (bm) push(bm[1], '');
+                    });
+                } catch (e) {}
+                return out;
+            }
+
+            /* Collect ALL images from the whole document (for fallback assignment) */
+            const allDocImgs = extractImgFromNode(doc);
+            /* Also regex-scan raw HTML for data:image that DOM might miss */
+            try {
+                const re = /(?:src|href)\s*=\s*["']?(data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+/=]+)["']?/gi;
+                let rm;
+                const seenRaw = {};
+                allDocImgs.forEach(function (a) { seenRaw[a.dataUrl.slice(0, 80)] = true; });
+                while ((rm = re.exec(html)) !== null) {
+                    const src = rm[1];
+                    const key = src.slice(0, 80);
+                    if (seenRaw[key]) continue;
+                    seenRaw[key] = true;
+                    allDocImgs.push({ name: 'снимок', points: 0, dataUrl: src });
+                }
+            } catch (e) {}
+
+            const usedImgKeys = {};
+
             const rows = doc.querySelectorAll('table tr');
             rows.forEach(function (tr) {
                 const ths = tr.querySelectorAll('th');
@@ -3030,7 +3131,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 if (!dateStr && cells.length < 3) return;
                 if (!dateStr) {
-                    if (!tr.querySelector('img, a[href]')) return;
+                    if (!tr.querySelector('img, a[href], v\\:imagedata, imagedata')) return;
                 }
 
                 let points = 0;
@@ -3053,30 +3154,33 @@ document.addEventListener('DOMContentLoaded', function () {
                     category = mid.split(/\s{2,}|\n/)[0].slice(0, 40) || 'прочее';
                 }
 
-                const attachments = [];
-                const imgs = tr.querySelectorAll('img');
-                imgs.forEach(function (img, ai) {
-                    let src = img.getAttribute('src') || '';
-                    if (!src) return;
-                    let name = img.getAttribute('alt') || '';
-                    const parent = img.parentElement;
-                    if (parent) {
-                        const capEl = parent.querySelector('div, span, figcaption');
-                        if (capEl && capEl !== img) {
-                            const cap = (capEl.innerText || '').trim();
-                            if (cap) name = name || cap;
-                        }
-                    }
-                    if (!name) name = 'снимок ' + (ai + 1);
-                    let pts = 0;
-                    const pm = String(name).match(/\+?\s*(\d{1,3})\s*(?:б|балл)?/i);
-                    if (pm) pts = parseInt(pm[1], 10) || 0;
-                    attachments.push({
-                        name: String(name).slice(0, 60),
-                        points: pts,
-                        dataUrl: src
-                    });
+                let attachments = extractImgFromNode(tr);
+                attachments.forEach(function (a) {
+                    usedImgKeys[a.dataUrl.slice(0, 80)] = true;
                 });
+
+                /* If row has no images, look at the next sibling rows/elements that are photo-only */
+                if (!attachments.length) {
+                    let sib = tr.nextElementSibling;
+                    let hops = 0;
+                    while (sib && hops < 3) {
+                        hops++;
+                        const sibText = (sib.innerText || '').replace(/\s+/g, ' ').trim();
+                        const hasDate = /\d{2}[./]\d{2}[./]\d{4}/.test(sibText);
+                        const imgs = extractImgFromNode(sib);
+                        if (imgs.length && !hasDate) {
+                            imgs.forEach(function (a) {
+                                if (!usedImgKeys[a.dataUrl.slice(0, 80)]) {
+                                    attachments.push(a);
+                                    usedImgKeys[a.dataUrl.slice(0, 80)] = true;
+                                }
+                            });
+                            break;
+                        }
+                        if (hasDate) break;
+                        sib = sib.nextElementSibling;
+                    }
+                }
 
                 data.entries.push({
                     evidenceNumber: '№' + (data.entries.length + 1),
@@ -3087,6 +3191,45 @@ document.addEventListener('DOMContentLoaded', function () {
                     attachments: attachments
                 });
             });
+
+            /* Fallback: if entries have no photos but document has images — distribute by order */
+            const assignedCount = data.entries.reduce(function (n, e) {
+                return n + (Array.isArray(e.attachments) ? e.attachments.filter(function (a) { return a && a.dataUrl; }).length : 0);
+            }, 0);
+            if (assignedCount === 0 && allDocImgs.length && data.entries.length) {
+                const free = allDocImgs.filter(function (a) { return a && a.dataUrl; });
+                if (free.length === data.entries.length) {
+                    free.forEach(function (a, i) {
+                        data.entries[i].attachments = [a];
+                    });
+                } else if (free.length > 0) {
+                    /* attach all remaining images to entries round-robin or put extras on last */
+                    const per = Math.max(1, Math.floor(free.length / data.entries.length));
+                    let idx = 0;
+                    data.entries.forEach(function (e, ei) {
+                        const chunk = [];
+                        const take = (ei === data.entries.length - 1)
+                            ? free.length - idx
+                            : Math.min(per, free.length - idx);
+                        for (let k = 0; k < take && idx < free.length; k++, idx++) {
+                            chunk.push(free[idx]);
+                        }
+                        e.attachments = chunk;
+                    });
+                }
+            } else if (assignedCount > 0 && allDocImgs.length > assignedCount) {
+                /* append leftover document images not yet used onto matching entries / last entry */
+                const leftovers = allDocImgs.filter(function (a) {
+                    return a && a.dataUrl && !usedImgKeys[a.dataUrl.slice(0, 80)];
+                });
+                if (leftovers.length && data.entries.length) {
+                    leftovers.forEach(function (a, i) {
+                        const target = data.entries[Math.min(i, data.entries.length - 1)];
+                        if (!Array.isArray(target.attachments)) target.attachments = [];
+                        target.attachments.push(a);
+                    });
+                }
+            }
 
             if (!data.totalPoints && data.entries.length) {
                 data.totalPoints = data.entries.reduce(function (s, e) {
