@@ -4504,9 +4504,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script>
 (function () {
-    
-<script>
-(function () {
   var MMS_DISCORD_STORAGE = 'mmsDiscordAuth';
   var MMS_PROFILES_STORAGE = 'mmsSavedProfiles';
   var MMS_PROFILES_MAX = 8;
@@ -4794,8 +4791,9 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 })();
 </script>
-
-var REVIEWER_PIN = 'MMS-COMMAND';
+<script>
+(function () {
+    var REVIEWER_PIN = 'MMS-COMMAND';
     var PIN_SESSION = 'mmsReviewerPinOk';
     var PIN_SHARED = 'mmsCommandPinOk'; // общий с Двери (localStorage, весь github.io)
     var PROXY = 'https://mms-report-proxy.asakulin874.workers.dev';
