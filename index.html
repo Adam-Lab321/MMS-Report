@@ -3178,6 +3178,35 @@ document.addEventListener('DOMContentLoaded', function () {
             .replace(/"/g, '&quot;');
     }
 
+
+    function normalizeEntryLink(e) {
+        if (!e || typeof e !== 'object') return '';
+        var candidates = [
+            e.link, e.proofLink, e.url, e.href,
+            Array.isArray(e.links) && e.links[0] ? e.links[0] : '',
+            e.proof, e.description, e.note
+        ];
+        for (var i = 0; i < candidates.length; i++) {
+            var c = String(candidates[i] || '').trim();
+            if (!c) continue;
+            if (/^https?:\/\//i.test(c)) return c;
+            var m = c.match(/https?:\/\/[^\s<>"'\]]+/i);
+            if (m) return m[0];
+        }
+        return '';
+    }
+    function normalizeEntriesList(list) {
+        return (list || []).map(function (e, idx) {
+            var o = Object.assign({}, e);
+            o.link = normalizeEntryLink(e) || o.link || '';
+            o.evidenceNumber = o.evidenceNumber || ('№' + (idx + 1));
+            if (!o.category && o.cat) o.category = o.cat;
+            // агитация etc. from label
+            if ((!o.category || o.category === 'прочее') && o.linkLabel) o.category = o.linkLabel;
+            return o;
+        });
+    }
+
     function linkLabel(entry) {
         const cat = String(entry.category || '').trim().toLowerCase();
         const map = {
@@ -3192,7 +3221,10 @@ document.addEventListener('DOMContentLoaded', function () {
             'отчёт': 'Отчёт',
             'мероприятие': 'Мероприятие',
             'помощь': 'Помощь',
-            'прочее': 'Доказательство'
+            'прочее': 'Доказательство',
+            'агитация': 'Агитация',
+            'агитац': 'Агитация',
+            'агитации': 'Агитация'
         };
         if (map[cat]) return map[cat];
         if (entry.category && String(entry.category).trim()) {
@@ -3499,7 +3531,7 @@ document.addEventListener('DOMContentLoaded', function () {
             else if (/еженедел|weekly|\bweek\b|daily/.test(bag)) $('repType').value = 'weekly';
         } catch (eType) {}
         window.__mmsQueueReportType = $('repType').value === 'promotion' ? 'promotion' : 'weekly';
-        entries = Array.isArray(data.entries) ? data.entries : [];
+        entries = normalizeEntriesList(Array.isArray(data.entries) ? data.entries : []);
         lastLoadedPayload = data;
         let total = data.totalPoints;
         if (total == null) {
@@ -3855,18 +3887,42 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (ptsM) points = parseInt(ptsM[1], 10) || 0;
 
                 const linkA = tr.querySelector('a[href]');
-                let link = linkA ? (linkA.getAttribute('href') || '') : '';
+                let link = linkA ? (linkA.getAttribute('href') || '').trim() : '';
+                if (link && link.indexOf('javascript:') === 0) link = '';
+                // все ссылки в строке
+                if (!link) {
+                    const as = tr.querySelectorAll('a[href]');
+                    for (let ai = 0; ai < as.length; ai++) {
+                        const h = (as[ai].getAttribute('href') || '').trim();
+                        if (/^https?:\/\//i.test(h)) { link = h; break; }
+                    }
+                }
                 if (!link) {
                     const urlM = rowText.match(/https?:\/\/[^\s<>"']+/i);
-                    if (urlM) link = urlM[0];
+                    if (urlM) link = urlM[0].replace(/[),.;]+$/, '');
+                }
+                // Word иногда кладёт URL в title/onclick
+                if (!link) {
+                    const anyA = tr.querySelector('a');
+                    if (anyA) {
+                        const ttr = (anyA.getAttribute('title') || '') + ' ' + (anyA.textContent || '');
+                        const um = ttr.match(/https?:\/\/[^\s<>"']+/i);
+                        if (um) link = um[0];
+                    }
                 }
 
                 let category = 'прочее';
-                const catM = rowText.match(/(заявк|экзамен|при[её]м|присяг|аудит|агитац|мед\.?\s*экзамен|кадров|прочее|patrol|report)/i);
+                const catM = rowText.match(/(агитац\w*|заявк\w*|экзамен\w*|при[её]м\w*|присяг\w*|аудит\w*|мед\.?\s*экзамен|патрул\w*|трениров\w*|обучен\w*|дежурств\w*|мероприят\w*|помощ\w*|кадров\w*|прочее)/i);
                 if (catM) category = catM[1];
-                else if (tds.length >= 3) {
-                    const mid = tds[dateIdx >= 0 ? Math.min(dateIdx + 1, tds.length - 1) : 1] || '';
-                    category = mid.split(/\s{2,}|\n/)[0].slice(0, 40) || 'прочее';
+                else if (tds.length >= 4) {
+                    // типичный порядок: № | дата | доказательство | категория | баллы
+                    const catCell = tds[tds.length - 2] || '';
+                    if (catCell && !/^\d+$/.test(catCell) && !/^https?:/i.test(catCell)) {
+                        category = catCell.slice(0, 40);
+                    }
+                } else if (tds.length >= 3) {
+                    const mid = tds[dateIdx >= 0 ? Math.min(dateIdx + 2, tds.length - 2) : 2] || tds[1] || '';
+                    if (mid && !/^https?:/i.test(mid) && mid.length < 40) category = mid.split(/\s{2,}|\n/)[0].slice(0, 40) || 'прочее';
                 }
 
                 let attachments = extractImgFromNode(tr);
@@ -4225,6 +4281,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     date: dm[1].replace(/\//g, '.'),
                     category: guessCat(rowText),
                     points: pts,
+                    link: proof || '',
                     proofLink: proof,
                     links: links,
                     attachments: attachments
@@ -5065,8 +5122,32 @@ document.addEventListener('DOMContentLoaded', function () {
             if (rt) rt.value = rtype === 'promotion' ? 'promotion' : 'weekly';
             if (data.submitted_at) set('repDate', String(data.submitted_at).slice(0, 10));
             if (data.points != null) set('totalPts', String(data.points));
+            // записи + ссылки: сначала из JSON, иначе парсим HTML
+            if (Array.isArray(data.entries) && data.entries.length && typeof applyReportData === 'function') {
+                applyReportData({
+                    employee: { name: data.full_name || data.name || '', id: data.static_id || data.staticId || '' },
+                    entries: data.entries,
+                    totalPoints: data.points,
+                    reportType: rtype,
+                    mode: rtype
+                });
+            } else if (data.html && typeof parseReportHtmlToData === 'function' && typeof applyReportData === 'function') {
+                try {
+                    var parsed = parseReportHtmlToData(data.html);
+                    if (parsed && parsed.entries && parsed.entries.length) {
+                        if (!parsed.employee) parsed.employee = {};
+                        if (!parsed.employee.name) parsed.employee.name = data.full_name || data.name || '';
+                        if (!parsed.employee.id) parsed.employee.id = data.static_id || data.staticId || '';
+                        parsed.reportType = rtype;
+                        parsed.totalPoints = parsed.totalPoints || data.points || 0;
+                        applyReportData(parsed);
+                    }
+                } catch (eParse) { console.warn(eParse); }
+            }
             if (data.html) {
-                if (typeof openReportViewer === 'function') openReportViewer(data.html, (data.full_name || 'report') + '.html');
+                lastViewerHtml = data.html;
+                lastViewerTitle = (data.full_name || 'report') + '.html';
+                if (typeof openReportViewer === 'function') openReportViewer(data.html, lastViewerTitle);
                 else if (typeof window.openReportViewer === 'function') window.openReportViewer(data.html, 'report.html');
             }
             if (typeof scheduleDraw === 'function') scheduleDraw();
