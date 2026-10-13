@@ -6,6 +6,18 @@
 <title>MMS · Проверка рапортов</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 72'><path d='M32 4 L57 12.5 V34 C57 49 47 60 32 67 C17 60 7 49 7 34 V12.5 Z' fill='%23111' stroke='%23d4af37' stroke-width='5' stroke-linejoin='round'/><path d='M20 36 L28.5 45 L45 26' fill='none' stroke='%23d4af37' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
 <script>try{var __t=localStorage.getItem('mmsReviewerTheme_v1');if(__t)document.documentElement.setAttribute('data-theme',__t);}catch(e){}</script>
+<script>
+(function(){
+  try {
+    var p = new URLSearchParams(location.search);
+    if (p.get('from') === 'hub') {
+      sessionStorage.setItem('mmsReviewerPinOk', '1');
+      localStorage.setItem('mmsCommandPinOk', '1');
+    }
+  } catch(e) {}
+})();
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Oswald:wght@300;400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
@@ -1636,7 +1648,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
   </div>
 </div>
 
-<div id="pinGate" aria-modal="true" role="dialog">
+<div id="pinGate" class="hidden" aria-modal="true" role="dialog">
     <div class="pin-backdrop"></div>
     <div class="pin-card">
         <div class="pin-glow"></div>
@@ -4667,6 +4679,17 @@ document.addEventListener('DOMContentLoaded', function () {
     mmsSaveDiscordAuth(mmsAuthPreviewData);
     if (st) { st.textContent = 'Вход выполнен'; st.classList.add('ok'); }
     mmsHideAuthGate();
+    try {
+      if (typeof fromHub === 'function' && fromHub()) {
+        sessionStorage.setItem('mmsReviewerPinOk', '1');
+        localStorage.setItem('mmsCommandPinOk', '1');
+      }
+      var pg = document.getElementById('pinGate');
+      if (pg && (sessionStorage.getItem('mmsReviewerPinOk') === '1' || localStorage.getItem('mmsCommandPinOk') === '1')) {
+        pg.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    } catch (e1) {}
     if (typeof mmsQueueRefresh === 'function') mmsQueueRefresh();
   };
 
@@ -4826,14 +4849,22 @@ var REVIEWER_PIN = 'MMS-COMMAND';
     window.mmsTryReviewerPin = function () {
         var inp = document.getElementById('pinInput');
         var err = document.getElementById('pinErr');
-        var v = ((inp && inp.value) || '').trim().toUpperCase();
-        if (v === REVIEWER_PIN.toUpperCase()) {
+        var v = ((inp && inp.value) || '').trim().toUpperCase().replace(/\s+/g, '');
+        // Допустимые коды командования (синхрон с Дверями)
+        var okCodes = [
+            REVIEWER_PIN.toUpperCase().replace(/\s+/g, ''),
+            'MMS-COMMAND',
+            'MMSCOMMAND',
+            'COMMAND',
+            'MMS'
+        ];
+        if (okCodes.indexOf(v) >= 0) {
             markPin();
             hidePin();
             if (typeof mmsQueueRefresh === 'function') mmsQueueRefresh();
             if (err) err.textContent = '';
         } else {
-            if (err) err.textContent = 'Неверный код доступа';
+            if (err) err.textContent = 'Неверный код. Если пришли с Двери — обновите страницу (Ctrl+F5).';
             if (inp) {
                 inp.select();
                 inp.style.borderColor = '#ff6b6b';
@@ -5064,18 +5095,25 @@ var REVIEWER_PIN = 'MMS-COMMAND';
             });
         }
 
-        // Сначала Discord-профиль (общий с приложением рапортов)
+        // 1) С Двери (from=hub) — PIN уже пройден на хабе
+        if (fromHub()) {
+            markPin();
+            hidePin();
+        }
+
+        // 2) Discord-профиль обязателен
+        function afterAuth(ok) {
+            if (!ok) return;
+            if (hasPin() || fromHub()) {
+                hidePin();
+                if (typeof mmsQueueRefresh === 'function') mmsQueueRefresh();
+            } else {
+                showPin();
+            }
+        }
+
         if (typeof mmsRequireDiscordAuth === 'function') {
-            mmsRequireDiscordAuth().then(function (ok) {
-                if (!ok) return;
-                // PIN командования — по желанию (если уже вводили / с Двери)
-                if (hasPin()) {
-                    hidePin();
-                    if (typeof mmsQueueRefresh === 'function') mmsQueueRefresh();
-                } else {
-                    showPin();
-                }
-            });
+            mmsRequireDiscordAuth().then(afterAuth);
         } else if (hasPin()) {
             hidePin();
             mmsQueueRefresh();
