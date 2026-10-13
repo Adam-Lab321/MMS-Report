@@ -1174,7 +1174,56 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
             z-index: 5;
         }
         .door-home-btn:hover { border-color: var(--gold); background: var(--accent-soft); transform: translateY(-1px); }
-        .queue-panel {
+        
+.queue-panel { max-width: 1100px; margin: 0 auto 24px; padding: 0 16px; }
+.queue-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 12px; }
+.queue-title { font-family: Cinzel, serif; font-size: 15px; letter-spacing: 0.12em; color: var(--gold); }
+.queue-refresh { padding: 8px 14px !important; font-size: 12px !important; }
+.queue-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+@media (max-width: 640px) { .queue-tabs { grid-template-columns: 1fr; } }
+.queue-tab {
+    display: flex; align-items: center; gap: 12px; text-align: left;
+    padding: 14px 16px; border-radius: 14px;
+    border: 1px solid var(--border); background: var(--bg-card);
+    color: var(--text-dim); cursor: pointer; transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.queue-tab .qt-ico { font-size: 22px; line-height: 1; }
+.queue-tab .qt-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.queue-tab .qt-text strong { font-size: 14px; color: var(--text); font-weight: 600; }
+.queue-tab .qt-text small { font-size: 11px; color: var(--text-muted); }
+.queue-tab .qt-count {
+    min-width: 28px; height: 28px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.06); font-size: 13px; font-weight: 600;
+}
+.queue-tab.active {
+    border-color: var(--gold); background: var(--accent-soft);
+    box-shadow: 0 0 24px rgba(var(--accent-rgb), 0.12);
+}
+.queue-tab.active .qt-count { background: var(--gold); color: #111; }
+.queue-list { display: flex; flex-direction: column; gap: 8px; }
+.queue-item {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border);
+    background: var(--bg-panel); cursor: pointer; text-align: left;
+    font-family: Oswald, sans-serif; color: var(--text);
+    transition: border-color 0.15s, transform 0.12s;
+}
+.queue-item:hover { border-color: var(--gold); transform: translateY(-1px); }
+.queue-item.locked { opacity: 0.75; border-style: dashed; }
+.queue-item .qi-main { flex: 1; min-width: 140px; }
+.queue-item .qi-name { font-weight: 600; font-size: 14px; }
+.queue-item .qi-meta { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.queue-item .qi-badge {
+    font-size: 11px; padding: 5px 12px; border-radius: 12px;
+    border: 1px solid var(--border); color: var(--gold); white-space: nowrap;
+}
+.queue-item .qi-badge.done { color: #6bcb7a; border-color: rgba(107,203,122,0.4); }
+.queue-item .qi-badge.lock { color: #e8a84a; border-color: rgba(232,168,74,0.45); }
+.queue-empty { padding: 28px 20px; text-align: center; color: var(--text-muted); font-size: 13px;
+    border: 1px dashed var(--border); border-radius: 12px; background: var(--bg-card); }
+
+.queue-panel-OLD {
             max-width: 1100px; margin: 0 auto 20px; padding: 0 16px;
         }
         .queue-tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -1355,6 +1404,55 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     line-height: 1.4;
 }
 
+
+.queue-panel { max-width: 1100px; margin: 0 auto 24px; padding: 0 16px; }
+.queue-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 12px; }
+.queue-title { font-family: Cinzel, serif; font-size: 15px; letter-spacing: 0.12em; color: var(--gold); }
+.queue-refresh { padding: 8px 14px !important; font-size: 12px !important; }
+.queue-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+@media (max-width: 640px) { .queue-tabs { grid-template-columns: 1fr; } }
+.queue-tab {
+    display: flex; align-items: center; gap: 12px; text-align: left;
+    padding: 14px 16px; border-radius: 14px;
+    border: 1px solid var(--border); background: var(--bg-card);
+    color: var(--text-dim); cursor: pointer; transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.queue-tab .qt-ico { font-size: 22px; line-height: 1; }
+.queue-tab .qt-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.queue-tab .qt-text strong { font-size: 14px; color: var(--text); font-weight: 600; }
+.queue-tab .qt-text small { font-size: 11px; color: var(--text-muted); }
+.queue-tab .qt-count {
+    min-width: 28px; height: 28px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.06); font-size: 13px; font-weight: 600;
+}
+.queue-tab.active {
+    border-color: var(--gold); background: var(--accent-soft);
+    box-shadow: 0 0 24px rgba(var(--accent-rgb), 0.12);
+}
+.queue-tab.active .qt-count { background: var(--gold); color: #111; }
+.queue-list { display: flex; flex-direction: column; gap: 8px; }
+.queue-item {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border);
+    background: var(--bg-panel); cursor: pointer; text-align: left;
+    font-family: Oswald, sans-serif; color: var(--text);
+    transition: border-color 0.15s, transform 0.12s;
+}
+.queue-item:hover { border-color: var(--gold); transform: translateY(-1px); }
+.queue-item.locked { opacity: 0.75; border-style: dashed; }
+.queue-item .qi-main { flex: 1; min-width: 140px; }
+.queue-item .qi-name { font-weight: 600; font-size: 14px; }
+.queue-item .qi-meta { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.queue-item .qi-badge {
+    font-size: 11px; padding: 5px 12px; border-radius: 12px;
+    border: 1px solid var(--border); color: var(--gold); white-space: nowrap;
+}
+.queue-item .qi-badge.done { color: #6bcb7a; border-color: rgba(107,203,122,0.4); }
+.queue-item .qi-badge.lock { color: #e8a84a; border-color: rgba(232,168,74,0.45); }
+.queue-empty { padding: 28px 20px; text-align: center; color: var(--text-muted); font-size: 13px;
+    border: 1px dashed var(--border); border-radius: 12px; background: var(--bg-card); }
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
@@ -1386,10 +1484,21 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 
 
     <section class="queue-panel" id="queuePanel" aria-label="Очередь рапортов">
+        <div class="queue-head">
+            <div class="queue-title">Очередь проверки</div>
+            <button type="button" class="btn btn-gold queue-refresh" onclick="mmsQueueRefresh()">↻ Обновить</button>
+        </div>
         <div class="queue-tabs">
-            <button type="button" class="queue-tab active" id="tabPending" onclick="mmsQueueShow('pending')">На проверке</button>
-            <button type="button" class="queue-tab" id="tabDone" onclick="mmsQueueShow('done')">Проверено</button>
-            <button type="button" class="btn btn-gold" style="margin-left:auto;padding:8px 14px;font-size:12px;" onclick="mmsQueueRefresh()">↻ Обновить очередь</button>
+            <button type="button" class="queue-tab active" id="tabPending" onclick="mmsQueueShow('pending')">
+                <span class="qt-ico">📥</span>
+                <span class="qt-text"><strong>На проверке</strong><small>ждут решения</small></span>
+                <span class="qt-count" id="pendingCount">0</span>
+            </button>
+            <button type="button" class="queue-tab" id="tabDone" onclick="mmsQueueShow('done')">
+                <span class="qt-ico">✅</span>
+                <span class="qt-text"><strong>Проверено</strong><small>архив решений</small></span>
+                <span class="qt-count" id="doneCount">0</span>
+            </button>
         </div>
         <div class="queue-list" id="queueList"><div class="queue-empty">Загрузка очереди…</div></div>
     </section>
@@ -1415,23 +1524,23 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
         <div class="steps-row" id="stepsRow">
             <div class="step-card" id="step1" data-target="loadZone" tabindex="0" role="button">
                 <div class="step-top"><span class="step-num">01</span><span class="step-check">✓</span></div>
-                <div class="step-title">Загрузить рапорт</div>
-                <div class="step-desc">JSON, HTML, Word (.doc) или пакет .mms / .zip с report.json</div>
+                <div class="step-title">Очередь или файл</div>
+                <div class="step-desc">Выберите рапорт из «На проверке» или загрузите HTML/JSON/.mms вручную</div>
             </div>
             <div class="step-card" id="step2" data-target="empName" tabindex="0" role="button">
                 <div class="step-top"><span class="step-num">02</span><span class="step-check">✓</span></div>
                 <div class="step-title">Проверить данные</div>
-                <div class="step-desc">ФИО, ID, баллы, фото и ссылки. Откройте просмотр при необходимости</div>
+                <div class="step-desc">Откройте просмотр → «Взять данные» (ссылки и фото). Сверьте записи</div>
             </div>
             <div class="step-card" id="step3" data-target="cardOk" tabindex="0" role="button">
                 <div class="step-top"><span class="step-num">03</span><span class="step-check">✓</span></div>
                 <div class="step-title">Вынести решение</div>
-                <div class="step-desc">Одобрить или отклонить, выбрать шаблоны и печати руководства</div>
+                <div class="step-desc">Одобрить / не одобрить, печати. Можно отправить ответ в Discord</div>
             </div>
             <div class="step-card" id="step4" data-target="previewStage" tabindex="0" role="button">
                 <div class="step-top"><span class="step-num">04</span><span class="step-check">✓</span></div>
-                <div class="step-title">Скачать бланк</div>
-                <div class="step-desc">PNG A4 · клик по бланку увеличивает · готово к выдаче</div>
+                <div class="step-title">Бланк и Discord</div>
+                <div class="step-desc">PNG при необходимости · ответ уходит в канал проверки</div>
             </div>
         </div>
     </section>
@@ -1593,6 +1702,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
             <button type="button" class="btn btn-gold" onclick="downloadPng()">Скачать PNG (A4)</button>
             <button type="button" class="btn btn-ghost" onclick="drawA4()">Обновить бланк</button>
             <button type="button" class="btn btn-ghost" onclick="openBlankLightbox()">🔍 Увеличить бланк</button>
+            <button type="button" class="btn btn-gold" onclick="mmsSendDecisionDiscord()">📤 Отправить решение в Discord</button>
             <div style="font-size:11px;color:var(--text-muted);margin-top:6px;width:100%;text-align:center;">Клик по бланку — крупный просмотр · колёсико и кнопки — масштаб</div>
         </div>
     </div>
@@ -3585,11 +3695,38 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!frame) return;
         try {
             const doc = frame.contentDocument;
-            if (!doc || !doc.body) return;
+            if (!doc || !doc.documentElement) return;
+            let styleEl = doc.getElementById('mmsViewerThemeOverride');
+            if (!styleEl) {
+                styleEl = doc.createElement('style');
+                styleEl.id = 'mmsViewerThemeOverride';
+                (doc.head || doc.documentElement).appendChild(styleEl);
+            }
             if (t === 'dark') {
-                doc.body.style.background = cssVar('--bg', '#0c0b09');
-                doc.body.style.color = cssVar('--text', '#e8e0d4');
+                styleEl.textContent = [
+                    'html, body { background: #0c0b09 !important; color: #e8e0d4 !important; }',
+                    'body * { color: inherit; }',
+                    'h1, h2, h3, h4, strong, b, th { color: #e8c84a !important; }',
+                    'a { color: #7eb8ff !important; }',
+                    'table { background: #141210 !important; border-color: rgba(212,175,55,0.35) !important; }',
+                    'th { background: #1a1712 !important; color: #e8c84a !important; border-color: rgba(212,175,55,0.3) !important; }',
+                    'td { background: #12100e !important; color: #e8e0d4 !important; border-color: rgba(212,175,55,0.2) !important; }',
+                    'tr:nth-child(even) td { background: #161410 !important; }',
+                    'hr, .line, .gold-line { border-color: rgba(212,175,55,0.4) !important; background: rgba(212,175,55,0.4) !important; }',
+                    'img { opacity: 0.95; }'
+                ].join('\n');
+                doc.body.style.background = '#0c0b09';
+                doc.body.style.color = '#e8e0d4';
             } else {
+                styleEl.textContent = [
+                    'html, body { background: #f7f3ea !important; color: #2a241e !important; }',
+                    'h1, h2, h3, h4, strong, b, th { color: #1a3a8a !important; }',
+                    'a { color: #1a4a9a !important; }',
+                    'table { background: #fff !important; border-color: #c8b89a !important; }',
+                    'th { background: #f0e8d8 !important; color: #1a3a8a !important; }',
+                    'td { background: #fffef9 !important; color: #2a241e !important; border-color: #ddd !important; }',
+                    'tr:nth-child(even) td { background: #faf6ee !important; }'
+                ].join('\n');
                 doc.body.style.background = '#f7f3ea';
                 doc.body.style.color = '#2a241e';
             }
@@ -3607,15 +3744,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
             let m = text.match(/ID[:\s]*([0-9]{3,8})/i);
             if (m) data.employee.id = m[1];
-            m = text.match(/Сотрудник[^A-Za-zА-Яа-я]{0,40}([A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё\s\-]{2,40})/i);
-            if (m) data.employee.name = m[1].trim();
+            m = text.match(/СОТРУДНИК[:\s]*([A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё\s\-]{1,40})\s*\(ID[:\s]*([0-9]{3,8})\)/i);
+            if (m) {
+                data.employee.name = m[1].trim();
+                data.employee.id = m[2];
+            }
             if (!data.employee.name) {
-                m = text.match(/([A-Za-zА-Яа-яЁё]+\s+[A-Za-zА-Яа-яЁё]+)(?:\s*\(ID)/);
+                m = text.match(/Сотрудник[^A-Za-zА-Яа-я]{0,40}([A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё\s\-]{2,40})/i);
+                if (m) data.employee.name = m[1].trim();
+            }
+            if (!data.employee.name) {
+                m = text.match(/([A-Za-zА-Яа-яЁё]+\s+[A-Za-zА-Яа-яЁё]+)\s*\(ID/i);
                 if (m) data.employee.name = m[1].trim();
             }
             m = text.match(/ИТОГО[^\d]{0,20}(\d{1,5})/i) || text.match(/TOTAL[^\d]{0,12}(\d{1,5})/i);
             if (m) data.totalPoints = parseInt(m[1], 10);
             if (/повышен/i.test(text) || /PROMOTION/i.test(text)) data.mode = 'promotion';
+
+            const cats = ['медэкзамен','мед. экзамен','мед смотр','мед. смотр','кадры','заявк','поставк','прочее','экзамен'];
+            function guessCat(t) {
+                const low = (t || '').toLowerCase();
+                if (/мед.?экзамен|медексзамен/.test(low)) return 'медэкзамен';
+                if (/мед.?смотр/.test(low)) return 'мед. смотр';
+                if (/кадр/.test(low)) return 'кадры';
+                if (/заявк/.test(low)) return 'заявки';
+                if (/поставк/.test(low)) return 'поставки';
+                return 'прочее';
+            }
 
             const rows = doc.querySelectorAll('table tr');
             rows.forEach(function (tr, idx) {
@@ -3624,29 +3779,72 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (cells.length < 2) return;
                 const rowText = tr.innerText || '';
                 const dm = rowText.match(/(\d{2}[./]\d{2}[./]\d{4})/);
-                const pm = rowText.match(/\b(\d{1,4})\b/);
-                if (dm) {
-                    data.entries.push({
-                        evidenceNumber: '№' + (data.entries.length + 1),
-                        date: dm[1].replace(/\//g, '.'),
-                        category: 'прочее',
-                        points: pm ? parseInt(pm[1], 10) : 0
-                    });
+                if (!dm) return;
+                // баллы — обычно в последней ячейке
+                let pts = 0;
+                const lastCell = cells[cells.length - 1];
+                if (lastCell) {
+                    const pm = (lastCell.innerText || '').match(/(\d{1,4})/);
+                    if (pm) pts = parseInt(pm[1], 10);
                 }
+                if (!pts) {
+                    const allPts = rowText.match(/\b(\d{1,4})\b/g);
+                    if (allPts && allPts.length) pts = parseInt(allPts[allPts.length - 1], 10);
+                }
+
+                // ссылки
+                const links = [];
+                tr.querySelectorAll('a[href]').forEach(function (a) {
+                    const href = a.getAttribute('href') || '';
+                    if (/^https?:\/\//i.test(href)) links.push(href);
+                });
+
+                // фото: img в строке (data URL или http)
+                const attachments = [];
+                tr.querySelectorAll('img').forEach(function (img, ii) {
+                    let src = img.getAttribute('src') || '';
+                    if (!src) return;
+                    // relative → skip if empty
+                    if (src.indexOf('data:') === 0 || /^https?:\/\//i.test(src)) {
+                        attachments.push({
+                            dataUrl: src,
+                            name: img.getAttribute('alt') || ('Фото ' + (ii + 1)),
+                            points: 0
+                        });
+                    }
+                });
+
+                // ссылка-доказательство
+                let proof = links[0] || '';
+                const entry = {
+                    evidenceNumber: '№' + (data.entries.length + 1),
+                    date: dm[1].replace(/\//g, '.'),
+                    category: guessCat(rowText),
+                    points: pts,
+                    proofLink: proof,
+                    links: links,
+                    attachments: attachments
+                };
+                if (proof) entry.note = proof;
+                data.entries.push(entry);
             });
 
             if (forceApply) {
                 applyReportData(data);
-                toast('Данные подтянуты из отчёта');
+                const ph = data.entries.reduce(function (n, e) {
+                    return n + (Array.isArray(e.attachments) ? e.attachments.length : 0);
+                }, 0);
+                toast('Данные: ' + data.entries.length + ' записей, фото: ' + ph);
             }
             return data;
         } catch (e) {
+            console.error(e);
             if (forceApply) toast('Не удалось прочитать данные из отчёта');
             return null;
         }
     }
 
-    window.extractFromViewer = function () {
+        window.extractFromViewer = function () {
         tryParseViewerIntoForm(true);
     };
 
@@ -3966,13 +4164,37 @@ document.addEventListener('DOMContentLoaded', function () {
         if (img) img.style.transform = 'scale(1)';
     };
 
-    window.blankZoom = function (factor) {
+    let blankOriginX = 50, blankOriginY = 50;
+    window.blankZoom = function (factor, clientX, clientY) {
         const img = $('blankLightboxImg');
+        const stage = img && img.parentElement;
         if (!img) return;
-        if (factor === 0) blankScale = 1;
-        else blankScale = Math.min(4, Math.max(0.4, blankScale * factor));
+        if (factor === 0) {
+            blankScale = 1;
+            blankOriginX = 50;
+            blankOriginY = 50;
+        } else {
+            if (typeof clientX === 'number' && stage) {
+                const r = stage.getBoundingClientRect();
+                blankOriginX = ((clientX - r.left) / r.width) * 100;
+                blankOriginY = ((clientY - r.top) / r.height) * 100;
+            }
+            blankScale = Math.min(5, Math.max(0.35, blankScale * factor));
+        }
+        img.style.transformOrigin = blankOriginX + '% ' + blankOriginY + '%';
         img.style.transform = 'scale(' + blankScale + ')';
     };
+    // колёсико над бланком — зум к курсору
+    document.addEventListener('DOMContentLoaded', function () {
+        const bl = $('blankLightbox');
+        if (!bl || bl.__mmsZoomBound) return;
+        bl.__mmsZoomBound = true;
+        bl.addEventListener('wheel', function (e) {
+            if (!bl.classList.contains('show')) return;
+            e.preventDefault();
+            blankZoom(e.deltaY < 0 ? 1.12 : 0.9, e.clientX, e.clientY);
+        }, { passive: false });
+    });
 
     /* init */
     $('repDate').value = todayISO();
@@ -4099,9 +4321,20 @@ document.addEventListener('DOMContentLoaded', function () {
         renderQueue();
     };
 
+    function inspectorName() {
+        try {
+            var n = localStorage.getItem('mmsInspectorName');
+            if (n) return n;
+        } catch (e) {}
+        return 'Inspector';
+    }
     function renderQueue() {
         var list = document.getElementById('queueList');
         if (!list) return;
+        var pc = document.getElementById('pendingCount');
+        var dc = document.getElementById('doneCount');
+        if (pc) pc.textContent = String((queueCache.pending || []).length);
+        if (dc) dc.textContent = String((queueCache.done || []).length);
         var items = queueCache[queueTab] || [];
         if (!items.length) {
             list.innerHTML = '<div class="queue-empty">' +
@@ -4110,16 +4343,28 @@ document.addEventListener('DOMContentLoaded', function () {
                     : 'Архив проверенных пока пуст.') + '</div>';
             return;
         }
+        var me = inspectorName();
         list.innerHTML = items.map(function (it) {
             var name = String(it.full_name || it.name || '—').replace(/</g, '&lt;');
             var sid = String(it.static_id || it.staticId || '—').replace(/</g, '&lt;');
             var when = String(it.submitted_at || it.at || '').slice(0, 16).replace('T', ' ');
             var typ = (it.report_type || it.mode || 'weekly') === 'promotion' ? 'На повышение' : 'Еженедельный';
-            var badge = queueTab === 'done'
-                ? ('<span class="qi-badge done">' + ((it.decision === 'deny' || it.decision === 'rejected') ? 'Не одобрено' : 'Одобрено') + '</span>')
-                : '<span class="qi-badge">На проверке</span>';
+            var claimed = it.claimed_by || it.claimedBy || '';
+            var locked = claimed && claimed !== me && queueTab === 'pending';
+            var badge;
+            if (queueTab === 'done') {
+                badge = '<span class="qi-badge done">' + ((it.decision === 'deny' || it.decision === 'rejected') ? 'Не одобрено' : 'Одобрено') + '</span>';
+            } else if (claimed) {
+                badge = '<span class="qi-badge lock">🔒 ' + String(claimed).replace(/</g, '&lt;') + '</span>';
+            } else {
+                badge = '<span class="qi-badge">Свободен</span>';
+            }
             var id = String(it.id || '').replace(/'/g, '');
-            return '<div class="queue-item" onclick="mmsOpenQueueItem(\'' + id + '\')">' +
+            var cls = 'queue-item' + (locked ? ' locked' : '');
+            var click = locked
+                ? "alert('Рапорт уже на проверке у: " + String(claimed).replace(/'/g, '') + "')"
+                : "mmsOpenQueueItem('" + id + "')";
+            return '<div class="' + cls + '" onclick="' + click + '">' +
                 '<div class="qi-main"><div class="qi-name">' + name + ' · ID ' + sid + '</div>' +
                 '<div class="qi-meta">' + typ + (when ? (' · ' + when) : '') + '</div></div>' + badge + '</div>';
         }).join('');
@@ -4150,6 +4395,20 @@ document.addEventListener('DOMContentLoaded', function () {
     window.mmsOpenQueueItem = async function (id) {
         if (!id) return;
         try {
+            // занять рапорт
+            try {
+                var claim = await fetch(PROXY + '/review/claim', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, inspector: inspectorName() })
+                });
+                var cj = await claim.json().catch(function () { return null; });
+                if (cj && cj.ok === false && cj.code === 'claimed') {
+                    alert('Рапорт уже проверяет: ' + (cj.claimed_by || 'другой сотрудник'));
+                    mmsQueueRefresh();
+                    return;
+                }
+            } catch (e) {}
             var res = await fetch(PROXY + '/review/item?id=' + encodeURIComponent(id));
             var data = await res.json().catch(function () { return null; });
             if (!data || !data.ok) {
@@ -4176,6 +4435,46 @@ document.addEventListener('DOMContentLoaded', function () {
             window.__mmsQueueItemId = id;
         } catch (e) {
             alert('Ошибка загрузки');
+        }
+    };
+
+
+    window.mmsSendDecisionDiscord = async function () {
+        var id = window.__mmsQueueItemId || '';
+        var name = (document.getElementById('empName') && document.getElementById('empName').value) || '';
+        var sid = (document.getElementById('empId') && document.getElementById('empId').value) || '';
+        var dec = (typeof decision !== 'undefined' ? decision : 'approve');
+        var text = (document.getElementById('decisionText') && document.getElementById('decisionText').value) || '';
+        var docNo = (document.getElementById('docNo') && document.getElementById('docNo').value) || '';
+        try {
+            if (typeof drawA4 === 'function') drawA4();
+            var canvas = document.getElementById('a4Canvas');
+            var png = canvas ? canvas.toDataURL('image/png') : null;
+            var res = await fetch(PROXY + '/review/decide', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: id,
+                    decision: dec,
+                    decision_text: text,
+                    full_name: name,
+                    static_id: sid,
+                    doc_no: docNo,
+                    inspector: inspectorName(),
+                    png_data_url: png,
+                    send_discord: true
+                })
+            });
+            var data = await res.json().catch(function () { return null; });
+            if (data && data.ok) {
+                if (typeof toast === 'function') toast('Решение отправлено в Discord');
+                else alert('Решение отправлено в Discord');
+                mmsQueueRefresh();
+            } else {
+                alert((data && data.error) || 'Не удалось отправить');
+            }
+        } catch (e) {
+            alert('Ошибка: ' + (e.message || e));
         }
     };
 
