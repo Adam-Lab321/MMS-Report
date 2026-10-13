@@ -122,16 +122,30 @@ html[data-theme="olive"] {
 :root { --danger: #c0392b; --ok: #2e7d32; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { background: var(--bg); color-scheme: dark; scroll-behavior: smooth; transition: background-color .35s ease; }
+html {
+    background: var(--bg);
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    transition: background-color .35s ease;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+}
 body {
     position: relative;
     min-height: 100vh;
+    height: auto;
     color: var(--text);
     font-family: 'Oswald', sans-serif;
     background-image: radial-gradient(ellipse 100% 560px at 50% -90px, var(--accent-soft), transparent 100%);
     background-repeat: no-repeat;
     background-position: top center;
     transition: color .25s ease;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+}
+body.modal-open {
+    overflow: hidden !important;
 }
 /* Pattern layer: spans the WHOLE document height and scrolls together with the page */
 body::before {
@@ -1274,6 +1288,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     border: 1px solid var(--border); color: var(--gold); white-space: nowrap;
 }
 .queue-item .qi-badge.done { color: #6bcb7a; border-color: rgba(107,203,122,0.4); }
+.queue-item .qi-badge.denied { color: #e87474; border-color: rgba(232,116,116,0.45); background: rgba(232,116,116,0.08); }
 .queue-item .qi-badge.lock { color: #e8a84a; border-color: rgba(232,168,74,0.45); }
 .queue-empty { padding: 28px 20px; text-align: center; color: var(--text-muted); font-size: 13px;
     border: 1px dashed var(--border); border-radius: 12px; background: var(--bg-card); }
@@ -1304,6 +1319,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
             border: 1px solid var(--border); color: var(--gold);
         }
         .queue-item .qi-badge.done { color: #6bcb7a; border-color: rgba(107,203,122,0.4); }
+.queue-item .qi-badge.denied { color: #e87474; border-color: rgba(232,116,116,0.45); background: rgba(232,116,116,0.08); }
         .queue-empty { padding: 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
         
 
@@ -1504,6 +1520,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     border: 1px solid var(--border); color: var(--gold); white-space: nowrap;
 }
 .queue-item .qi-badge.done { color: #6bcb7a; border-color: rgba(107,203,122,0.4); }
+.queue-item .qi-badge.denied { color: #e87474; border-color: rgba(232,116,116,0.45); background: rgba(232,116,116,0.08); }
 .queue-item .qi-badge.lock { color: #e8a84a; border-color: rgba(232,168,74,0.45); }
 .queue-empty { padding: 28px 20px; text-align: center; color: var(--text-muted); font-size: 13px;
     border: 1px dashed var(--border); border-radius: 12px; background: var(--bg-card); }
@@ -2351,13 +2368,13 @@ function mmsShowGate(msg) {
         text = (text ? text + ' ' : '') + '⚠️ Откройте по HTTPS, не файл с диска.';
     }
     if (st) { st.textContent = text; st.classList.remove('ok'); }
-    document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open'); document.body.style.overflow = 'hidden';
 }
 
 function mmsHideGate() {
     const gate = document.getElementById('licenseGate');
     if (gate) gate.classList.add('hidden');
-    document.body.style.overflow = '';
+    document.body.classList.remove('modal-open'); document.body.style.overflow = ''; document.documentElement.style.overflow = '';
     mmsUpdateWatermark();
 }
 
@@ -3247,7 +3264,7 @@ document.addEventListener('DOMContentLoaded', function () {
             applyLightboxTransform();
         }
         if (lb) lb.classList.add('show');
-        document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open'); document.body.style.overflow = 'hidden';
     };
     window.closeLightbox = function () {
         const lb = $('lightbox');
@@ -3255,7 +3272,7 @@ document.addEventListener('DOMContentLoaded', function () {
         lightboxScale = 1; lbPanX = 0; lbPanY = 0;
         const img = $('lightboxImg');
         if (img) img.style.transform = '';
-        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open'); document.body.style.overflow = ''; document.documentElement.style.overflow = '';
         lbDragging = false;
     };
     window.lightboxZoom = function (factor, clientX, clientY) {
@@ -3309,15 +3326,15 @@ document.addEventListener('DOMContentLoaded', function () {
     })();
     document.addEventListener('wheel', function (e) {
         const lb = $('lightbox');
-        if (lb && lb.classList.contains('show')) {
+        if (lb && lb.classList.contains('show') && lb.contains(e.target)) {
             e.preventDefault();
-            lightboxZoom(e.deltaY < 0 ? 1.12 : 0.9);
+            lightboxZoom(e.deltaY < 0 ? 1.12 : 0.9, e.clientX, e.clientY);
             return;
         }
         const bl = $('blankLightbox');
-        if (bl && bl.classList.contains('show')) {
+        if (bl && bl.classList.contains('show') && bl.contains(e.target)) {
             e.preventDefault();
-            blankZoom(e.deltaY < 0 ? 1.12 : 0.9);
+            blankZoom(e.deltaY < 0 ? 1.12 : 0.9, e.clientX, e.clientY);
         }
     }, { passive: false });
 
@@ -4025,7 +4042,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if ($('reportViewerTitle')) $('reportViewerTitle').textContent = 'ПРОСМОТР: ' + lastViewerTitle;
         if (loading) loading.classList.add('show');
         modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open'); document.body.style.overflow = 'hidden';
 
         frame.onload = function () {
             setTimeout(function () {
@@ -4051,7 +4068,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const frame = $('reportViewerFrame');
         const loading = $('reportViewerLoading');
         if (modal) modal.classList.remove('show');
-        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open'); document.body.style.overflow = ''; document.documentElement.style.overflow = '';
         if (loading) loading.classList.remove('show');
         if (frame) {
             try {
@@ -4538,13 +4555,13 @@ document.addEventListener('DOMContentLoaded', function () {
         img.src = canvas.toDataURL('image/png');
         img.style.transform = 'scale(1)';
         lb.classList.add('show');
-        document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open'); document.body.style.overflow = 'hidden';
     };
 
     window.closeBlankLightbox = function () {
         const lb = $('blankLightbox');
         if (lb) lb.classList.remove('show');
-        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open'); document.body.style.overflow = ''; document.documentElement.style.overflow = '';
         blankScale = 1;
         const img = $('blankLightboxImg');
         if (img) img.style.transform = 'scale(1)';
@@ -4698,12 +4715,12 @@ document.addEventListener('DOMContentLoaded', function () {
       st.textContent = msg || '';
       st.classList.toggle('ok', false);
     }
-    document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open'); document.body.style.overflow = 'hidden';
   }
   function mmsHideAuthGate() {
     var gate = document.getElementById('authGate');
     if (gate) gate.classList.add('hidden');
-    document.body.style.overflow = '';
+    document.body.classList.remove('modal-open'); document.body.style.overflow = ''; document.documentElement.style.overflow = '';
   }
 
   function mmsRedirectUri() {
@@ -4876,7 +4893,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function hidePin() {
         var g = document.getElementById('pinGate');
         if (g) g.classList.add('hidden');
-        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open'); document.body.style.overflow = ''; document.documentElement.style.overflow = '';
         try {
             var lg = document.getElementById('licenseGate');
             if (lg) { lg.classList.add('hidden'); lg.style.display = 'none'; }
@@ -4885,7 +4902,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function showPin() {
         var g = document.getElementById('pinGate');
         if (g) g.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open'); document.body.style.overflow = 'hidden';
         setTimeout(function () {
             var inp = document.getElementById('pinInput');
             if (inp) inp.focus();
@@ -4961,8 +4978,16 @@ document.addEventListener('DOMContentLoaded', function () {
             var badge;
             if (queueTab === 'done') {
                 var insp = it.inspector || it.claimed_by || '';
-                var decLabel = (it.decision === 'deny' || it.decision === 'rejected') ? 'Не одобрено' : 'Одобрено';
-                badge = '<span class="qi-badge done">' + decLabel +
+                var d = String(it.decision || it.verdict || '').toLowerCase();
+                var denied = (d === 'deny' || d === 'rejected' || d === 'reject' || d === 'denied' || d === 'no' || it.denied === true);
+                // запасной сигнал по тексту заключения (старые записи после бага)
+                if (!denied && it.decision_text) {
+                    var tx = String(it.decision_text).toLowerCase();
+                    if (/не\s*одобр|отклон|отказ|не\s*подтверж/.test(tx) && !/рапорт\s*принят|зач[её]т\s*балл/.test(tx)) denied = true;
+                }
+                var decLabel = denied ? 'Не одобрено' : 'Одобрено';
+                var bcls = denied ? 'qi-badge denied' : 'qi-badge done';
+                badge = '<span class="' + bcls + '">' + decLabel +
                     (insp ? (' · ' + String(insp).replace(/</g, '&lt;')) : '') + '</span>';
             } else if (claimed) {
                 badge = '<span class="qi-badge lock">🔒 ' + String(claimed).replace(/</g, '&lt;') + '</span>';
@@ -5128,6 +5153,26 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
+
+    function mmsUnlockScroll() {
+        try {
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            var gates = ['authGate', 'pinGate', 'licenseGate', 'blankLightbox', 'lightbox', 'reportViewerModal', 'entryDetailModal'];
+            gates.forEach(function (id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                if (id === 'authGate' || id === 'pinGate' || id === 'licenseGate') {
+                    /* leave class management to auth flow */
+                } else {
+                    el.classList.remove('show');
+                }
+            });
+        } catch (e) {}
+    }
+    window.mmsUnlockScroll = mmsUnlockScroll;
+
     function boot() {
         // старый license gate спрятать
         try {
@@ -5161,6 +5206,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // 2) Discord-профиль обязателен
         function afterAuth(ok) {
             if (!ok) return;
+            mmsUnlockScroll();
             if (hasPin() || fromHub()) {
                 hidePin();
                 if (typeof mmsQueueRefresh === 'function') mmsQueueRefresh();
@@ -5169,6 +5215,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
+        mmsUnlockScroll();
         if (typeof mmsRequireDiscordAuth === 'function') {
             mmsRequireDiscordAuth().then(afterAuth);
         } else if (hasPin()) {
