@@ -1513,10 +1513,129 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     .btn-row { flex-wrap: wrap; gap: 8px; }
     .btn-row .btn { flex: 1 1 auto; }
 }
+
+/* ========== DISCORD AUTH GATE (Reviewer) ========== */
+#authGate {
+    position: fixed; inset: 0; z-index: 2147483000;
+    background:
+        radial-gradient(ellipse at 50% 20%, rgba(184, 149, 106, 0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at center, #1a1510 0%, #0a0806 70%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; font-family: 'Oswald', sans-serif;
+}
+#authGate.hidden { display: none !important; }
+.auth-card {
+    max-width: 420px; width: 100%;
+    background: linear-gradient(180deg, #1e1a16 0%, #161210 100%);
+    border: 1px solid rgba(184, 149, 106, 0.4);
+    border-radius: 16px; padding: 32px 28px 24px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.75);
+    text-align: center;
+}
+.auth-brand { font-size: 10px; letter-spacing: 3px; color: rgba(184,149,106,0.65); margin-bottom: 8px; }
+.auth-card h1 {
+    font-family: 'Cinzel', serif; color: #c9a87a; font-size: 22px;
+    letter-spacing: 3px; margin-bottom: 10px;
+}
+.auth-sub { color: #a89880; font-size: 13px; line-height: 1.5; margin-bottom: 18px; }
+.auth-sub strong { color: #c9a87a; }
+.auth-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 13px 16px; border: none; border-radius: 10px;
+    font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: transform 0.15s, filter 0.15s;
+}
+.auth-btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+.auth-discord { background: #5865F2; color: #fff; box-shadow: 0 6px 20px rgba(88,101,242,0.35); }
+.auth-nick {
+    background: linear-gradient(135deg, #c9a87a, #a88850); color: #1a1208; margin-top: 10px;
+}
+.auth-confirm {
+    background: linear-gradient(135deg, #c9a87a, #a88850); color: #1a1208; margin-top: 14px;
+}
+.auth-divider {
+    display: flex; align-items: center; gap: 12px; margin: 18px 0 12px;
+    color: #6a6050; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+}
+.auth-divider::before, .auth-divider::after {
+    content: ''; flex: 1; height: 1px; background: rgba(184,149,106,0.2);
+}
+.auth-label {
+    display: block; text-align: left; font-size: 10px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: #c9a87a; margin-bottom: 6px;
+}
+.auth-input {
+    width: 100%; padding: 12px 14px; background: #0e0c0a;
+    border: 1px solid rgba(184,149,106,0.3); border-radius: 10px;
+    color: #e8e0d4; font-family: 'Oswald', sans-serif; font-size: 14px;
+    box-sizing: border-box; outline: none;
+}
+.auth-input:focus { border-color: #c9a87a; }
+.auth-hint { margin-top: 12px; font-size: 11px; color: #7a7060; line-height: 1.45; text-align: left; }
+.auth-hint code {
+    background: rgba(184,149,106,0.1); padding: 1px 6px; border-radius: 4px;
+    color: #c9a87a; font-size: 11px;
+}
+.auth-status { margin-top: 12px; font-size: 13px; color: #ff8a8a; min-height: 1.2em; }
+.auth-status.ok { color: #6bcb7a; }
+.auth-preview {
+    margin-top: 14px; padding: 12px; border: 1px solid rgba(184,149,106,0.3);
+    border-radius: 12px; background: rgba(184,149,106,0.06); text-align: left;
+}
+.auth-preview-row {
+    display: flex; justify-content: space-between; gap: 12px;
+    padding: 5px 0; font-size: 13px; border-bottom: 1px solid rgba(184,149,106,0.1);
+}
+.auth-preview-row:last-of-type { border-bottom: none; }
+.auth-preview-row span { color: #8a8070; }
+.auth-preview-row b { color: #e8e0d4; }
+.auth-saved { margin-top: 16px; text-align: left; border-top: 1px solid rgba(184,149,106,0.2); padding-top: 12px; }
+.auth-saved-title { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #c9a87a; margin-bottom: 8px; }
+.auth-saved-item {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 10px 12px; margin-bottom: 6px;
+    background: rgba(184,149,106,0.08); border: 1px solid rgba(184,149,106,0.25);
+    border-radius: 10px; color: #e8e0d4; font-family: 'Oswald', sans-serif;
+    font-size: 13px; cursor: pointer; text-align: left;
+}
+.auth-saved-item:hover { background: rgba(184,149,106,0.16); }
+.auth-saved-item .as-meta { flex: 1; min-width: 0; }
+.auth-saved-item .as-name { font-weight: 600; }
+.auth-saved-item .as-id { font-size: 11px; color: #8a8070; }
+.auth-saved-item .as-del { border: none; background: transparent; color: #8a8070; cursor: pointer; font-size: 16px; padding: 4px 8px; }
+.auth-saved-item .as-del:hover { color: #ff8a8a; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
 <body>
+
+<div id="authGate" aria-modal="true" role="dialog">
+  <div class="auth-card">
+    <div class="auth-brand">S.A.N.G. · MILITARY MEDICAL SERVICE</div>
+    <h1>Вход · Проверка</h1>
+    <p class="auth-sub">Для проверки рапортов нужен вход по нику сервера<br>
+      <strong>Ранг | Имя Фамилия | StaticID</strong></p>
+    <button type="button" class="auth-btn auth-discord" id="authDiscordBtn" onclick="mmsStartDiscordOAuth()">
+      Войти через Discord
+    </button>
+    <div class="auth-divider">или по нику</div>
+    <label class="auth-label" for="authNickInput">Ник на сервере</label>
+    <input class="auth-input" id="authNickInput" type="text" placeholder="Com.MMS | Adam Rhodes | 166316" autocomplete="off" />
+    <button type="button" class="auth-btn auth-nick" onclick="mmsAuthByNick()">Проверить ник</button>
+    <div id="authPreview" class="auth-preview" hidden>
+      <div class="auth-preview-row"><span>Ранг</span><b id="authPrevRank">—</b></div>
+      <div class="auth-preview-row"><span>Имя</span><b id="authPrevFirst">—</b></div>
+      <div class="auth-preview-row"><span>Фамилия</span><b id="authPrevLast">—</b></div>
+      <div class="auth-preview-row"><span>Static ID</span><b id="authPrevId">—</b></div>
+      <button type="button" class="auth-btn auth-confirm" onclick="mmsConfirmNickAuth()">Подтвердить вход</button>
+    </div>
+    <div id="authSavedProfiles" class="auth-saved" hidden></div>
+    <p class="auth-hint">Тот же профиль, что и в приложении рапортов (общий localStorage на github.io).<br>
+      Формат: <code>Ранг | Имя Фамилия | 123456</code></p>
+    <div class="auth-status" id="authStatus"></div>
+  </div>
+</div>
+
 <div id="pinGate" aria-modal="true" role="dialog">
     <div class="pin-backdrop"></div>
     <div class="pin-card">
@@ -1535,7 +1654,8 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 
 <div class="app">
         <div class="topbar">
-        <a class="door-home-btn" href="https://adam-lab321.github.io/Door-MMS/" title="Вернуться к Двери MMS">
+        <a class="door-home-btn" href="https://adam-lab321.github.io/Door-MMS/" title="Вернуться к Двери MMS"
+           onclick="event.preventDefault(); window.location.replace('https://adam-lab321.github.io/Door-MMS/?from=reviewer&_=' + Date.now());">
             <span class="door-ico">🚪</span>
             <span class="door-txt">
                 <span>Двери MMS</span>
@@ -4372,7 +4492,287 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script>
 (function () {
-    var REVIEWER_PIN = 'MMS-COMMAND';
+    
+<script>
+(function () {
+  var MMS_DISCORD_STORAGE = 'mmsDiscordAuth';
+  var MMS_PROFILES_STORAGE = 'mmsSavedProfiles';
+  var MMS_PROFILES_MAX = 8;
+  var MMS_PROXY_URL = 'https://mms-report-proxy.asakulin874.workers.dev';
+  var MMS_DISCORD_CLIENT_ID = '1559340159693234277';
+  var MMS_DISCORD_AUTH_URL = MMS_PROXY_URL + '/auth/discord';
+  var mmsAuthPreviewData = null;
+  var mmsDiscordAuth = null;
+
+  function mmsParseServerNick(nick) {
+    var raw = String(nick || '').trim();
+    if (!raw) return { ok: false, error: 'Пустой ник' };
+    var parts = raw.split('|').map(function (p) { return p.trim(); }).filter(Boolean);
+    if (parts.length < 3) return { ok: false, error: 'Формат: Ранг | Имя Фамилия | StaticID' };
+    var rank = parts[0];
+    var staticRaw = parts[parts.length - 1];
+    var staticId = String(staticRaw).replace(/[^\d]/g, '');
+    if (!staticId || staticId.length < 3) return { ok: false, error: 'Static ID не найден' };
+    var namePart = parts.slice(1, -1).join(' ').trim();
+    var bits = namePart.split(/\s+/).filter(Boolean);
+    if (!bits.length) return { ok: false, error: 'Нет имени' };
+    return {
+      ok: true, rank: rank, first: bits[0],
+      last: bits.slice(1).join(' ') || bits[0],
+      staticId: staticId, nick: raw
+    };
+  }
+
+  function mmsLoadDiscordAuth() {
+    try {
+      var o = JSON.parse(localStorage.getItem(MMS_DISCORD_STORAGE) || 'null');
+      if (o && o.staticId && o.first) { mmsDiscordAuth = o; return o; }
+    } catch (e) {}
+    mmsDiscordAuth = null;
+    return null;
+  }
+
+  function mmsSaveDiscordAuth(data) {
+    var payload = {
+      staticId: String(data.staticId || data.userId || ''),
+      first: data.first || '',
+      last: data.last || '',
+      rank: data.rank || '',
+      nick: data.nick || '',
+      discordId: data.discordId || data.discord_id || null,
+      sessionToken: data.sessionToken || '',
+      at: Date.now()
+    };
+    mmsDiscordAuth = payload;
+    try { localStorage.setItem(MMS_DISCORD_STORAGE, JSON.stringify(payload)); } catch (e) {}
+    try {
+      var name = (payload.first + ' ' + payload.last).trim();
+      if (name) localStorage.setItem('mmsInspectorName', name);
+    } catch (e2) {}
+    mmsUpsertSavedProfile(payload);
+    return payload;
+  }
+
+  function mmsLoadSavedProfiles() {
+    try {
+      var list = JSON.parse(localStorage.getItem(MMS_PROFILES_STORAGE) || '[]');
+      return Array.isArray(list) ? list : [];
+    } catch (e) { return []; }
+  }
+
+  function mmsUpsertSavedProfile(p) {
+    if (!p || !p.staticId) return;
+    var list = mmsLoadSavedProfiles().filter(function (x) {
+      return String(x.staticId) !== String(p.staticId);
+    });
+    list.unshift({
+      staticId: p.staticId, first: p.first, last: p.last,
+      rank: p.rank, nick: p.nick, discordId: p.discordId || null,
+      sessionToken: p.sessionToken || '', at: Date.now()
+    });
+    list = list.slice(0, MMS_PROFILES_MAX);
+    try { localStorage.setItem(MMS_PROFILES_STORAGE, JSON.stringify(list)); } catch (e) {}
+  }
+
+  function mmsRemoveSavedProfile(staticId, ev) {
+    if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+    var list = mmsLoadSavedProfiles().filter(function (x) {
+      return String(x.staticId) !== String(staticId);
+    });
+    try { localStorage.setItem(MMS_PROFILES_STORAGE, JSON.stringify(list)); } catch (e) {}
+    mmsRenderSavedProfiles();
+  }
+  window.mmsRemoveSavedProfile = mmsRemoveSavedProfile;
+
+  function mmsSelectSavedProfile(staticId) {
+    var p = mmsLoadSavedProfiles().find(function (x) {
+      return String(x.staticId) === String(staticId);
+    });
+    if (!p) return;
+    mmsSaveDiscordAuth(p);
+    mmsHideAuthGate();
+    if (typeof mmsQueueRefresh === 'function') mmsQueueRefresh();
+  }
+  window.mmsSelectSavedProfile = mmsSelectSavedProfile;
+
+  function mmsRenderSavedProfiles() {
+    var box = document.getElementById('authSavedProfiles');
+    if (!box) return;
+    var list = mmsLoadSavedProfiles();
+    if (!list.length) { box.hidden = true; box.innerHTML = ''; return; }
+    box.hidden = false;
+    var h = '<div class="auth-saved-title">Сохранённые профили</div>';
+    list.forEach(function (p) {
+      var name = ((p.first || '') + ' ' + (p.last || '')).trim() || p.nick || '—';
+      var rank = p.rank ? (p.rank + ' · ') : '';
+      h += '<button type="button" class="auth-saved-item" onclick="mmsSelectSavedProfile(\'' + String(p.staticId).replace(/'/g, '') + '\')">' +
+        '<div class="as-meta"><div class="as-name">' + name.replace(/</g, '&lt;') + '</div>' +
+        '<div class="as-id">' + rank.replace(/</g, '&lt;') + 'ID ' + String(p.staticId).replace(/</g, '&lt;') + '</div></div>' +
+        '<span class="as-del" title="Удалить" onclick="mmsRemoveSavedProfile(\'' + String(p.staticId).replace(/'/g, '') + '\', event)">×</span></button>';
+    });
+    box.innerHTML = h;
+  }
+
+  function mmsShowAuthGate(msg) {
+    var gate = document.getElementById('authGate');
+    var st = document.getElementById('authStatus');
+    if (gate) gate.classList.remove('hidden');
+    if (st) { st.textContent = msg || ''; st.classList.remove('ok'); }
+    document.body.style.overflow = 'hidden';
+    mmsRenderSavedProfiles();
+  }
+  function mmsHideAuthGate() {
+    var gate = document.getElementById('authGate');
+    if (gate) gate.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  window.mmsAuthByNick = function () {
+    var inp = document.getElementById('authNickInput');
+    var st = document.getElementById('authStatus');
+    var raw = ((inp && inp.value) || '').trim();
+    var parsed = mmsParseServerNick(raw);
+    if (!parsed.ok) {
+      if (st) { st.textContent = parsed.error; st.classList.remove('ok'); }
+      return;
+    }
+    mmsAuthPreviewData = parsed;
+    var box = document.getElementById('authPreview');
+    if (box) box.hidden = false;
+    function set(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
+    set('authPrevRank', parsed.rank);
+    set('authPrevFirst', parsed.first);
+    set('authPrevLast', parsed.last);
+    set('authPrevId', parsed.staticId);
+    if (st) { st.textContent = 'Проверьте данные и подтвердите'; st.classList.add('ok'); }
+  };
+
+  window.mmsConfirmNickAuth = async function () {
+    if (!mmsAuthPreviewData || !mmsAuthPreviewData.ok) {
+      window.mmsAuthByNick();
+      if (!mmsAuthPreviewData || !mmsAuthPreviewData.ok) return;
+    }
+    var st = document.getElementById('authStatus');
+    try {
+      var res = await fetch(MMS_PROXY_URL + '/auth/discord', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nick: mmsAuthPreviewData.nick })
+      });
+      var j = await res.json().catch(function () { return null; });
+      if (j && j.ok) {
+        mmsAuthPreviewData = Object.assign({}, mmsAuthPreviewData, j);
+      }
+    } catch (e) {}
+    mmsSaveDiscordAuth(mmsAuthPreviewData);
+    if (st) { st.textContent = 'Вход выполнен'; st.classList.add('ok'); }
+    mmsHideAuthGate();
+    if (typeof mmsQueueRefresh === 'function') mmsQueueRefresh();
+  };
+
+  window.mmsStartDiscordOAuth = function () {
+    var st = document.getElementById('authStatus');
+    if (!MMS_DISCORD_CLIENT_ID) {
+      if (st) st.textContent = 'OAuth не настроен — войдите по нику';
+      return;
+    }
+    if (location.protocol === 'file:') {
+      if (st) st.textContent = 'OAuth не работает с file:// — войдите по нику';
+      return;
+    }
+    var redirect = location.origin + location.pathname;
+    try { sessionStorage.setItem('mmsDiscordOAuthRedirect', redirect); } catch (e) {}
+    var url = 'https://discord.com/api/oauth2/authorize?client_id=' + encodeURIComponent(MMS_DISCORD_CLIENT_ID) +
+      '&response_type=code&scope=' + encodeURIComponent('identify guilds.members.read') +
+      '&redirect_uri=' + encodeURIComponent(redirect);
+    location.href = url;
+  };
+
+  async function mmsHandleDiscordOAuthCallback() {
+    var params = new URLSearchParams(location.search);
+    var code = params.get('code');
+    if (!code) return false;
+    var st = document.getElementById('authStatus');
+    var redirect = location.origin + location.pathname;
+    try {
+      var res = await fetch(MMS_PROXY_URL + '/auth/discord', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code, redirect_uri: redirect })
+      });
+      var data = await res.json().catch(function () { return null; });
+      // clean URL
+      try {
+        var u = new URL(location.href);
+        u.searchParams.delete('code');
+        u.searchParams.delete('state');
+        history.replaceState({}, '', u.pathname + u.search);
+      } catch (e) {}
+      if (!data || !data.ok) {
+        if (st) st.textContent = (data && data.error) || 'OAuth не удался — войдите по нику';
+        mmsShowAuthGate();
+        return false;
+      }
+      var profile = data;
+      if (data.nick && (!data.staticId || !data.first)) {
+        var p = mmsParseServerNick(data.nick);
+        if (p.ok) profile = Object.assign({}, data, p);
+      }
+      if (!profile.staticId || !profile.first) {
+        if (st) st.textContent = 'Ник на сервере не в формате. Введите вручную.';
+        mmsShowAuthGate();
+        return false;
+      }
+      mmsSaveDiscordAuth(profile);
+      mmsHideAuthGate();
+      if (typeof mmsQueueRefresh === 'function') mmsQueueRefresh();
+      return true;
+    } catch (e) {
+      if (st) st.textContent = 'Ошибка OAuth. Войдите по нику.';
+      mmsShowAuthGate();
+      return false;
+    }
+  }
+
+  window.mmsRequireDiscordAuth = async function () {
+    // OAuth return?
+    if (location.search.indexOf('code=') >= 0) {
+      var ok = await mmsHandleDiscordOAuthCallback();
+      if (ok) return true;
+    }
+    var cur = mmsLoadDiscordAuth();
+    if (cur && cur.staticId && cur.first) {
+      mmsHideAuthGate();
+      try {
+        var name = (cur.first + ' ' + cur.last).trim();
+        if (name) localStorage.setItem('mmsInspectorName', name);
+      } catch (e) {}
+      return true;
+    }
+    mmsShowAuthGate('Войдите, чтобы проверять рапорты');
+    return false;
+  };
+
+  // Enter on nick field
+  document.addEventListener('DOMContentLoaded', function () {
+    var inp = document.getElementById('authNickInput');
+    if (inp) {
+      inp.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (document.getElementById('authPreview') && !document.getElementById('authPreview').hidden) {
+            window.mmsConfirmNickAuth();
+          } else {
+            window.mmsAuthByNick();
+          }
+        }
+      });
+    }
+  });
+})();
+</script>
+
+var REVIEWER_PIN = 'MMS-COMMAND';
     var PIN_SESSION = 'mmsReviewerPinOk';
     var PIN_SHARED = 'mmsCommandPinOk'; // общий с Двери (localStorage, весь github.io)
     var PROXY = 'https://mms-report-proxy.asakulin874.workers.dev';
@@ -4664,7 +5064,19 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        if (hasPin()) {
+        // Сначала Discord-профиль (общий с приложением рапортов)
+        if (typeof mmsRequireDiscordAuth === 'function') {
+            mmsRequireDiscordAuth().then(function (ok) {
+                if (!ok) return;
+                // PIN командования — по желанию (если уже вводили / с Двери)
+                if (hasPin()) {
+                    hidePin();
+                    if (typeof mmsQueueRefresh === 'function') mmsQueueRefresh();
+                } else {
+                    showPin();
+                }
+            });
+        } else if (hasPin()) {
             hidePin();
             mmsQueueRefresh();
         } else {
