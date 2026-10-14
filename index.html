@@ -1745,6 +1745,12 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 .mms-qmodal .qm-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
 .mms-qmodal .qm-actions .btn { min-width: 120px; }
 .mms-qmodal .qm-danger { border-color: rgba(232,116,116,0.6) !important; color: #e87474 !important; }
+.queue-peek { position: relative; max-height: 30px; overflow: hidden; opacity: 0.6; cursor: pointer;
+    -webkit-mask-image: linear-gradient(#000 30%, transparent); mask-image: linear-gradient(#000 30%, transparent); }
+.queue-peek > * { pointer-events: none; }
+.queue-pager { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
+    margin-top: 12px; font-family: Oswald, sans-serif; font-size: 12px; color: var(--text-muted); }
+.queue-pager .btn[disabled] { opacity: 0.35; pointer-events: none; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
@@ -4771,6 +4777,7 @@ document.addEventListener('DOMContentLoaded', function () {
 (function () {
   var MMS_DISCORD_STORAGE = 'mmsDiscordAuth';
   var MMS_PROFILES_STORAGE = 'mmsSavedProfiles';
+  var MMS_BACKUP_STORAGE = 'mmsReviewerAuth'; // личная копия сессии проверяющего (не затирается Дверью)
   var MMS_PROFILES_MAX = 8;
   var MMS_PROXY_URL = 'https://mms-report-proxy.asakulin874.workers.dev';
   var MMS_DISCORD_CLIENT_ID = '1559340159693234277';
@@ -4794,14 +4801,27 @@ document.addEventListener('DOMContentLoaded', function () {
     };
   }
 
-  function mmsLoadDiscordAuth() {
-    try {
-      var o = JSON.parse(localStorage.getItem(MMS_DISCORD_STORAGE) || 'null');
-      if (o && o.staticId && o.first) { mmsDiscordAuth = o; return o; }
-    } catch (e) {}
-    mmsDiscordAuth = null;
-    return null;
+  function mmsReadJson(key) {
+    try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { return null; }
   }
+  function mmsLoadDiscordAuth() {
+    var main = mmsReadJson(MMS_DISCORD_STORAGE);
+    var bak = mmsReadJson(MMS_BACKUP_STORAGE);
+    var o = null;
+    if (main && main.staticId && main.first && main.sessionToken) o = main;
+    else if (bak && bak.staticId && bak.first && bak.sessionToken) {
+      // Дверь/другое приложение затёрло или очистило общий профиль — восстанавливаем из личной копии
+      o = bak;
+      try { localStorage.setItem(MMS_DISCORD_STORAGE, JSON.stringify(bak)); } catch (e) {}
+    } else if (main && main.staticId && main.first) o = main; // без токена: вход потребуется при проверке
+    mmsDiscordAuth = o;
+    return o;
+  }
+  function mmsClearDiscordAuth() {
+    mmsDiscordAuth = null;
+    try { localStorage.removeItem(MMS_DISCORD_STORAGE); localStorage.removeItem(MMS_BACKUP_STORAGE); } catch (e) {}
+  }
+  window.mmsClearDiscordAuth = mmsClearDiscordAuth;
 
   function mmsSaveDiscordAuth(data) {
     var payload = {
@@ -4816,6 +4836,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     mmsDiscordAuth = payload;
     try { localStorage.setItem(MMS_DISCORD_STORAGE, JSON.stringify(payload)); } catch (e) {}
+    try { localStorage.setItem(MMS_BACKUP_STORAGE, JSON.stringify(payload)); } catch (eb) {}
     try {
       var name = (payload.first + ' ' + payload.last).trim();
       if (name) localStorage.setItem('mmsInspectorName', name);
@@ -4946,6 +4967,17 @@ document.addEventListener('DOMContentLoaded', function () {
       return false;
     }
     var cur = mmsLoadDiscordAuth();
+    if (cur && cur.staticId && cur.first && !cur.sessionToken) {
+      mmsClearDiscordAuth();
+      cur = null;
+    }
+    if (cur && cur.sessionToken) {
+      // проверяем, что сессия ещё жива; при обрыве связи не выкидываем
+      try {
+        var chk = await fetch(MMS_PROXY_URL + '/auth/discord/me', { headers: { 'Authorization': 'Bearer ' + cur.sessionToken } });
+        if (chk.status === 401) { mmsClearDiscordAuth(); cur = null; }
+      } catch (eNet) { /* офлайн — пробуем работать */ }
+    }
     if (cur && cur.staticId && cur.first) {
       mmsHideAuthGate();
       try {
@@ -4989,6 +5021,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var PROXY = 'https://mms-report-proxy.asakulin874.workers.dev';
     var queueTab = 'pending';
     var queueCache = { pending: [], done: [], trash: [] };
+    var queuePage = { pending: 0, done: 0, trash: 0 };
     var serverOffset = 0; // server_now - Date.now()
 
     function fromHub() {
@@ -5077,12 +5110,14 @@ document.addEventListener('DOMContentLoaded', function () {
         var h = Object.assign({}, extra || {});
         try {
             var a = JSON.parse(localStorage.getItem('mmsDiscordAuth') || 'null');
-            if (a && a.sessionToken) h['Authorization'] = 'Bearer ' + a.sessionToken;
+            var b = JSON.parse(localStorage.getItem('mmsReviewerAuth') || 'null');
+            var tk = (a && a.sessionToken) || (b && b.sessionToken) || '';
+            if (tk) h['Authorization'] = 'Bearer ' + tk;
         } catch (e) {}
         return h;
     }
     function authExpired() {
-        try { localStorage.removeItem('mmsDiscordAuth'); } catch (e0) {}
+        try { if (typeof window.mmsClearDiscordAuth === 'function') window.mmsClearDiscordAuth(); } catch (e0) {}
         try { if (typeof window.mmsShowAuthGate === 'function') window.mmsShowAuthGate('Сессия истекла — войдите через Discord снова'); } catch (e) {}
     }
 
@@ -5141,7 +5176,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
         var me = inspectorName();
-        list.innerHTML = items.map(function (it) {
+        var renderOne = function (it) {
             var id = String(it.id || '').replace(/[^\w-]/g, '');
             var name = escQ(it.full_name || it.name || '—');
             var sid = escQ(it.static_id || it.staticId || '—');
@@ -5185,8 +5220,33 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             var click = locked ? ("mmsLockModal('" + id + "')") : ("mmsOpenQueueItem('" + id + "')");
             return '<div class="queue-item' + (locked ? ' locked' : '') + '" onclick="' + click + '">' + main + badge + delBtn + '</div>';
-        }).join('');
+        };
+
+        var PAGE = 3;
+        var pages = Math.max(1, Math.ceil(items.length / PAGE));
+        var pg = Math.min(Math.max(0, queuePage[queueTab] || 0), pages - 1);
+        queuePage[queueTab] = pg;
+        var start = pg * PAGE;
+        var html = items.slice(start, start + PAGE).map(renderOne).join('');
+        var peek = items[start + PAGE];
+        if (peek) {
+            html += '<div class="queue-peek" onclick="mmsQueuePage(1)" title="Показать следующие">' + renderOne(peek) + '</div>';
+        }
+        if (items.length > PAGE) {
+            var hidden = Math.max(0, items.length - (start + PAGE) - 1);
+            html += '<div class="queue-pager">' +
+                '<button type="button" class="btn" ' + (pg === 0 ? 'disabled' : '') + ' onclick="mmsQueuePage(-1)">‹ Назад</button>' +
+                '<span>Стр. ' + (pg + 1) + ' / ' + pages + ' · всего ' + items.length + (hidden ? (' · скрыто ' + hidden) : '') + '</span>' +
+                '<button type="button" class="btn" ' + (pg >= pages - 1 ? 'disabled' : '') + ' onclick="mmsQueuePage(1)">Дальше ›</button>' +
+                '</div>';
+        }
+        list.innerHTML = html;
     }
+
+    window.mmsQueuePage = function (delta) {
+        queuePage[queueTab] = Math.max(0, (queuePage[queueTab] || 0) + delta);
+        renderQueue();
+    };
 
     // ---- тикер таймеров
     var tickBusy = false;
