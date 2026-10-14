@@ -1751,10 +1751,116 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 .queue-pager { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
     margin-top: 12px; font-family: Oswald, sans-serif; font-size: 12px; color: var(--text-muted); }
 .queue-pager .btn[disabled] { opacity: 0.35; pointer-events: none; }
+
+/* ===== UX 2.2: offline, filter, hotkeys, version, mobile ===== */
+.mms-offline-banner {
+  display: none; position: sticky; top: 0; z-index: 99990;
+  background: linear-gradient(90deg, #5a1a1a, #3a1212);
+  border-bottom: 1px solid rgba(232,116,116,0.45);
+  color: #ffc9c9; text-align: center; padding: 10px 16px;
+  font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.03em;
+}
+.mms-offline-banner.show { display: block; }
+.mms-offline-banner strong { color: #fff; }
+.queue-tools {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin: 0 0 12px; padding: 0 2px;
+}
+.queue-tools input[type="search"],
+.queue-tools select {
+  background: var(--bg-card); color: var(--text);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 8px 12px; font-family: Oswald, sans-serif; font-size: 13px;
+  outline: none; min-height: 40px;
+}
+.queue-tools input[type="search"] { flex: 1 1 180px; min-width: 140px; }
+.queue-tools select { flex: 0 0 auto; }
+.queue-tools input[type="search"]:focus,
+.queue-tools select:focus { border-color: var(--gold); }
+.queue-filter-chip {
+  font-size: 11px; color: var(--text-muted); padding: 4px 8px;
+  border-radius: 8px; border: 1px solid var(--border); cursor: pointer;
+  background: transparent; font-family: Oswald, sans-serif;
+}
+.queue-filter-chip.on { color: var(--gold); border-color: var(--gold); background: var(--accent-soft); }
+.mms-hotkeys {
+  position: fixed; right: 12px; bottom: 56px; z-index: 9000;
+  background: color-mix(in srgb, var(--bg-panel) 92%, transparent);
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 10px 12px; font-family: Oswald, sans-serif;
+  font-size: 11px; color: var(--text-muted); line-height: 1.55;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.35); backdrop-filter: blur(8px);
+  max-width: 168px; user-select: none;
+}
+.mms-hotkeys b { color: var(--gold); font-weight: 600; }
+.mms-hotkeys .hk-title {
+  color: var(--gold); font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.mms-hotkeys kbd {
+  display: inline-block; min-width: 1.1em; text-align: center;
+  padding: 1px 5px; margin-right: 4px;
+  border: 1px solid var(--border); border-radius: 5px;
+  background: var(--bg-card); color: var(--text); font-size: 11px;
+}
+.mms-hotkeys .hk-close {
+  position: absolute; top: 6px; right: 8px; border: none; background: transparent;
+  color: var(--text-muted); cursor: pointer; font-size: 14px; line-height: 1;
+}
+.mms-hotkeys.collapsed { padding: 8px 10px; max-width: none; }
+.mms-hotkeys.collapsed .hk-body { display: none; }
+.mms-ver {
+  position: fixed; left: 10px; bottom: 8px; z-index: 8000;
+  font-family: Oswald, sans-serif; font-size: 10px; color: var(--text-muted);
+  opacity: 0.75; pointer-events: none; letter-spacing: 0.04em;
+}
+.mms-new-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: #4ade80; box-shadow: 0 0 10px #4ade80; margin-left: 6px;
+  vertical-align: middle; animation: mmsPulse 1.2s ease infinite;
+}
+@keyframes mmsPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+@media (max-width: 900px) {
+  .mms-hotkeys { display: none; }
+  .queue-panel { padding-left: 10px; padding-right: 10px; }
+  .queue-item {
+    flex-direction: column; align-items: stretch !important;
+    gap: 8px; padding: 12px !important;
+  }
+  .queue-item .qi-main { width: 100%; }
+  .queue-item .qi-badge, .queue-item .qi-del, .queue-item .qi-restore {
+    align-self: flex-start;
+  }
+  .queue-tools { flex-direction: column; align-items: stretch; }
+  .queue-tools input[type="search"], .queue-tools select { width: 100%; }
+  .main-grid, .layout, .content-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .a4-wrap, #a4Canvas, canvas#a4Canvas {
+    max-width: 100% !important; height: auto !important;
+  }
+  .decision-row, .cards-row {
+    flex-direction: column !important;
+  }
+  .btn, .btn-gold { min-height: 44px; }
+  .mms-ver { font-size: 9px; left: 6px; bottom: 4px; }
+}
+@media (max-width: 640px) {
+  body { overflow-x: hidden; }
+  .queue-head { flex-wrap: wrap; gap: 8px; }
+  .queue-refresh { width: 100%; }
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
 <body>
+
+<div id="mmsOfflineBanner" class="mms-offline-banner" role="status" aria-live="polite">
+  <strong>Нет связи с сервером.</strong> Очередь может быть устаревшей — проверьте сеть и нажмите «Обновить».
+</div>
 
 <div id="authGate" aria-modal="true" role="dialog">
   <div class="auth-particles" aria-hidden="true">
@@ -1865,6 +1971,16 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
                 <span class="qt-text"><strong>Корзина</strong><small>удалённые заявки</small></span>
                 <span class="qt-count" id="trashCount">0</span>
             </button>
+        </div>
+        <div class="queue-tools" id="queueTools">
+            <input type="search" id="queueSearch" placeholder="Поиск: ФИО, Static ID…" autocomplete="off" />
+            <select id="queueTypeFilter" title="Тип рапорта">
+                <option value="all">Все типы</option>
+                <option value="weekly">Еженедельный</option>
+                <option value="promotion">На повышение</option>
+            </select>
+            <button type="button" class="queue-filter-chip" id="queueOnlyFree" title="Только свободные">Свободные</button>
+            <button type="button" class="queue-filter-chip" id="queueOnlyMine" title="Только мои">Мои</button>
         </div>
         <div class="queue-list" id="queueList"><div class="queue-empty">Загрузка очереди…</div></div>
     </section>
@@ -5158,6 +5274,286 @@ document.addEventListener('DOMContentLoaded', function () {
         return null;
     }
 
+    /* ===== UX 2.2 helpers ===== */
+    var REVIEWER_VER = '2.2';
+    var __mmsLastPendingIds = null;
+    var __mmsDecideInFlight = false;
+    var __mmsSentDecideIds = {};
+    var __mmsQueueFilter = { q: '', type: 'all', free: false, mine: false };
+    var __mmsSoundArmed = false;
+
+    function mmsDraftKey(id) { return 'mmsReviewDraft:' + String(id || ''); }
+    function mmsSaveDraft() {
+        try {
+            var id = window.__mmsQueueItemId;
+            if (!id) return;
+            var dec = 'approve';
+            var cardDeny = document.getElementById('cardDeny');
+            var cardOk = document.getElementById('cardOk');
+            if (cardDeny && cardDeny.classList.contains('active-deny')) dec = 'deny';
+            else if (window.__mmsDecision === 'deny') dec = 'deny';
+            else if (cardOk && cardOk.classList.contains('active-ok')) dec = 'approve';
+            else if (window.__mmsDecision) dec = window.__mmsDecision;
+            var payload = {
+                at: Date.now(),
+                decision: dec,
+                decisionText: (document.getElementById('decisionText') || {}).value || '',
+                docNo: (document.getElementById('docNo') || {}).value || '',
+                repType: (document.getElementById('repType') || {}).value || '',
+                empName: (document.getElementById('empName') || {}).value || '',
+                empId: (document.getElementById('empId') || {}).value || ''
+            };
+            localStorage.setItem(mmsDraftKey(id), JSON.stringify(payload));
+        } catch (e) {}
+    }
+    function mmsLoadDraft(id) {
+        try {
+            var raw = localStorage.getItem(mmsDraftKey(id));
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (e) { return null; }
+    }
+    function mmsClearDraft(id) {
+        try { localStorage.removeItem(mmsDraftKey(id)); } catch (e) {}
+    }
+    function mmsApplyDraft(id) {
+        var d = mmsLoadDraft(id);
+        if (!d) return false;
+        try {
+            if (d.decisionText != null && document.getElementById('decisionText')) {
+                document.getElementById('decisionText').value = d.decisionText;
+            }
+            if (d.docNo && document.getElementById('docNo')) document.getElementById('docNo').value = d.docNo;
+            if (d.repType && document.getElementById('repType')) document.getElementById('repType').value = d.repType;
+            if (d.decision && typeof setDecision === 'function') setDecision(d.decision);
+            else if (d.decision) {
+                window.__mmsDecision = d.decision;
+                try {
+                    var ok = document.getElementById('cardOk');
+                    var dn = document.getElementById('cardDeny');
+                    if (ok) ok.classList.toggle('active-ok', d.decision === 'approve');
+                    if (dn) dn.classList.toggle('active-deny', d.decision === 'deny');
+                } catch (e2) {}
+            }
+            if (typeof scheduleDraw === 'function') scheduleDraw();
+            if (typeof window.toast === 'function') window.toast('Черновик восстановлен', 'info');
+            return true;
+        } catch (e) { return false; }
+    }
+    function mmsBindDraftAutosave() {
+        ['decisionText', 'docNo', 'empName', 'empId', 'repType'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el || el.__mmsDraftBound) return;
+            el.__mmsDraftBound = true;
+            el.addEventListener('input', function () { mmsSaveDraft(); });
+            el.addEventListener('change', function () { mmsSaveDraft(); });
+        });
+        document.addEventListener('click', function (ev) {
+            var t = ev.target;
+            if (!t) return;
+            if (t.id === 'cardOk' || t.id === 'cardDeny' || (t.closest && (t.closest('#cardOk') || t.closest('#cardDeny')))) {
+                setTimeout(mmsSaveDraft, 50);
+            }
+        });
+    }
+    function mmsSetOffline(on) {
+        var b = document.getElementById('mmsOfflineBanner');
+        if (b) b.classList.toggle('show', !!on);
+        document.body.classList.toggle('mms-offline', !!on);
+    }
+    function mmsPlayNewSound() {
+        try {
+            var Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return;
+            var ctx = new Ctx();
+            var o = ctx.createOscillator();
+            var g = ctx.createGain();
+            o.type = 'sine';
+            o.frequency.value = 880;
+            g.gain.value = 0.0001;
+            o.connect(g); g.connect(ctx.destination);
+            var t = ctx.currentTime;
+            g.gain.linearRampToValueAtTime(0.08, t + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+            o.frequency.linearRampToValueAtTime(1174, t + 0.18);
+            o.start(t); o.stop(t + 0.3);
+            setTimeout(function () { try { ctx.close(); } catch (e) {} }, 500);
+        } catch (e) {}
+    }
+    function mmsCheckNewPending(pending) {
+        try {
+            var ids = (pending || []).map(function (x) { return x && x.id; }).filter(Boolean);
+            var set = {};
+            ids.forEach(function (id) { set[id] = true; });
+            if (__mmsLastPendingIds) {
+                var fresh = ids.filter(function (id) { return !__mmsLastPendingIds[id]; });
+                if (fresh.length) {
+                    mmsPlayNewSound();
+                    try {
+                        var base = document.title.replace(/^\(\d+\)\s*/, '');
+                        document.title = '(' + (pending || []).length + ') ' + base;
+                    } catch (e2) {}
+                    var pc = document.getElementById('pendingCount');
+                    if (pc && !pc.querySelector('.mms-new-dot')) {
+                        var dot = document.createElement('span');
+                        dot.className = 'mms-new-dot';
+                        dot.title = 'Новые рапорты';
+                        pc.appendChild(dot);
+                        setTimeout(function () { try { dot.remove(); } catch (e3) {} }, 8000);
+                    }
+                }
+            }
+            __mmsLastPendingIds = set;
+        } catch (e) {}
+    }
+    function mmsFilterItems(items) {
+        var q = String(__mmsQueueFilter.q || '').trim().toLowerCase();
+        var type = __mmsQueueFilter.type || 'all';
+        var free = !!__mmsQueueFilter.free;
+        var mine = !!__mmsQueueFilter.mine;
+        var me = (typeof inspectorName === 'function' ? inspectorName() : '').toLowerCase();
+        return (items || []).filter(function (it) {
+            if (!it) return false;
+            var rt = String(it.report_type || it.mode || 'weekly').toLowerCase();
+            if (type === 'weekly' && rt === 'promotion') return false;
+            if (type === 'promotion' && rt !== 'promotion') return false;
+            var claimed = String(it.claimed_by || it.claimedBy || '');
+            if (free && claimed) return false;
+            if (mine && claimed.toLowerCase() !== me) return false;
+            if (q) {
+                var hay = (String(it.full_name || it.name || '') + ' ' + String(it.static_id || it.staticId || '') + ' ' + claimed).toLowerCase();
+                if (hay.indexOf(q) < 0) return false;
+            }
+            return true;
+        });
+    }
+    function mmsInitQueueTools() {
+        var s = document.getElementById('queueSearch');
+        var t = document.getElementById('queueTypeFilter');
+        var f = document.getElementById('queueOnlyFree');
+        var m = document.getElementById('queueOnlyMine');
+        if (s && !s.__bound) {
+            s.__bound = true;
+            s.addEventListener('input', function () {
+                __mmsQueueFilter.q = s.value || '';
+                renderQueue();
+            });
+        }
+        if (t && !t.__bound) {
+            t.__bound = true;
+            t.addEventListener('change', function () {
+                __mmsQueueFilter.type = t.value || 'all';
+                renderQueue();
+            });
+        }
+        if (f && !f.__bound) {
+            f.__bound = true;
+            f.addEventListener('click', function () {
+                __mmsQueueFilter.free = !__mmsQueueFilter.free;
+                f.classList.toggle('on', __mmsQueueFilter.free);
+                renderQueue();
+            });
+        }
+        if (m && !m.__bound) {
+            m.__bound = true;
+            m.addEventListener('click', function () {
+                __mmsQueueFilter.mine = !__mmsQueueFilter.mine;
+                m.classList.toggle('on', __mmsQueueFilter.mine);
+                renderQueue();
+            });
+        }
+    }
+    function mmsIsTypingTarget(el) {
+        if (!el) return false;
+        var tag = (el.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
+        if (el.isContentEditable) return true;
+        return false;
+    }
+    function mmsInitHotkeys() {
+        var box = document.getElementById('mmsHotkeys');
+        var cls = document.getElementById('mmsHotkeysClose');
+        if (cls && box && !cls.__bound) {
+            cls.__bound = true;
+            cls.addEventListener('click', function (e) {
+                e.preventDefault();
+                box.classList.toggle('collapsed');
+                try { localStorage.setItem('mmsHotkeysCollapsed', box.classList.contains('collapsed') ? '1' : '0'); } catch (e2) {}
+            });
+            try {
+                if (localStorage.getItem('mmsHotkeysCollapsed') === '1') box.classList.add('collapsed');
+            } catch (e3) {}
+        }
+        if (window.__mmsHotkeysBound) return;
+        window.__mmsHotkeysBound = true;
+        document.addEventListener('keydown', function (e) {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            if (mmsIsTypingTarget(e.target)) return;
+            var k = e.key;
+            if (k === 'a' || k === 'A' || k === 'ф' || k === 'Ф') {
+                e.preventDefault();
+                if (typeof setDecision === 'function') setDecision('approve');
+                else {
+                    window.__mmsDecision = 'approve';
+                    var ok = document.getElementById('cardOk');
+                    var dn = document.getElementById('cardDeny');
+                    if (ok) ok.classList.add('active-ok');
+                    if (dn) dn.classList.remove('active-deny');
+                }
+                mmsSaveDraft();
+            } else if (k === 'd' || k === 'D' || k === 'в' || k === 'В') {
+                e.preventDefault();
+                if (typeof setDecision === 'function') setDecision('deny');
+                else {
+                    window.__mmsDecision = 'deny';
+                    var ok2 = document.getElementById('cardOk');
+                    var dn2 = document.getElementById('cardDeny');
+                    if (ok2) ok2.classList.remove('active-ok');
+                    if (dn2) dn2.classList.add('active-deny');
+                }
+                mmsSaveDraft();
+            } else if (k === 's' || k === 'S' || k === 'ы' || k === 'Ы') {
+                e.preventDefault();
+                if (typeof window.mmsSendDecisionDiscord === 'function') window.mmsSendDecisionDiscord();
+            } else if (k === 'r' || k === 'R' || k === 'к' || k === 'К') {
+                e.preventDefault();
+                if (typeof window.mmsQueueRefresh === 'function') window.mmsQueueRefresh();
+            } else if (k === 'Escape') {
+                try {
+                    var modal = document.getElementById('reportViewerModal');
+                    if (modal && modal.classList.contains('show')) {
+                        modal.classList.remove('show');
+                        document.body.classList.remove('modal-open');
+                        e.preventDefault();
+                        return;
+                    }
+                    if (typeof window.closeReportViewer === 'function') window.closeReportViewer();
+                    else if (typeof closeReportViewer === 'function') closeReportViewer();
+                } catch (e4) {}
+            }
+        });
+    }
+    function mmsFetchWorkerVersion() {
+        try {
+            var verEl = document.getElementById('mmsApiVer');
+            var proxy = (typeof PROXY !== 'undefined' && PROXY) || (typeof MMS_PROXY_URL !== 'undefined' && MMS_PROXY_URL) || '';
+            if (!proxy) {
+                if (verEl) verEl.textContent = 'worker ? · reviewer ' + REVIEWER_VER;
+                return;
+            }
+            fetch(proxy + '/', { method: 'GET' }).then(function (res) {
+                return res.json().catch(function () { return null; });
+            }).then(function (j) {
+                var wv = (j && j.version) ? j.version : '?';
+                if (verEl) verEl.textContent = 'worker ' + wv + ' · reviewer ' + REVIEWER_VER;
+                mmsSetOffline(false);
+            }).catch(function () {
+                if (verEl) verEl.textContent = 'worker offline · reviewer ' + REVIEWER_VER;
+                mmsSetOffline(true);
+            });
+        } catch (e) {}
+    }
+
     function renderQueue() {
         var list = document.getElementById('queueList');
         if (!list) return;
@@ -5167,7 +5563,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (pc) pc.textContent = String((queueCache.pending || []).length);
         if (dc) dc.textContent = String((queueCache.done || []).length);
         if (tc) tc.textContent = String((queueCache.trash || []).length);
-        var items = queueCache[queueTab] || [];
+        var items = mmsFilterItems(queueCache[queueTab] || []);
         if (!items.length) {
             list.innerHTML = '<div class="queue-empty">' +
                 (queueTab === 'pending'
@@ -5378,20 +5774,25 @@ document.addEventListener('DOMContentLoaded', function () {
             if (res.status === 401) { authExpired(); }
             var data = await res.json().catch(function () { return null; });
             if (data && data.ok) {
+                mmsSetOffline(false);
                 queueCache.pending = data.pending || [];
                 queueCache.done = data.done || [];
                 queueCache.trash = data.trash || [];
                 if (data.server_now) serverOffset = data.server_now - Date.now();
+                mmsCheckNewPending(queueCache.pending);
             } else {
                 queueCache.pending = [];
                 queueCache.done = [];
                 queueCache.trash = [];
+                if (data && data.code === 'unauthorized') mmsSetOffline(false);
+                else mmsSetOffline(true);
             }
         } catch (e) {
             queueCache.pending = [];
             queueCache.done = [];
             queueCache.trash = [];
-            if (list) list.innerHTML = '<div class="queue-empty">Очередь недоступна. Загрузите рапорт файлом ниже.</div>';
+            mmsSetOffline(true);
+            if (list) list.innerHTML = '<div class="queue-empty">Нет связи с сервером. Проверьте интернет и нажмите «Обновить». Можно загрузить рапорт файлом ниже.</div>';
             return;
         }
         renderQueue();
@@ -5490,6 +5891,8 @@ document.addEventListener('DOMContentLoaded', function () {
             window.__mmsDiscordId = data.discord_id || data.discordId || '';
             window.__mmsDiscordMessageId = data.discord_message_id || data.discordMessageId || '';
             window.__mmsQueueReportType = rtype;
+            try { mmsApplyDraft(id); } catch (eDraft) {}
+            try { mmsBindDraftAutosave(); } catch (eBind) {}
         } catch (e) {
             alert('Ошибка загрузки');
         }
@@ -5497,6 +5900,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     window.mmsSendDecisionDiscord = async function () {
+        if (__mmsDecideInFlight) return;
+        var idEarly = window.__mmsQueueItemId || '';
+        if (idEarly && __mmsSentDecideIds[idEarly]) {
+            if (typeof window.toast === 'function') window.toast('Решение по этому рапорту уже отправлено', 'info');
+            else if (typeof toast === 'function') toast('Решение по этому рапорту уже отправлено', 'info');
+            return;
+        }
+        __mmsDecideInFlight = true;
         var btn = document.querySelector('button.btn-gold[onclick*="mmsSendDecisionDiscord"], button.btn.btn-gold');
         // точнее — кнопка с текстом отправки
         try {
@@ -5579,7 +5990,14 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             var data = await res.json().catch(function () { return null; });
             setBtnBusy(false);
-            if (data && data.ok && data.discord_ok) {
+            if (data && data.ok && data.already_done) {
+                if (id) __mmsSentDecideIds[id] = true;
+                mmsClearDraft(id);
+                notify(data.message || 'Рапорт уже был проверен — повторно в Discord не отправлено', 'info');
+                if (typeof mmsQueueRefresh === 'function') mmsQueueRefresh();
+            } else if (data && data.ok && data.discord_ok) {
+                if (id) __mmsSentDecideIds[id] = true;
+                mmsClearDraft(id);
                 var who = (name || 'сотрудник') + (sid ? (' · ' + sid) : '');
                 var mark = dec === 'deny' ? 'НЕ ОДОБРЕНО' : 'ОДОБРЕНО';
                 var chan = reportType === 'promotion' ? 'канал повышений' : 'еженедельный канал';
@@ -5590,6 +6008,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 if (typeof mmsQueueRefresh === 'function') mmsQueueRefresh();
             } else if (data && data.ok && data.discord_ok === false) {
+                if (id) __mmsSentDecideIds[id] = true;
+                mmsClearDraft(id);
                 var err = data.discord_error || 'Discord не принял сообщение';
                 try {
                     var j = typeof err === 'string' ? JSON.parse(err) : err;
@@ -5605,6 +6025,8 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (e) {
             setBtnBusy(false);
             notify('Ошибка: ' + (e.message || e), 'err');
+        } finally {
+            __mmsDecideInFlight = false;
         }
     };
 
@@ -5671,6 +6093,19 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         mmsUnlockScroll();
+        try { mmsInitQueueTools(); } catch (eT) {}
+        try { mmsInitHotkeys(); } catch (eH) {}
+        try { mmsFetchWorkerVersion(); } catch (eV) {}
+        try { mmsBindDraftAutosave(); } catch (eD) {}
+        // лёгкий опрос очереди (новые рапорты + звук 1 раз)
+        try {
+            if (!window.__mmsQueuePoll) {
+                window.__mmsQueuePoll = setInterval(function () {
+                    if (document.hidden) return;
+                    if (typeof window.mmsQueueRefresh === 'function') window.mmsQueueRefresh();
+                }, 45000);
+            }
+        } catch (eP) {}
         if (typeof mmsRequireDiscordAuth === 'function') {
             mmsRequireDiscordAuth().then(afterAuth);
         } else if (hasPin()) {
@@ -5689,5 +6124,18 @@ document.addEventListener('DOMContentLoaded', function () {
 })();
 </script>
 
+
+<div class="mms-hotkeys" id="mmsHotkeys" title="Горячие клавиши">
+  <button type="button" class="hk-close" id="mmsHotkeysClose" aria-label="Свернуть">×</button>
+  <div class="hk-title">Клавиши</div>
+  <div class="hk-body">
+    <div><kbd>A</kbd> одобрить</div>
+    <div><kbd>D</kbd> отказать</div>
+    <div><kbd>S</kbd> в Discord</div>
+    <div><kbd>R</kbd> обновить</div>
+    <div><kbd>Esc</kbd> закрыть превью</div>
+  </div>
+</div>
+<div class="mms-ver" id="mmsApiVer">worker … · reviewer 2.2</div>
 </body>
 </html>
