@@ -1116,15 +1116,41 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     justify-content: center;
 }
 .blank-toolbar .lb-btn { font-size: 14px; }
+.blank-stage {
+    overflow: auto;
+    max-width: 96vw;
+    max-height: calc(96vh - 90px);
+    width: min(920px, 96vw);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent);
+    background: #1a1a1a;
+    padding: 12px;
+    cursor: grab;
+    -webkit-overflow-scrolling: touch;
+}
+.blank-stage:active { cursor: grabbing; }
 #blankLightboxImg {
     width: 100%;
+    max-width: 100%;
     height: auto;
-    border-radius: 8px;
+    border-radius: 4px;
     box-shadow: 0 12px 40px rgba(0,0,0,0.5);
     background: #fff;
-    transform-origin: center top;
-    transition: transform 0.15s ease;
+    transform-origin: 0 0;
+    transition: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    cursor: grab;
 }
+#blankLightboxImg.dragging { cursor: grabbing; }
+.lightbox-stage {
+    cursor: grab;
+}
+#lightboxImg.dragging { cursor: grabbing !important; }
+
 
 /* ========== LICENSE GATE ========== */
 #licenseGate {
@@ -2230,13 +2256,14 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     <div class="lightbox-toolbar">
       <button type="button" class="lb-btn" onclick="lightboxZoom(1.25)" title="Крупнее">＋</button>
       <button type="button" class="lb-btn" onclick="lightboxZoom(0.8)" title="Мельче">－</button>
-      <button type="button" class="lb-btn" onclick="lightboxZoom(0)" title="Сброс">1:1</button>
+      <button type="button" class="lb-btn" onclick="lightboxZoom(0)" title="Вписать">Fit</button>
+      <button type="button" class="lb-btn" onclick="lightboxZoom(1)" title="100%">1:1</button>
       <button type="button" class="lb-btn" onclick="closeLightbox()" title="Закрыть">✕</button>
     </div>
     <div class="lightbox-stage" id="lightboxStage">
       <img id="lightboxImg" alt="" draggable="false" />
     </div>
-    <div class="lightbox-hint">Колёсико мыши — масштаб · Esc — закрыть</div>
+    <div class="lightbox-hint">Колёсико — зум к курсору · ЛКМ тянуть — сдвиг · Fit / 1:1 · Esc — закрыть</div>
   </div>
 </div>
 
@@ -2262,18 +2289,21 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     </div>
 </div>
 
-<!-- Blank (A4) lightbox -->
+<!-- Blank (A4) lightbox — pan + zoom like maps -->
 <div id="blankLightbox" onclick="if(event.target===this)closeBlankLightbox()">
   <div class="blank-lightbox-inner" onclick="event.stopPropagation()">
     <div class="blank-toolbar">
-      <button type="button" class="lb-btn" onclick="blankZoom(1.25)">＋</button>
-      <button type="button" class="lb-btn" onclick="blankZoom(0.8)">－</button>
-      <button type="button" class="lb-btn" onclick="blankZoom(0)">1:1</button>
+      <button type="button" class="lb-btn" onclick="blankZoom(1.25)" title="Крупнее">＋</button>
+      <button type="button" class="lb-btn" onclick="blankZoom(0.8)" title="Мельче">－</button>
+      <button type="button" class="lb-btn" onclick="blankZoom(0)" title="Вписать">Fit</button>
+      <button type="button" class="lb-btn" onclick="blankZoom(1)" title="100%">1:1</button>
       <button type="button" class="lb-btn" onclick="downloadPng()">⬇ PNG</button>
       <button type="button" class="lb-btn" onclick="closeBlankLightbox()">✕</button>
     </div>
-    <img id="blankLightboxImg" alt="Бланк решения" />
-    <div class="lightbox-hint" style="margin-top:10px;">Колёсико — масштаб · тяните фото — сдвиг · Esc — закрыть</div>
+    <div class="blank-stage" id="blankStage">
+      <img id="blankLightboxImg" alt="Бланк решения" draggable="false" />
+    </div>
+    <div class="lightbox-hint" style="margin-top:10px;">Колёсико — зум к курсору · ЛКМ тянуть — сдвиг · Fit / 1:1 · Esc — закрыть</div>
   </div>
 </div>
 
@@ -3433,6 +3463,7 @@ document.addEventListener('DOMContentLoaded', function () {
         updateSteps();
     }
 
+    /* ===== PHOTO LIGHTBOX: zoom to cursor + pan ===== */
     let lightboxScale = 1;
     let lbPanX = 0, lbPanY = 0;
     let lbDragging = false, lbStartX = 0, lbStartY = 0, lbOrigX = 0, lbOrigY = 0;
@@ -3441,8 +3472,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const img = $('lightboxImg');
         if (!img) return;
         img.style.transform = 'translate(' + lbPanX + 'px,' + lbPanY + 'px) scale(' + lightboxScale + ')';
-        img.style.transformOrigin = 'center center';
-        img.style.cursor = lightboxScale > 1.05 ? (lbDragging ? 'grabbing' : 'grab') : 'zoom-in';
+        img.style.transformOrigin = '0 0';
+        img.classList.toggle('dragging', lbDragging);
+        img.style.cursor = lbDragging ? 'grabbing' : 'grab';
     }
 
     window.openLightbox = function (src) {
@@ -3451,6 +3483,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const img = $('lightboxImg');
         lightboxScale = 1; lbPanX = 0; lbPanY = 0;
         if (img) {
+            img.onload = function () {
+                lightboxScale = 1; lbPanX = 0; lbPanY = 0;
+                applyLightboxTransform();
+            };
             img.src = src;
             applyLightboxTransform();
         }
@@ -3462,72 +3498,87 @@ document.addEventListener('DOMContentLoaded', function () {
         if (lb) lb.classList.remove('show');
         lightboxScale = 1; lbPanX = 0; lbPanY = 0;
         const img = $('lightboxImg');
-        if (img) img.style.transform = '';
+        if (img) { img.style.transform = ''; img.classList.remove('dragging'); }
         document.body.classList.remove('modal-open'); document.body.style.overflow = ''; document.documentElement.style.overflow = '';
         lbDragging = false;
     };
     window.lightboxZoom = function (factor, clientX, clientY) {
         const img = $('lightboxImg');
-        if (!img) return;
-        const prev = lightboxScale;
+        const stage = $('lightboxStage');
+        if (!img || !stage) return;
         if (factor === 0) {
-            lightboxScale = 1; lbPanX = 0; lbPanY = 0;
-        } else {
-            lightboxScale = Math.min(8, Math.max(0.35, lightboxScale * factor));
-            // при зуме колёсиком сохраняем смещение
-            if (lightboxScale <= 1.02) { lbPanX = 0; lbPanY = 0; }
+            // Fit: scale so image fits stage
+            const sw = stage.clientWidth || 1;
+            const sh = stage.clientHeight || 1;
+            const iw = img.naturalWidth || img.width || 1;
+            const ih = img.naturalHeight || img.height || 1;
+            lightboxScale = Math.min(sw / iw, sh / ih, 1);
+            if (!isFinite(lightboxScale) || lightboxScale <= 0) lightboxScale = 1;
+            lbPanX = Math.max(0, (sw - iw * lightboxScale) / 2);
+            lbPanY = Math.max(0, (sh - ih * lightboxScale) / 2);
+            applyLightboxTransform();
+            return;
         }
+        if (factor === 1) {
+            lightboxScale = 1; lbPanX = 0; lbPanY = 0;
+            applyLightboxTransform();
+            return;
+        }
+        const prev = lightboxScale;
+        const next = Math.min(12, Math.max(0.2, prev * factor));
+        const rect = stage.getBoundingClientRect();
+        const cx = (typeof clientX === 'number' ? clientX : rect.left + rect.width / 2) - rect.left;
+        const cy = (typeof clientY === 'number' ? clientY : rect.top + rect.height / 2) - rect.top;
+        // point under cursor in image space before zoom
+        const ix = (cx - lbPanX) / prev;
+        const iy = (cy - lbPanY) / prev;
+        lightboxScale = next;
+        lbPanX = cx - ix * next;
+        lbPanY = cy - iy * next;
         applyLightboxTransform();
     };
 
     (function bindLightboxPan() {
         const lb = document.getElementById('lightbox');
-        if (!lb || lb.__mmsPanBound) return;
-        lb.__mmsPanBound = true;
+        const stage = document.getElementById('lightboxStage');
+        if (!lb || lb.__mmsPanBound2) return;
+        lb.__mmsPanBound2 = true;
+        function startDrag(x, y) {
+            lbDragging = true;
+            lbStartX = x; lbStartY = y;
+            lbOrigX = lbPanX; lbOrigY = lbPanY;
+            applyLightboxTransform();
+        }
+        function moveDrag(x, y) {
+            if (!lbDragging) return;
+            lbPanX = lbOrigX + (x - lbStartX);
+            lbPanY = lbOrigY + (y - lbStartY);
+            applyLightboxTransform();
+        }
+        function endDrag() { lbDragging = false; applyLightboxTransform(); }
         lb.addEventListener('mousedown', function (e) {
-            if (e.target && e.target.id === 'lightboxImg' && lightboxScale > 1.05) {
-                lbDragging = true;
-                lbStartX = e.clientX; lbStartY = e.clientY;
-                lbOrigX = lbPanX; lbOrigY = lbPanY;
+            if (!lb.classList.contains('show')) return;
+            if (e.target && (e.target.id === 'lightboxImg' || e.target.id === 'lightboxStage')) {
+                startDrag(e.clientX, e.clientY);
                 e.preventDefault();
             }
         });
-        window.addEventListener('mousemove', function (e) {
-            if (!lbDragging) return;
-            lbPanX = lbOrigX + (e.clientX - lbStartX);
-            lbPanY = lbOrigY + (e.clientY - lbStartY);
-            applyLightboxTransform();
-        });
-        window.addEventListener('mouseup', function () { lbDragging = false; applyLightboxTransform(); });
-        // touch
+        window.addEventListener('mousemove', function (e) { moveDrag(e.clientX, e.clientY); });
+        window.addEventListener('mouseup', endDrag);
         lb.addEventListener('touchstart', function (e) {
-            if (e.touches.length === 1 && lightboxScale > 1.05) {
-                lbDragging = true;
-                lbStartX = e.touches[0].clientX; lbStartY = e.touches[0].clientY;
-                lbOrigX = lbPanX; lbOrigY = lbPanY;
-            }
+            if (e.touches.length === 1) startDrag(e.touches[0].clientX, e.touches[0].clientY);
         }, { passive: true });
         lb.addEventListener('touchmove', function (e) {
             if (!lbDragging || e.touches.length !== 1) return;
-            lbPanX = lbOrigX + (e.touches[0].clientX - lbStartX);
-            lbPanY = lbOrigY + (e.touches[0].clientY - lbStartY);
-            applyLightboxTransform();
+            moveDrag(e.touches[0].clientX, e.touches[0].clientY);
         }, { passive: true });
-        lb.addEventListener('touchend', function () { lbDragging = false; });
+        lb.addEventListener('touchend', endDrag);
+        lb.addEventListener('dblclick', function (e) {
+            if (!lb.classList.contains('show')) return;
+            if (lightboxScale > 1.2) lightboxZoom(1);
+            else lightboxZoom(2.5, e.clientX, e.clientY);
+        });
     })();
-    document.addEventListener('wheel', function (e) {
-        const lb = $('lightbox');
-        if (lb && lb.classList.contains('show') && lb.contains(e.target)) {
-            e.preventDefault();
-            lightboxZoom(e.deltaY < 0 ? 1.12 : 0.9, e.clientX, e.clientY);
-            return;
-        }
-        const bl = $('blankLightbox');
-        if (bl && bl.classList.contains('show') && bl.contains(e.target)) {
-            e.preventDefault();
-            blankZoom(e.deltaY < 0 ? 1.12 : 0.9, e.clientX, e.clientY);
-        }
-    }, { passive: false });
 
     window.openEntryDetail = function (idx) {
         const e = entries[idx];
@@ -4790,16 +4841,32 @@ document.addEventListener('DOMContentLoaded', function () {
         toast('PNG сохранён');
     };
 
-    /* ===== BLANK LIGHTBOX (enlarge A4) ===== */
+    /* ===== BLANK LIGHTBOX: pan + zoom to cursor (как карты) ===== */
+    let blankPanX = 0, blankPanY = 0;
+    let blankDragging = false, blankStartX = 0, blankStartY = 0, blankOrigX = 0, blankOrigY = 0;
+
+    function applyBlankTransform() {
+        const img = $('blankLightboxImg');
+        if (!img) return;
+        img.style.transformOrigin = '0 0';
+        img.style.transform = 'translate(' + blankPanX + 'px,' + blankPanY + 'px) scale(' + blankScale + ')';
+        img.classList.toggle('dragging', blankDragging);
+        img.style.cursor = blankDragging ? 'grabbing' : 'grab';
+    }
+
     window.openBlankLightbox = function () {
-        drawA4();
+        if (typeof drawA4 === 'function') drawA4();
         const canvas = $('a4Canvas');
         const img = $('blankLightboxImg');
         const lb = $('blankLightbox');
         if (!canvas || !img || !lb) return;
-        blankScale = 1;
+        blankScale = 1; blankPanX = 0; blankPanY = 0;
+        img.onload = function () {
+            // Fit by default
+            blankZoom(0);
+        };
         img.src = canvas.toDataURL('image/png');
-        img.style.transform = 'scale(1)';
+        applyBlankTransform();
         lb.classList.add('show');
         document.body.classList.add('modal-open'); document.body.style.overflow = 'hidden';
     };
@@ -4808,42 +4875,98 @@ document.addEventListener('DOMContentLoaded', function () {
         const lb = $('blankLightbox');
         if (lb) lb.classList.remove('show');
         document.body.classList.remove('modal-open'); document.body.style.overflow = ''; document.documentElement.style.overflow = '';
-        blankScale = 1;
+        blankScale = 1; blankPanX = 0; blankPanY = 0; blankDragging = false;
         const img = $('blankLightboxImg');
-        if (img) img.style.transform = 'scale(1)';
+        if (img) { img.style.transform = ''; img.classList.remove('dragging'); }
     };
 
-    let blankOriginX = 50, blankOriginY = 50;
     window.blankZoom = function (factor, clientX, clientY) {
         const img = $('blankLightboxImg');
-        const stage = img && img.parentElement;
-        if (!img) return;
+        const stage = $('blankStage') || (img && img.parentElement);
+        if (!img || !stage) return;
         if (factor === 0) {
-            blankScale = 1;
-            blankOriginX = 50;
-            blankOriginY = 50;
-        } else {
-            if (typeof clientX === 'number' && stage) {
-                const r = stage.getBoundingClientRect();
-                blankOriginX = ((clientX - r.left) / r.width) * 100;
-                blankOriginY = ((clientY - r.top) / r.height) * 100;
-            }
-            blankScale = Math.min(5, Math.max(0.35, blankScale * factor));
+            // Fit width into stage
+            const sw = stage.clientWidth - 24 || 1;
+            const iw = img.naturalWidth || img.width || 1;
+            blankScale = Math.min(1, sw / iw);
+            if (!isFinite(blankScale) || blankScale <= 0) blankScale = 1;
+            blankPanX = Math.max(0, (stage.clientWidth - iw * blankScale) / 2);
+            blankPanY = 8;
+            applyBlankTransform();
+            return;
         }
-        img.style.transformOrigin = blankOriginX + '% ' + blankOriginY + '%';
-        img.style.transform = 'scale(' + blankScale + ')';
+        if (factor === 1) {
+            blankScale = 1; blankPanX = 8; blankPanY = 8;
+            applyBlankTransform();
+            return;
+        }
+        const prev = blankScale || 1;
+        const next = Math.min(8, Math.max(0.25, prev * factor));
+        const rect = stage.getBoundingClientRect();
+        const cx = (typeof clientX === 'number' ? clientX : rect.left + rect.width / 2) - rect.left + stage.scrollLeft;
+        const cy = (typeof clientY === 'number' ? clientY : rect.top + rect.height / 2) - rect.top + stage.scrollTop;
+        const ix = (cx - blankPanX) / prev;
+        const iy = (cy - blankPanY) / prev;
+        blankScale = next;
+        blankPanX = cx - ix * next;
+        blankPanY = cy - iy * next;
+        applyBlankTransform();
     };
-    // колёсико над бланком — зум к курсору
-    document.addEventListener('DOMContentLoaded', function () {
-        const bl = $('blankLightbox');
-        if (!bl || bl.__mmsZoomBound) return;
-        bl.__mmsZoomBound = true;
+
+    (function bindBlankPanZoom() {
+        const bl = document.getElementById('blankLightbox');
+        if (!bl || bl.__mmsBlankPanBound) return;
+        bl.__mmsBlankPanBound = true;
+        function startDrag(x, y) {
+            blankDragging = true;
+            blankStartX = x; blankStartY = y;
+            blankOrigX = blankPanX; blankOrigY = blankPanY;
+            applyBlankTransform();
+        }
+        function moveDrag(x, y) {
+            if (!blankDragging) return;
+            blankPanX = blankOrigX + (x - blankStartX);
+            blankPanY = blankOrigY + (y - blankStartY);
+            applyBlankTransform();
+        }
+        function endDrag() { blankDragging = false; applyBlankTransform(); }
+        bl.addEventListener('mousedown', function (e) {
+            if (!bl.classList.contains('show')) return;
+            if (e.target && (e.target.id === 'blankLightboxImg' || e.target.id === 'blankStage')) {
+                startDrag(e.clientX, e.clientY);
+                e.preventDefault();
+            }
+        });
+        window.addEventListener('mousemove', function (e) { moveDrag(e.clientX, e.clientY); });
+        window.addEventListener('mouseup', endDrag);
+        bl.addEventListener('touchstart', function (e) {
+            if (e.touches.length === 1) startDrag(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+        bl.addEventListener('touchmove', function (e) {
+            if (!blankDragging || e.touches.length !== 1) return;
+            moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+        bl.addEventListener('touchend', endDrag);
         bl.addEventListener('wheel', function (e) {
             if (!bl.classList.contains('show')) return;
             e.preventDefault();
             blankZoom(e.deltaY < 0 ? 1.12 : 0.9, e.clientX, e.clientY);
         }, { passive: false });
-    });
+        bl.addEventListener('dblclick', function (e) {
+            if (!bl.classList.contains('show')) return;
+            if (blankScale > 1.15) blankZoom(0);
+            else blankZoom(2, e.clientX, e.clientY);
+        });
+    })();
+
+    // global wheel: photo lightbox
+    document.addEventListener('wheel', function (e) {
+        const lb = $('lightbox');
+        if (lb && lb.classList.contains('show') && lb.contains(e.target)) {
+            e.preventDefault();
+            lightboxZoom(e.deltaY < 0 ? 1.12 : 0.9, e.clientX, e.clientY);
+        }
+    }, { passive: false });
 
     /* init */
     $('repDate').value = todayISO();
@@ -5256,13 +5379,26 @@ document.addEventListener('DOMContentLoaded', function () {
         return (h ? (h + ':') : '') + p(m) + ':' + p(sec);
     }
     function claimExpMs(it) {
-        var e = it.claim_expires_at ? Date.parse(it.claim_expires_at) : 0;
-        return e || 0;
+        if (it && it.claim_expires_at) {
+            var e = Date.parse(it.claim_expires_at);
+            if (e) return e;
+        }
+        if (it && it.claimed_at) {
+            var at = Date.parse(it.claimed_at);
+            if (at) {
+                var ttl = (typeof queueCache !== 'undefined' && queueCache.claim_ttl_ms)
+                    ? queueCache.claim_ttl_ms
+                    : (60 * 60 * 1000);
+                return at + ttl;
+            }
+        }
+        return 0;
     }
     function isLockedByOther(it) {
         var claimed = it.claimed_by || it.claimedBy || '';
         if (!claimed || claimed === inspectorName()) return false;
         var e = claimExpMs(it);
+        // no expiry info → treat as locked (safe); else locked while TTL active
         return !e || e > nowSrv();
     }
     function findItem(id) {
@@ -5275,7 +5411,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* ===== UX 2.2 helpers ===== */
-    var REVIEWER_VER = '2.2';
+    var REVIEWER_VER = '2.3';
     var __mmsLastPendingIds = null;
     var __mmsDecideInFlight = false;
     var __mmsSentDecideIds = {};
@@ -5418,7 +5554,14 @@ document.addEventListener('DOMContentLoaded', function () {
             if (type === 'weekly' && rt === 'promotion') return false;
             if (type === 'promotion' && rt !== 'promotion') return false;
             var claimed = String(it.claimed_by || it.claimedBy || '');
-            if (free && claimed) return false;
+            // free = no active lock by anyone (respect TTL, not just claimed_by string)
+            if (free) {
+                if (claimed && isLockedByOther(it)) return false;
+                if (claimed && claimed.toLowerCase() === me) {
+                    var expMine = claimExpMs(it);
+                    if (expMine && expMine > nowSrv()) return false;
+                }
+            }
             if (mine && claimed.toLowerCase() !== me) return false;
             if (q) {
                 var hay = (String(it.full_name || it.name || '') + ' ' + String(it.static_id || it.staticId || '') + ' ' + claimed).toLowerCase();
@@ -5520,6 +5663,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (typeof window.mmsQueueRefresh === 'function') window.mmsQueueRefresh();
             } else if (k === 'Escape') {
                 try {
+                    var blb = document.getElementById('blankLightbox');
+                    if (blb && blb.classList.contains('show')) {
+                        if (typeof closeBlankLightbox === 'function') closeBlankLightbox();
+                        else if (typeof window.closeBlankLightbox === 'function') window.closeBlankLightbox();
+                        e.preventDefault();
+                        return;
+                    }
+                    var plb = document.getElementById('lightbox');
+                    if (plb && plb.classList.contains('show')) {
+                        if (typeof window.closeLightbox === 'function') window.closeLightbox();
+                        else if (typeof closeLightbox === 'function') closeLightbox();
+                        else {
+                            plb.classList.remove('show');
+                            document.body.classList.remove('modal-open');
+                            document.body.style.overflow = '';
+                        }
+                        e.preventDefault();
+                        return;
+                    }
                     var modal = document.getElementById('reportViewerModal');
                     if (modal && modal.classList.contains('show')) {
                         modal.classList.remove('show');
@@ -5778,6 +5940,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 queueCache.pending = data.pending || [];
                 queueCache.done = data.done || [];
                 queueCache.trash = data.trash || [];
+                if (data.claim_ttl_ms) queueCache.claim_ttl_ms = data.claim_ttl_ms;
                 if (data.server_now) serverOffset = data.server_now - Date.now();
                 mmsCheckNewPending(queueCache.pending);
             } else {
@@ -6136,6 +6299,6 @@ document.addEventListener('DOMContentLoaded', function () {
     <div><kbd>Esc</kbd> закрыть превью</div>
   </div>
 </div>
-<div class="mms-ver" id="mmsApiVer">worker … · reviewer 2.2</div>
+<div class="mms-ver" id="mmsApiVer">worker … · reviewer 2.3</div>
 </body>
 </html>
