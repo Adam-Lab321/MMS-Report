@@ -3854,7 +3854,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const usedImgKeys = {};
 
-            const rows = doc.querySelectorAll('table tr');
+            /* Новый формат .doc из MMS: строки с data-mms-* (ссылка, фото, пояснения) */
+            const mmsRows = doc.querySelectorAll('tr[data-mms-row]');
+            mmsRows.forEach(function (tr) {
+                let mlink = (tr.getAttribute('data-mms-link') || '').trim();
+                if (mlink && !/^https?:\/\//i.test(mlink)) mlink = '';
+                if (!mlink) {
+                    const am = tr.querySelector('a[href^="http"]');
+                    if (am) mlink = (am.getAttribute('href') || '').trim();
+                }
+                const matts = [];
+                tr.querySelectorAll('img[data-mms-photo]').forEach(function (img, pi) {
+                    const src = normalizeSrc(img.getAttribute('src') || '');
+                    if (!isUsableSrc(src)) return;
+                    matts.push({
+                        name: String(img.getAttribute('data-cap') || img.getAttribute('alt') || ('фото ' + (pi + 1))).slice(0, 200),
+                        points: parseInt(img.getAttribute('data-pts'), 10) || 0,
+                        dataUrl: src
+                    });
+                    usedImgKeys[src.slice(0, 80)] = true;
+                });
+                data.entries.push({
+                    evidenceNumber: '№' + (data.entries.length + 1),
+                    date: (tr.getAttribute('data-mms-date') || '—'),
+                    category: String(tr.getAttribute('data-mms-cat') || 'прочее').slice(0, 48),
+                    link: mlink,
+                    points: parseInt(tr.getAttribute('data-mms-points'), 10) || 0,
+                    attachments: matts
+                });
+            });
+
+            const rows = mmsRows.length ? [] : doc.querySelectorAll('table tr');
             rows.forEach(function (tr) {
                 const ths = tr.querySelectorAll('th');
                 if (ths.length) return;
@@ -3967,7 +3997,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const assignedCount = data.entries.reduce(function (n, e) {
                 return n + (Array.isArray(e.attachments) ? e.attachments.filter(function (a) { return a && a.dataUrl; }).length : 0);
             }, 0);
-            if (assignedCount === 0 && allDocImgs.length && data.entries.length) {
+            if (!mmsRows.length && assignedCount === 0 && allDocImgs.length && data.entries.length) {
                 const free = allDocImgs.filter(function (a) { return a && a.dataUrl; });
                 if (free.length === data.entries.length) {
                     free.forEach(function (a, i) {
@@ -3988,7 +4018,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         e.attachments = chunk;
                     });
                 }
-            } else if (assignedCount > 0 && allDocImgs.length > assignedCount) {
+            } else if (!mmsRows.length && assignedCount > 0 && allDocImgs.length > assignedCount) {
                 /* append leftover document images not yet used onto matching entries / last entry */
                 const leftovers = allDocImgs.filter(function (a) {
                     return a && a.dataUrl && !usedImgKeys[a.dataUrl.slice(0, 80)];
@@ -4786,6 +4816,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return location.origin + location.pathname;
   }
 
+  window.mmsShowAuthGate = mmsShowAuthGate;
   window.mmsStartDiscordOAuth = function () {
     var st = document.getElementById('authStatus');
     try {
@@ -5003,6 +5034,19 @@ document.addEventListener('DOMContentLoaded', function () {
         renderQueue();
     };
 
+    function authHeaders(extra) {
+        var h = Object.assign({}, extra || {});
+        try {
+            var a = JSON.parse(localStorage.getItem('mmsDiscordAuth') || 'null');
+            if (a && a.sessionToken) h['Authorization'] = 'Bearer ' + a.sessionToken;
+        } catch (e) {}
+        return h;
+    }
+    function authExpired() {
+        try { localStorage.removeItem('mmsDiscordAuth'); } catch (e0) {}
+        try { if (typeof window.mmsShowAuthGate === 'function') window.mmsShowAuthGate('Сессия истекла — войдите через Discord снова'); } catch (e) {}
+    }
+
     function inspectorName() {
         try {
             var n = localStorage.getItem('mmsInspectorName');
@@ -5067,7 +5111,8 @@ document.addEventListener('DOMContentLoaded', function () {
         var list = document.getElementById('queueList');
         if (list) list.innerHTML = '<div class="queue-empty">Загрузка…</div>';
         try {
-            var res = await fetch(PROXY + '/review/queue');
+            var res = await fetch(PROXY + '/review/queue', { headers: authHeaders() });
+            if (res.status === 401) { authExpired(); }
             var data = await res.json().catch(function () { return null; });
             if (data && data.ok) {
                 queueCache.pending = data.pending || [];
@@ -5092,17 +5137,23 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 var claim = await fetch(PROXY + '/review/claim', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: authHeaders({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify({ id: id, inspector: inspectorName() })
                 });
                 var cj = await claim.json().catch(function () { return null; });
+                if (cj && cj.ok === false && cj.code === 'done') {
+                    alert('Этот рапорт уже проверен');
+                    mmsQueueRefresh();
+                    return;
+                }
                 if (cj && cj.ok === false && cj.code === 'claimed') {
                     alert('Рапорт уже проверяет: ' + (cj.claimed_by || 'другой сотрудник'));
                     mmsQueueRefresh();
                     return;
                 }
             } catch (e) {}
-            var res = await fetch(PROXY + '/review/item?id=' + encodeURIComponent(id));
+            var res = await fetch(PROXY + '/review/item?id=' + encodeURIComponent(id), { headers: authHeaders() });
+            if (res.status === 401) { authExpired(); return; }
             var data = await res.json().catch(function () { return null; });
             if (!data || !data.ok) {
                 alert('Не удалось открыть рапорт');
@@ -5123,15 +5174,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.submitted_at) set('repDate', String(data.submitted_at).slice(0, 10));
             if (data.points != null) set('totalPts', String(data.points));
             // записи + ссылки: сначала из JSON, иначе парсим HTML
-            if (Array.isArray(data.entries) && data.entries.length && typeof applyReportData === 'function') {
-                applyReportData({
-                    employee: { name: data.full_name || data.name || '', id: data.static_id || data.staticId || '' },
-                    entries: data.entries,
-                    totalPoints: data.points,
-                    reportType: rtype,
-                    mode: rtype
-                });
-            } else if (data.html && typeof parseReportHtmlToData === 'function' && typeof applyReportData === 'function') {
+            var applied = false;
+            if (data.html && typeof parseReportHtmlToData === 'function' && typeof applyReportData === 'function') {
                 try {
                     var parsed = parseReportHtmlToData(data.html);
                     if (parsed && parsed.entries && parsed.entries.length) {
@@ -5139,10 +5183,28 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (!parsed.employee.name) parsed.employee.name = data.full_name || data.name || '';
                         if (!parsed.employee.id) parsed.employee.id = data.static_id || data.staticId || '';
                         parsed.reportType = rtype;
-                        parsed.totalPoints = parsed.totalPoints || data.points || 0;
+                        parsed.mode = rtype;
+                        parsed.totalPoints = data.points != null ? data.points : (parsed.totalPoints || 0);
+                        /* ссылки, которых не нашли в HTML, берём из JSON очереди */
+                        if (Array.isArray(data.entries)) {
+                            parsed.entries.forEach(function (pe, pi) {
+                                var je = data.entries[pi];
+                                if (je && !pe.link && je.link) pe.link = je.link;
+                            });
+                        }
                         applyReportData(parsed);
+                        applied = true;
                     }
                 } catch (eParse) { console.warn(eParse); }
+            }
+            if (!applied && Array.isArray(data.entries) && data.entries.length && typeof applyReportData === 'function') {
+                applyReportData({
+                    employee: { name: data.full_name || data.name || '', id: data.static_id || data.staticId || '' },
+                    entries: data.entries,
+                    totalPoints: data.points,
+                    reportType: rtype,
+                    mode: rtype
+                });
             }
             if (data.html) {
                 lastViewerHtml = data.html;
@@ -5223,7 +5285,7 @@ document.addEventListener('DOMContentLoaded', function () {
             notify((dec === 'deny' ? 'Отправка отказа' : 'Отправка одобрения') + ' в Discord…', 'info');
             var res = await fetch(PROXY + '/review/decide', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({
                     id: id,
                     decision: dec,
@@ -5263,7 +5325,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 notify('Сохранено, но Discord: ' + err, 'err');
                 if (typeof mmsQueueRefresh === 'function') mmsQueueRefresh();
             } else {
-                var msg = (data && data.error) || 'Не удалось отправить';
+                var msg = (data && data.error) || (res.status === 401 ? 'Сессия истекла — войдите через Discord' : 'Не удалось отправить');
+                if (res.status === 401) authExpired();
                 notify(msg, 'err');
             }
         } catch (e) {
