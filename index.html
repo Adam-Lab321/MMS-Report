@@ -1714,6 +1714,37 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 .auth-saved-item .as-id { font-size: 11px; color: #8a8070; }
 .auth-saved-item .as-del { border: none; background: transparent; color: #8a8070; cursor: pointer; font-size: 16px; padding: 4px 8px; }
 .auth-saved-item .as-del:hover { color: #ff8a8a; }
+/* ===== очередь: корзина, блокировка, таймер ===== */
+.queue-tabs { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 640px) { .queue-tabs { grid-template-columns: 1fr; } }
+.queue-item .qi-timer { font-variant-numeric: tabular-nums; margin-left: 4px; }
+.queue-item .qi-del, .queue-item .qi-restore {
+    font-family: Oswald, sans-serif; font-size: 12px; cursor: pointer;
+    padding: 5px 10px; border-radius: 10px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-muted);
+}
+.queue-item .qi-del:hover { color: #e87474; border-color: rgba(232,116,116,0.5); }
+.queue-item .qi-restore:hover { color: #6bcb7a; border-color: rgba(107,203,122,0.5); }
+.queue-item.trashed { cursor: default; border-style: dashed; }
+.queue-item .qi-reason { flex-basis: 100%; font-size: 12px; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 8px; }
+.queue-item .qi-reason b { color: #e8a84a; font-weight: 600; }
+.mms-qmodal { position: fixed; inset: 0; z-index: 100000; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.65); backdrop-filter: blur(3px); padding: 16px; }
+.mms-qmodal .qm-box { width: min(440px, 100%); background: var(--bg-panel); border: 1px solid var(--gold);
+    border-radius: 16px; padding: 22px 22px 18px; font-family: Oswald, sans-serif; color: var(--text);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6); text-align: center; }
+.mms-qmodal .qm-ico { font-size: 34px; line-height: 1; margin-bottom: 8px; }
+.mms-qmodal .qm-title { font-size: 17px; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 6px; }
+.mms-qmodal .qm-text { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.mms-qmodal .qm-who { color: var(--gold); font-weight: 600; }
+.mms-qmodal .qm-timer { font-size: 32px; font-weight: 600; color: var(--gold); margin: 12px 0 2px; font-variant-numeric: tabular-nums; }
+.mms-qmodal .qm-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 14px; }
+.mms-qmodal textarea { width: 100%; min-height: 80px; margin-top: 12px; box-sizing: border-box; resize: vertical;
+    background: var(--bg-card); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-family: inherit; font-size: 13px; }
+.mms-qmodal .qm-err { color: #e87474; font-size: 12px; min-height: 16px; margin-top: 6px; }
+.mms-qmodal .qm-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+.mms-qmodal .qm-actions .btn { min-width: 120px; }
+.mms-qmodal .qm-danger { border-color: rgba(232,116,116,0.6) !important; color: #e87474 !important; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
@@ -1822,6 +1853,11 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
                 <span class="qt-ico">✅</span>
                 <span class="qt-text"><strong>Проверено</strong><small>архив решений</small></span>
                 <span class="qt-count" id="doneCount">0</span>
+            </button>
+            <button type="button" class="queue-tab" id="tabTrash" onclick="mmsQueueShow('trash')">
+                <span class="qt-ico">🗑</span>
+                <span class="qt-text"><strong>Корзина</strong><small>удалённые заявки</small></span>
+                <span class="qt-count" id="trashCount">0</span>
             </button>
         </div>
         <div class="queue-list" id="queueList"><div class="queue-empty">Загрузка очереди…</div></div>
@@ -4952,7 +4988,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var PIN_SHARED = 'mmsCommandPinOk'; // общий с Двери (localStorage, весь github.io)
     var PROXY = 'https://mms-report-proxy.asakulin874.workers.dev';
     var queueTab = 'pending';
-    var queueCache = { pending: [], done: [] };
+    var queueCache = { pending: [], done: [], trash: [] };
+    var serverOffset = 0; // server_now - Date.now()
 
     function fromHub() {
         try {
@@ -5026,11 +5063,13 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     window.mmsQueueShow = function (tab) {
-        queueTab = tab === 'done' ? 'done' : 'pending';
+        queueTab = tab === 'done' ? 'done' : (tab === 'trash' ? 'trash' : 'pending');
         var tp = document.getElementById('tabPending');
         var td = document.getElementById('tabDone');
+        var tt = document.getElementById('tabTrash');
         if (tp) tp.classList.toggle('active', queueTab === 'pending');
         if (td) td.classList.toggle('active', queueTab === 'done');
+        if (tt) tt.classList.toggle('active', queueTab === 'trash');
         renderQueue();
     };
 
@@ -5054,58 +5093,222 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (e) {}
         return 'Inspector';
     }
+    function escQ(v) {
+        return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function nowSrv() { return Date.now() + serverOffset; }
+    function fmtLeft(ms) {
+        if (ms < 0) ms = 0;
+        var t = Math.floor(ms / 1000);
+        var h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), sec = t % 60;
+        function p(n) { return (n < 10 ? '0' : '') + n; }
+        return (h ? (h + ':') : '') + p(m) + ':' + p(sec);
+    }
+    function claimExpMs(it) {
+        var e = it.claim_expires_at ? Date.parse(it.claim_expires_at) : 0;
+        return e || 0;
+    }
+    function isLockedByOther(it) {
+        var claimed = it.claimed_by || it.claimedBy || '';
+        if (!claimed || claimed === inspectorName()) return false;
+        var e = claimExpMs(it);
+        return !e || e > nowSrv();
+    }
+    function findItem(id) {
+        var lists = [queueCache.pending, queueCache.done, queueCache.trash];
+        for (var li = 0; li < lists.length; li++) {
+            var arr = lists[li] || [];
+            for (var k = 0; k < arr.length; k++) if (arr[k] && arr[k].id === id) return arr[k];
+        }
+        return null;
+    }
+
     function renderQueue() {
         var list = document.getElementById('queueList');
         if (!list) return;
         var pc = document.getElementById('pendingCount');
         var dc = document.getElementById('doneCount');
+        var tc = document.getElementById('trashCount');
         if (pc) pc.textContent = String((queueCache.pending || []).length);
         if (dc) dc.textContent = String((queueCache.done || []).length);
+        if (tc) tc.textContent = String((queueCache.trash || []).length);
         var items = queueCache[queueTab] || [];
         if (!items.length) {
             list.innerHTML = '<div class="queue-empty">' +
                 (queueTab === 'pending'
                     ? 'Нет рапортов на проверке. После сдачи через Discord они появятся здесь.'
-                    : 'Архив проверенных пока пуст.') + '</div>';
+                    : (queueTab === 'done' ? 'Архив проверенных пока пуст.' : 'Корзина пуста.')) + '</div>';
             return;
         }
         var me = inspectorName();
         list.innerHTML = items.map(function (it) {
-            var name = String(it.full_name || it.name || '—').replace(/</g, '&lt;');
-            var sid = String(it.static_id || it.staticId || '—').replace(/</g, '&lt;');
+            var id = String(it.id || '').replace(/[^\w-]/g, '');
+            var name = escQ(it.full_name || it.name || '—');
+            var sid = escQ(it.static_id || it.staticId || '—');
             var when = String(it.submitted_at || it.at || '').slice(0, 16).replace('T', ' ');
             var typ = (it.report_type || it.mode || 'weekly') === 'promotion' ? 'На повышение' : 'Еженедельный';
-            var claimed = it.claimed_by || it.claimedBy || '';
-            var locked = claimed && claimed !== me && queueTab === 'pending';
-            var badge;
+            var main = '<div class="qi-main"><div class="qi-name">' + name + ' · ID ' + sid + '</div>' +
+                '<div class="qi-meta">' + typ + (when ? (' · ' + when) : '') + '</div></div>';
+            var delBtn = '<button type="button" class="qi-del" title="Удалить в корзину" onclick="event.stopPropagation();mmsDeleteAsk(\'' + id + '\')">🗑 Удалить</button>';
+
+            if (queueTab === 'trash') {
+                var dwhen = String(it.deleted_at || '').slice(0, 16).replace('T', ' ');
+                return '<div class="queue-item trashed">' + main +
+                    '<span class="qi-badge denied">Удалён' + (it.deleted_by ? (' · ' + escQ(it.deleted_by)) : '') + '</span>' +
+                    '<button type="button" class="qi-restore" onclick="mmsRestoreItem(\'' + id + '\')">↩ Вернуть</button>' +
+                    '<div class="qi-reason"><b>Причина:</b> ' + escQ(it.delete_reason || '—') + (dwhen ? (' · ' + dwhen) : '') + '</div></div>';
+            }
+
             if (queueTab === 'done') {
                 var insp = it.inspector || it.claimed_by || '';
                 var d = String(it.decision || it.verdict || '').toLowerCase();
                 var denied = (d === 'deny' || d === 'rejected' || d === 'reject' || d === 'denied' || d === 'no' || it.denied === true);
-                // запасной сигнал по тексту заключения (старые записи после бага)
                 if (!denied && it.decision_text) {
                     var tx = String(it.decision_text).toLowerCase();
                     if (/не\s*одобр|отклон|отказ|не\s*подтверж/.test(tx) && !/рапорт\s*принят|зач[её]т\s*балл/.test(tx)) denied = true;
                 }
-                var decLabel = denied ? 'Не одобрено' : 'Одобрено';
-                var bcls = denied ? 'qi-badge denied' : 'qi-badge done';
-                badge = '<span class="' + bcls + '">' + decLabel +
-                    (insp ? (' · ' + String(insp).replace(/</g, '&lt;')) : '') + '</span>';
-            } else if (claimed) {
-                badge = '<span class="qi-badge lock">🔒 ' + String(claimed).replace(/</g, '&lt;') + '</span>';
+                var badgeDone = '<span class="qi-badge ' + (denied ? 'denied' : 'done') + '">' + (denied ? 'Не одобрено' : 'Одобрено') +
+                    (insp ? (' · ' + escQ(insp)) : '') + '</span>';
+                return '<div class="queue-item" onclick="mmsOpenQueueItem(\'' + id + '\')">' + main + badgeDone + delBtn + '</div>';
+            }
+
+            // pending
+            var claimed = it.claimed_by || it.claimedBy || '';
+            var locked = isLockedByOther(it);
+            var exp = claimExpMs(it);
+            var badge;
+            if (claimed && (locked || claimed === me)) {
+                badge = '<span class="qi-badge lock">🔒 ' + (claimed === me ? 'вы' : escQ(claimed)) +
+                    (exp ? ' · <span class="qi-timer" data-exp="' + exp + '">' + fmtLeft(exp - nowSrv()) + '</span>' : '') + '</span>';
             } else {
                 badge = '<span class="qi-badge">Свободен</span>';
             }
-            var id = String(it.id || '').replace(/'/g, '');
-            var cls = 'queue-item' + (locked ? ' locked' : '');
-            var click = locked
-                ? "alert('Рапорт уже на проверке у: " + String(claimed).replace(/'/g, '') + "')"
-                : "mmsOpenQueueItem('" + id + "')";
-            return '<div class="' + cls + '" onclick="' + click + '">' +
-                '<div class="qi-main"><div class="qi-name">' + name + ' · ID ' + sid + '</div>' +
-                '<div class="qi-meta">' + typ + (when ? (' · ' + when) : '') + '</div></div>' + badge + '</div>';
+            var click = locked ? ("mmsLockModal('" + id + "')") : ("mmsOpenQueueItem('" + id + "')");
+            return '<div class="queue-item' + (locked ? ' locked' : '') + '" onclick="' + click + '">' + main + badge + delBtn + '</div>';
         }).join('');
     }
+
+    // ---- тикер таймеров
+    var tickBusy = false;
+    setInterval(function () {
+        var els = document.querySelectorAll('.qi-timer, .qm-timer');
+        var expired = false;
+        for (var i = 0; i < els.length; i++) {
+            var exp = parseInt(els[i].getAttribute('data-exp'), 10) || 0;
+            if (!exp) continue;
+            var left = exp - nowSrv();
+            els[i].textContent = fmtLeft(left);
+            if (left <= 0) expired = true;
+        }
+        if (expired && !tickBusy) {
+            tickBusy = true;
+            if (window.__mmsLockModalEl && window.__mmsLockModalEl.querySelector('.qm-timer')) mmsCloseQModal();
+            Promise.resolve(window.mmsQueueRefresh()).then(function () { setTimeout(function () { tickBusy = false; }, 3000); },
+                function () { tickBusy = false; });
+        }
+    }, 1000);
+
+    // ---- модальные окна
+    function mmsCloseQModal() {
+        var el = window.__mmsLockModalEl;
+        if (el && el.parentNode) el.parentNode.removeChild(el);
+        window.__mmsLockModalEl = null;
+    }
+    window.mmsCloseQModal = mmsCloseQModal;
+    function openQModal(html) {
+        mmsCloseQModal();
+        var el = document.createElement('div');
+        el.className = 'mms-qmodal';
+        el.innerHTML = '<div class="qm-box">' + html + '</div>';
+        el.addEventListener('click', function (e) { if (e.target === el) mmsCloseQModal(); });
+        document.body.appendChild(el);
+        window.__mmsLockModalEl = el;
+        return el;
+    }
+    async function postJson(path, body) {
+        var res = await fetch(PROXY + path, { method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(body) });
+        if (res.status === 401) authExpired();
+        var data = await res.json().catch(function () { return null; });
+        return { status: res.status, data: data };
+    }
+
+    window.mmsLockModal = function (id, info) {
+        var it = info || findItem(id) || {};
+        var who = it.claimed_by || it.claimedBy || 'другой проверяющий';
+        var exp = claimExpMs(it);
+        var el = openQModal(
+            '<div class="qm-ico">🔒</div>' +
+            '<div class="qm-title">Рапорт уже на проверке</div>' +
+            '<div class="qm-text">Его сейчас проверяет <span class="qm-who">' + escQ(who) + '</span>.<br>' +
+            'Если проверяющий не завершит работу, блокировка снимется автоматически.</div>' +
+            (exp ? '<div class="qm-timer" data-exp="' + exp + '">' + fmtLeft(exp - nowSrv()) + '</div><div class="qm-sub">до автоматического освобождения</div>' : '<div style="height:14px"></div>') +
+            '<div class="qm-actions">' +
+            '<button type="button" class="btn" id="qmClose">Закрыть</button>' +
+            '<button type="button" class="btn btn-gold" id="qmRelease">Освободить рапорт</button>' +
+            '</div><div class="qm-err" id="qmErr"></div>');
+        el.querySelector('#qmClose').onclick = mmsCloseQModal;
+        el.querySelector('#qmRelease').onclick = async function () {
+            var btn = this; btn.disabled = true;
+            try {
+                var r = await postJson('/review/release', { id: id });
+                if (r.data && r.data.ok) {
+                    mmsCloseQModal();
+                    await window.mmsQueueRefresh();
+                    if (typeof window.toast === 'function') window.toast('Блокировка снята', 'ok');
+                } else {
+                    el.querySelector('#qmErr').textContent = (r.data && r.data.error) || 'Не удалось освободить';
+                    btn.disabled = false;
+                }
+            } catch (e) { el.querySelector('#qmErr').textContent = 'Нет связи с сервером'; btn.disabled = false; }
+        };
+    };
+
+    window.mmsDeleteAsk = function (id) {
+        var it = findItem(id) || {};
+        var el = openQModal(
+            '<div class="qm-ico">🗑</div>' +
+            '<div class="qm-title">Удалить заявку?</div>' +
+            '<div class="qm-text">' + escQ(it.full_name || '—') + ' · ID ' + escQ(it.static_id || '—') +
+            '<br>Заявка уйдёт в «Корзину» вместе с причиной. Её можно вернуть обратно.</div>' +
+            '<textarea id="qmReason" maxlength="500" placeholder="Причина удаления (обязательно)"></textarea>' +
+            '<div class="qm-err" id="qmErr"></div>' +
+            '<div class="qm-actions">' +
+            '<button type="button" class="btn" id="qmClose">Отмена</button>' +
+            '<button type="button" class="btn qm-danger" id="qmDelete">Удалить</button>' +
+            '</div>');
+        el.querySelector('#qmClose').onclick = mmsCloseQModal;
+        setTimeout(function () { var t = el.querySelector('#qmReason'); if (t) t.focus(); }, 30);
+        el.querySelector('#qmDelete').onclick = async function () {
+            var reason = (el.querySelector('#qmReason').value || '').trim();
+            var err = el.querySelector('#qmErr');
+            if (reason.length < 3) { err.textContent = 'Укажите причину удаления (минимум 3 символа)'; return; }
+            var btn = this; btn.disabled = true;
+            try {
+                var r = await postJson('/review/delete', { id: id, reason: reason, inspector: inspectorName() });
+                if (r.data && r.data.ok) {
+                    if (window.__mmsQueueItemId === id) window.__mmsQueueItemId = '';
+                    mmsCloseQModal();
+                    await window.mmsQueueRefresh();
+                    if (typeof window.toast === 'function') window.toast('Заявка перенесена в корзину', 'ok');
+                } else {
+                    err.textContent = (r.data && r.data.error) || 'Не удалось удалить';
+                    btn.disabled = false;
+                }
+            } catch (e) { err.textContent = 'Нет связи с сервером'; btn.disabled = false; }
+        };
+    };
+
+    window.mmsRestoreItem = async function (id) {
+        try {
+            var r = await postJson('/review/restore', { id: id });
+            if (r.data && r.data.ok) {
+                await window.mmsQueueRefresh();
+                if (typeof window.toast === 'function') window.toast('Заявка возвращена', 'ok');
+            } else {
+                alert((r.data && r.data.error) || 'Не удалось вернуть');
+            }
+        } catch (e) { alert('Нет связи с сервером'); }
+    };
 
     window.mmsQueueRefresh = async function () {
         var list = document.getElementById('queueList');
@@ -5117,13 +5320,17 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data && data.ok) {
                 queueCache.pending = data.pending || [];
                 queueCache.done = data.done || [];
+                queueCache.trash = data.trash || [];
+                if (data.server_now) serverOffset = data.server_now - Date.now();
             } else {
                 queueCache.pending = [];
                 queueCache.done = [];
+                queueCache.trash = [];
             }
         } catch (e) {
             queueCache.pending = [];
             queueCache.done = [];
+            queueCache.trash = [];
             if (list) list.innerHTML = '<div class="queue-empty">Очередь недоступна. Загрузите рапорт файлом ниже.</div>';
             return;
         }
@@ -5147,7 +5354,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
                 if (cj && cj.ok === false && cj.code === 'claimed') {
-                    alert('Рапорт уже проверяет: ' + (cj.claimed_by || 'другой сотрудник'));
+                    if (cj.server_now) serverOffset = cj.server_now - Date.now();
+                    window.mmsLockModal(id, { claimed_by: cj.claimed_by, claim_expires_at: cj.claim_expires_at });
+                    mmsQueueRefresh();
+                    return;
+                }
+                if (cj && cj.ok === false && cj.code === 'deleted') {
+                    alert('Этот рапорт удалён');
                     mmsQueueRefresh();
                     return;
                 }
