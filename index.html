@@ -2107,6 +2107,16 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
                 </div>
                 <div></div>
             </div>
+            <div class="row" id="rankPromoteRow" style="display:none;">
+                <div>
+                    <label class="field-label">Ранг с (текущий)</label>
+                    <select id="rankFrom" onchange="scheduleDraw()"></select>
+                </div>
+                <div>
+                    <label class="field-label">Ранг на (новый)</label>
+                    <select id="rankTo" onchange="scheduleDraw()"></select>
+                </div>
+            </div>
             <div class="full">
                 <label class="field-label">Номер документа (авто, можно править)</label>
                 <input type="text" id="docNo" oninput="scheduleDraw()" />
@@ -2191,6 +2201,30 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
             <div class="btn-row" style="margin-top:4px;">
                 <button type="button" class="btn btn-ghost btn-sm" onclick="openStampModal()">+ Добавить печать</button>
             </div>
+        </div>
+    </div>
+
+    <!-- PROMOTION RULES (старший состав) -->
+    <div class="panel" id="promoRulesPanel" style="margin:16px 0;grid-column:1/-1;">
+        <h2 style="cursor:pointer;user-select:none;" onclick="var b=document.getElementById('promoRulesBody');if(b)b.style.display=b.style.display==='none'?'block':'none';">
+            📋 Система повышения и баллы <span style="font-size:12px;color:var(--text-muted);font-weight:400;">(редактирует старший состав · клик открыть)</span>
+        </h2>
+        <div id="promoRulesBody" style="display:none;">
+            <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;">Изменения сохраняются на Worker (KV). Основной рапорт подтягивает памятку сам — код сервера не трогаем. Аудит: кто / когда / diff.</p>
+            <label class="field-label">Заголовок</label>
+            <input type="text" id="promoTitle" />
+            <label class="field-label" style="margin-top:8px;">Памятка (текст для сотрудников)</label>
+            <textarea id="promoNote" rows="4" style="width:100%;min-height:80px;"></textarea>
+            <label class="field-label" style="margin-top:8px;">Лестница (с → на | баллы | требование) — по одной строке</label>
+            <textarea id="promoLadderText" rows="8" style="width:100%;font-family:monospace;font-size:12px;" placeholder="3 → 4 | 200 | Принять 1 Экзамен…"></textarea>
+            <label class="field-label" style="margin-top:8px;">Баллы по пунктам (категория | пункт | баллы)</label>
+            <textarea id="promoPointsText" rows="4" style="width:100%;font-family:monospace;font-size:12px;"></textarea>
+            <div class="btn-row" style="margin-top:10px;">
+                <button type="button" class="btn btn-gold btn-sm" onclick="mmsSavePromotionRules()">💾 Сохранить систему повышения</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="mmsLoadPromotionRules(true)">↻ Обновить с сервера</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="mmsShowPromotionAudit()">📜 Аудит изменений</button>
+            </div>
+            <pre id="promoAuditBox" style="display:none;max-height:220px;overflow:auto;font-size:11px;background:var(--bg);padding:10px;border:1px solid var(--border);border-radius:8px;margin-top:10px;"></pre>
         </div>
     </div>
 
@@ -3740,6 +3774,17 @@ document.addEventListener('DOMContentLoaded', function () {
             else if (/еженедел|weekly|\bweek\b|daily/.test(bag)) $('repType').value = 'weekly';
         } catch (eType) {}
         window.__mmsQueueReportType = $('repType').value === 'promotion' ? 'promotion' : 'weekly';
+        try {
+            if (typeof mmsToggleRankRow === 'function') mmsToggleRankRow();
+            else {
+                var row = document.getElementById('rankPromoteRow');
+                if (row) row.style.display = ($('repType').value === 'promotion') ? '' : 'none';
+            }
+            var rf = data.rank_from || data.rankFrom || '';
+            var rt = data.rank_to || data.rankTo || '';
+            if (document.getElementById('rankFrom') && rf) document.getElementById('rankFrom').value = rf;
+            if (document.getElementById('rankTo') && rt) document.getElementById('rankTo').value = rt;
+        } catch (eRank) {}
         entries = normalizeEntriesList(Array.isArray(data.entries) ? data.entries : []);
         lastLoadedPayload = data;
         let total = data.totalPoints;
@@ -6148,7 +6193,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     discord_message_id: window.__mmsDiscordMessageId || '',
                     inspector: (typeof inspectorName === 'function' ? inspectorName() : (localStorage.getItem('mmsInspectorName') || 'Inspector')),
                     png_data_url: png,
-                    send_discord: true
+                    send_discord: true,
+                    rank_from: (document.getElementById('rankFrom') && document.getElementById('rankFrom').value) || '',
+                    rank_to: (document.getElementById('rankTo') && document.getElementById('rankTo').value) || ''
                 })
             });
             var data = await res.json().catch(function () { return null; });
@@ -6213,12 +6260,160 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     window.mmsUnlockScroll = mmsUnlockScroll;
 
+    var MMS_DEFAULT_RANKS = [
+        '1 Рекрут', '2 Рядовой', '3 Специалист', '4 Капрал', '5 Сержант', '6 Штаб-Сержант',
+        '7 Уорент-Офицер', '8 Старший Уорент-Офицер', '9 Лейтенант', '10 Капитан',
+        '11 Майор', '12 Подполковник', '13 Полковник', '14 Бригадный Генерал',
+        '15 Генерал-Майор', '16 Генерал-Лейтенант'
+    ];
+
+    function mmsFillRankSelects(ranks) {
+        ranks = ranks && ranks.length ? ranks : MMS_DEFAULT_RANKS;
+        // для повышения — только 1–10
+        var ladder = ranks.filter(function (r) {
+            var n = parseInt(String(r), 10);
+            return n >= 1 && n <= 10;
+        });
+        if (!ladder.length) ladder = ranks.slice(0, 10);
+        ['rankFrom', 'rankTo'].forEach(function (id) {
+            var sel = document.getElementById(id);
+            if (!sel) return;
+            var cur = sel.value;
+            sel.innerHTML = '<option value="">—</option>' + ladder.map(function (r) {
+                return '<option value="' + String(r).replace(/"/g, '&quot;') + '">' + r + '</option>';
+            }).join('');
+            if (cur) sel.value = cur;
+        });
+    }
+
+    function mmsToggleRankRow() {
+        var rt = document.getElementById('repType');
+        var row = document.getElementById('rankPromoteRow');
+        if (!row) return;
+        var isPromo = rt && rt.value === 'promotion';
+        row.style.display = isPromo ? '' : 'none';
+    }
+
+    window.mmsLoadPromotionRules = async function (silent) {
+        try {
+            var res = await fetch(PROXY + '/promotion-rules');
+            var data = await res.json();
+            if (!data || !data.ok) return;
+            mmsFillRankSelects(data.ranks);
+            var rules = data.rules || {};
+            var t = document.getElementById('promoTitle');
+            var n = document.getElementById('promoNote');
+            var l = document.getElementById('promoLadderText');
+            var p = document.getElementById('promoPointsText');
+            if (t) t.value = rules.title || '';
+            if (n) n.value = rules.note || '';
+            if (l && Array.isArray(rules.ladder)) {
+                l.value = rules.ladder.map(function (r) {
+                    return r.from + ' → ' + r.to + ' | ' + r.points + ' | ' + (r.requirement || '');
+                }).join('\n');
+            }
+            if (p) {
+                var ph = rules.points_hint || [];
+                p.value = ph.map(function (it) {
+                    return (it.category || '') + ' | ' + (it.label || '') + ' | ' + (it.points || 0);
+                }).join('\n');
+            }
+            if (!silent) notify('Система повышения загружена', 'ok');
+        } catch (e) {
+            console.warn(e);
+            mmsFillRankSelects(null);
+        }
+    };
+
+    window.mmsSavePromotionRules = async function () {
+        try {
+            var ladderText = (document.getElementById('promoLadderText') || {}).value || '';
+            var ladder = ladderText.split(/\r?\n/).map(function (line) {
+                line = line.trim();
+                if (!line) return null;
+                var parts = line.split('|').map(function (x) { return x.trim(); });
+                var ft = (parts[0] || '').split(/→|->|—|-/).map(function (x) { return x.trim(); });
+                return {
+                    from: parseInt(ft[0], 10) || 0,
+                    to: parseInt(ft[1], 10) || 0,
+                    points: parseInt(parts[1], 10) || 0,
+                    requirement: parts.slice(2).join(' | ')
+                };
+            }).filter(Boolean);
+            var pointsText = (document.getElementById('promoPointsText') || {}).value || '';
+            var points_hint = pointsText.split(/\r?\n/).map(function (line, i) {
+                line = line.trim();
+                if (!line) return null;
+                var parts = line.split('|').map(function (x) { return x.trim(); });
+                if (parts.length < 2) return null;
+                return {
+                    id: 'p' + (i + 1),
+                    category: parts.length >= 3 ? parts[0] : 'Общее',
+                    label: parts.length >= 3 ? parts[1] : parts[0],
+                    points: parseInt(parts[parts.length - 1], 10) || 0,
+                    note: ''
+                };
+            }).filter(Boolean);
+            var who = (typeof inspectorName === 'function' ? inspectorName() : '') || localStorage.getItem('mmsInspectorName') || 'Inspector';
+            var res = await fetch(PROXY + '/promotion-rules', {
+                method: 'POST',
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
+                body: JSON.stringify({
+                    title: (document.getElementById('promoTitle') || {}).value || '',
+                    note: (document.getElementById('promoNote') || {}).value || '',
+                    ladder: ladder,
+                    points_hint: points_hint,
+                    updated_by: who
+                })
+            });
+            var data = await res.json().catch(function () { return null; });
+            if (data && data.ok) {
+                notify('Сохранено · ' + (data.audit || ('v' + (data.rules && data.rules.version))), 'ok');
+                mmsLoadPromotionRules(true);
+            } else {
+                notify((data && data.error) || 'Не сохранено', 'err');
+            }
+        } catch (e) {
+            notify('Ошибка: ' + (e.message || e), 'err');
+        }
+    };
+
+    window.mmsShowPromotionAudit = async function () {
+        try {
+            var box = document.getElementById('promoAuditBox');
+            if (!box) return;
+            box.style.display = 'block';
+            box.textContent = 'Загрузка…';
+            var res = await fetch(PROXY + '/promotion-rules/audit', { headers: authHeaders({}) });
+            var data = await res.json();
+            if (!data || !data.ok) {
+                box.textContent = (data && data.error) || 'Нет доступа';
+                return;
+            }
+            var lines = (data.audit || []).map(function (a, i) {
+                return (i + 1) + '. ' + (a.at || '') + ' · ' + (a.by || '') + ' · ' + (a.summary || '') +
+                    '\n--- before ---\n' + (a.before || '').slice(0, 800) +
+                    '\n--- after ---\n' + (a.after || '').slice(0, 800);
+            });
+            box.textContent = lines.length ? lines.join('\n\n') : 'Аудит пуст';
+        } catch (e) {
+            notify('Аудит: ' + (e.message || e), 'err');
+        }
+    };
+
     function boot() {
         // старый license gate спрятать
         try {
             var lg = document.getElementById('licenseGate');
             if (lg) { lg.classList.add('hidden'); lg.style.display = 'none'; }
         } catch (e) {}
+        try {
+            mmsFillRankSelects(null);
+            mmsToggleRankRow();
+            var rt = document.getElementById('repType');
+            if (rt) rt.addEventListener('change', mmsToggleRankRow);
+            mmsLoadPromotionRules(true);
+        } catch (eR) {}
 
         var okBtn = document.getElementById('pinOkBtn');
         var pinInp = document.getElementById('pinInput');
