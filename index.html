@@ -778,8 +778,9 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     background: color-mix(in srgb, var(--bg-card) 88%, #000);
     border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
     border-radius: 14px;
-    width: min(1100px, 100%);
-    max-height: 100%;
+    width: min(1200px, 100%);
+    height: min(96vh, 100%);
+    max-height: 96vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -833,19 +834,22 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     flex: 1;
     position: relative;
     min-height: 0;
-    background: var(--bg);
+    background: #f5f0e6;
 }
 .report-viewer-frame-wrap iframe {
     width: 100%;
-    height: min(78vh, 820px);
+    height: 100%;
+    min-height: 60vh;
     border: none;
     background: #fff;
+    display: block;
 }
 .report-viewer-loading {
     display: none;
     position: absolute;
     inset: 0;
-    background: rgba(12,11,9,0.9);
+    z-index: 2;
+    background: rgba(12,11,9,0.88);
     color: var(--gold);
     align-items: center;
     justify-content: center;
@@ -853,8 +857,9 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     gap: 10px;
     font-size: 14px;
     letter-spacing: 1px;
+    pointer-events: none;
 }
-.report-viewer-loading.show { display: flex; }
+.report-viewer-loading.show { display: flex; pointer-events: auto; }
 .report-viewer-hint {
     padding: 8px 14px 12px;
     font-size: 11px;
@@ -1000,8 +1005,8 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     max-width: 220px;
 }
 .entry-detail-photos img {
-    max-width: 200px;
-    max-height: 160px;
+    max-width: 320px;
+    max-height: 240px;
     width: 100%;
     object-fit: contain;
     border-radius: 8px;
@@ -1014,31 +1019,41 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 4000;
-    background: rgba(0,0,0,0.94);
+    z-index: 5000;
+    background: rgba(0,0,0,0.92);
     align-items: center;
     justify-content: center;
-    padding: 12px;
+    padding: 8px;
 }
 #lightbox.show { display: flex; }
 .lightbox-inner {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    width: min(1280px, 98vw);
     max-width: 98vw;
-    max-height: 96vh;
+    max-height: 98vh;
+    background: #0e0e0e;
+    border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
+    border-radius: 14px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.65);
+    overflow: hidden;
 }
 .lightbox-toolbar {
     display: flex;
     gap: 8px;
-    margin-bottom: 10px;
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-bottom: 1px solid color-mix(in srgb, var(--gold) 18%, transparent);
+    background: color-mix(in srgb, var(--bg-panel) 90%, #000);
 }
 .lb-btn {
     font-family: 'Oswald', sans-serif;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
-    min-width: 42px;
-    padding: 6px 12px;
+    min-width: 44px;
+    padding: 8px 14px;
     border-radius: 8px;
     border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
     background: var(--bg-panel);
@@ -1048,25 +1063,29 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 .lb-btn:hover { background: var(--accent-soft); }
 .lightbox-stage {
     overflow: auto;
-    max-width: 96vw;
-    max-height: calc(96vh - 70px);
+    flex: 1;
+    min-height: min(72vh, 820px);
+    max-height: calc(98vh - 100px);
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
-    border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent);
-    background: #0a0a0a;
+    background: #050505;
+    -webkit-overflow-scrolling: touch;
 }
-#lightbox img {
+#lightbox img, #lightboxImg {
     max-width: none;
     max-height: none;
     width: auto;
     height: auto;
-    transform-origin: center center;
+    image-rendering: auto;
+    -ms-interpolation-mode: bicubic;
+    transform-origin: 0 0;
     transition: transform 0.12s ease;
-    border-radius: 4px;
+    border-radius: 2px;
     cursor: grab;
     user-select: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.45);
 }
 .lightbox-hint {
     margin-top: 8px;
@@ -3518,14 +3537,18 @@ document.addEventListener('DOMContentLoaded', function () {
         lightboxScale = 1; lbPanX = 0; lbPanY = 0;
         if (img) {
             img.onload = function () {
-                lightboxScale = 1; lbPanX = 0; lbPanY = 0;
-                applyLightboxTransform();
+                // сразу «Fit» — крупно на весь stage, не крошечная картинка в углу
+                try { if (typeof lightboxZoom === 'function') lightboxZoom(0); }
+                catch (e) { lightboxScale = 1; lbPanX = 0; lbPanY = 0; applyLightboxTransform(); }
             };
             img.src = src;
             applyLightboxTransform();
         }
         if (lb) lb.classList.add('show');
         document.body.classList.add('modal-open'); document.body.style.overflow = 'hidden';
+        setTimeout(function () {
+            try { if (typeof lightboxZoom === 'function') lightboxZoom(0); } catch (e2) {}
+        }, 60);
     };
     window.closeLightbox = function () {
         const lb = $('lightbox');
@@ -3546,8 +3569,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const sh = stage.clientHeight || 1;
             const iw = img.naturalWidth || img.width || 1;
             const ih = img.naturalHeight || img.height || 1;
-            lightboxScale = Math.min(sw / iw, sh / ih, 1);
+            // без потолка 1 — мелкие/сжатые фото растягиваем на весь stage (читаемость)
+            lightboxScale = Math.min(sw / iw, sh / ih);
             if (!isFinite(lightboxScale) || lightboxScale <= 0) lightboxScale = 1;
+            if (lightboxScale > 4) lightboxScale = 4;
             lbPanX = Math.max(0, (sw - iw * lightboxScale) / 2);
             lbPanY = Math.max(0, (sh - ih * lightboxScale) / 2);
             applyLightboxTransform();
@@ -3780,10 +3805,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 var row = document.getElementById('rankPromoteRow');
                 if (row) row.style.display = ($('repType').value === 'promotion') ? '' : 'none';
             }
-            var rf = data.rank_from || data.rankFrom || '';
-            var rt = data.rank_to || data.rankTo || '';
-            if (document.getElementById('rankFrom') && rf) document.getElementById('rankFrom').value = rf;
-            if (document.getElementById('rankTo') && rt) document.getElementById('rankTo').value = rt;
+            var extracted = (typeof mmsExtractRanksFromPayload === 'function')
+                ? mmsExtractRanksFromPayload(data, lastViewerHtml || data.html || '')
+                : { rank_from: data.rank_from || data.rankFrom || '', rank_to: data.rank_to || data.rankTo || '' };
+            var rf = extracted.rank_from || '';
+            var rt = extracted.rank_to || '';
+            if (rf && typeof mmsSetRankSelect === 'function') mmsSetRankSelect('rankFrom', rf);
+            else if (document.getElementById('rankFrom') && rf) document.getElementById('rankFrom').value = rf;
+            if (rt && typeof mmsSetRankSelect === 'function') mmsSetRankSelect('rankTo', rt);
+            else if (document.getElementById('rankTo') && rt) document.getElementById('rankTo').value = rt;
+            // подпись в summary
+            if (rf || rt) {
+                window.__mmsPendingRanks = { rankFrom: rf, rankTo: rt };
+            }
         } catch (eRank) {}
         entries = normalizeEntriesList(Array.isArray(data.entries) ? data.entries : []);
         lastLoadedPayload = data;
@@ -4398,7 +4432,7 @@ document.addEventListener('DOMContentLoaded', function () {
             toast('Не удалось показать отчёт');
             if (loading) loading.classList.remove('show');
         }
-        setTimeout(function () { if (loading) loading.classList.remove('show'); }, 2500);
+        setTimeout(function () { if (loading) loading.classList.remove('show'); }, 800);
 
         const btnFull = $('btnViewFullReport');
         if (btnFull) btnFull.disabled = false;
@@ -6085,14 +6119,32 @@ document.addEventListener('DOMContentLoaded', function () {
                     entries: data.entries,
                     totalPoints: data.points,
                     reportType: rtype,
-                    mode: rtype
+                    mode: rtype,
+                    rank_from: data.rank_from || data.rankFrom || '',
+                    rank_to: data.rank_to || data.rankTo || '',
+                    html: data.html || ''
                 });
             }
+            // ранги с сервера / из HTML даже если entries уже применены
+            try {
+                var er = (typeof mmsExtractRanksFromPayload === 'function')
+                    ? mmsExtractRanksFromPayload(data, data.html || lastViewerHtml || '')
+                    : { rank_from: data.rank_from || '', rank_to: data.rank_to || '' };
+                if (er.rank_from) mmsSetRankSelect('rankFrom', er.rank_from);
+                if (er.rank_to) mmsSetRankSelect('rankTo', er.rank_to);
+                if (typeof mmsToggleRankRow === 'function') mmsToggleRankRow();
+            } catch (eR2) {}
             if (data.html) {
                 lastViewerHtml = data.html;
                 lastViewerTitle = (data.full_name || 'report') + '.html';
                 if (typeof openReportViewer === 'function') openReportViewer(data.html, lastViewerTitle);
                 else if (typeof window.openReportViewer === 'function') window.openReportViewer(data.html, 'report.html');
+                // ещё раз после HTML (баннер ЗАЯВЛЕННОЕ ПОВЫШЕНИЕ)
+                try {
+                    var er2 = mmsExtractRanksFromPayload(data, data.html);
+                    if (er2.rank_from) mmsSetRankSelect('rankFrom', er2.rank_from);
+                    if (er2.rank_to) mmsSetRankSelect('rankTo', er2.rank_to);
+                } catch (eR3) {}
             }
             if (typeof scheduleDraw === 'function') scheduleDraw();
             window.__mmsQueueItemId = id;
@@ -6278,12 +6330,84 @@ document.addEventListener('DOMContentLoaded', function () {
         ['rankFrom', 'rankTo'].forEach(function (id) {
             var sel = document.getElementById(id);
             if (!sel) return;
-            var cur = sel.value;
+            var cur = sel.value || (window.__mmsPendingRanks && window.__mmsPendingRanks[id]) || '';
             sel.innerHTML = '<option value="">—</option>' + ladder.map(function (r) {
                 return '<option value="' + String(r).replace(/"/g, '&quot;') + '">' + r + '</option>';
             }).join('');
-            if (cur) sel.value = cur;
+            if (cur) mmsSetRankSelect(id, cur);
         });
+        try {
+            if (window.__mmsPendingRanks) {
+                if (window.__mmsPendingRanks.rankFrom) mmsSetRankSelect('rankFrom', window.__mmsPendingRanks.rankFrom);
+                if (window.__mmsPendingRanks.rankTo) mmsSetRankSelect('rankTo', window.__mmsPendingRanks.rankTo);
+            }
+        } catch (e) {}
+    }
+
+    /** Поставить ранг в select: точное совпадение или по номеру (5 / "5 Сержант") */
+    function mmsSetRankSelect(selId, value) {
+        var sel = document.getElementById(selId);
+        if (!sel || value == null || value === '') return false;
+        var v = String(value).trim();
+        if (!v || v === '—') return false;
+        window.__mmsPendingRanks = window.__mmsPendingRanks || {};
+        window.__mmsPendingRanks[selId] = v;
+        // exact
+        for (var i = 0; i < sel.options.length; i++) {
+            if (String(sel.options[i].value) === v) {
+                sel.value = v;
+                return true;
+            }
+        }
+        // by leading number
+        var num = parseInt(v.replace(/^[^0-9]*/, ''), 10);
+        if (!num) {
+            var m = v.match(/(\d{1,2})/);
+            num = m ? parseInt(m[1], 10) : 0;
+        }
+        if (num) {
+            for (var j = 0; j < sel.options.length; j++) {
+                var ov = String(sel.options[j].value || '');
+                var on = parseInt(ov, 10);
+                if (on === num) {
+                    sel.value = ov;
+                    return true;
+                }
+            }
+        }
+        // partial text
+        var low = v.toLowerCase();
+        for (var k = 0; k < sel.options.length; k++) {
+            var t = String(sel.options[k].value || '').toLowerCase();
+            if (t && (t.indexOf(low) >= 0 || low.indexOf(t) >= 0)) {
+                sel.value = sel.options[k].value;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Достать ранги из JSON / HTML-текста Word */
+    function mmsExtractRanksFromPayload(data, htmlText) {
+        var rf = '', rt = '';
+        if (data && typeof data === 'object') {
+            rf = data.rank_from || data.rankFrom || data.from_rank || '';
+            rt = data.rank_to || data.rankTo || data.to_rank || '';
+            if (data.employee) {
+                rf = rf || data.employee.rank_from || data.employee.rankFrom || '';
+                rt = rt || data.employee.rank_to || data.employee.rankTo || '';
+            }
+        }
+        var bag = String(htmlText || (data && (data.html || data.docHtml || data.body || '')) || '');
+        if ((!rf || !rt) && bag) {
+            var re = /ЗАЯВЛЕНН[ОA]?Е?\s*ПОВЫШЕНИЕ\s*[:：]?\s*([^\n\r<→\-—]+?)\s*(?:→|->|—|–|-)\s*([^\n\r<]+)/i;
+            var m = bag.match(re);
+            if (m) {
+                if (!rf) rf = m[1].replace(/<[^>]+>/g, '').trim();
+                if (!rt) rt = m[2].replace(/<[^>]+>/g, '').trim();
+            }
+        }
+        return { rank_from: String(rf || '').trim(), rank_to: String(rt || '').trim() };
     }
 
     function mmsToggleRankRow() {
