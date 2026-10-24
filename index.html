@@ -904,7 +904,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     margin-top: 8px;
 }
 .entry-photo-card {
-    width: 92px;
+    width: 240px;
     background: linear-gradient(180deg, var(--accent-soft), rgba(0,0,0,0.25));
     border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
     border-radius: 10px;
@@ -918,9 +918,9 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
     box-shadow: 0 8px 22px color-mix(in srgb, var(--gold) 25%, transparent);
 }
 .entry-photo-card img {
-    width: 92px;
-    height: 72px;
-    object-fit: cover;
+    width: 240px;
+    height: 160px;
+    object-fit: contain;
     display: block;
     cursor: zoom-in;
     background: #0a0a0a;
@@ -953,7 +953,7 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
 .btn-view-entry:hover { background: var(--accent-soft); }
 #entriesTableWrap {
     overflow-x: auto;
-    max-height: 320px;
+    max-height: 72vh;
 }
 .photo-count {
     font-size: 10px;
@@ -1898,6 +1898,22 @@ textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
   .queue-head { flex-wrap: wrap; gap: 8px; }
   .queue-refresh { width: 100%; }
 }
+
+.mms-reused-links {
+    margin: 12px 0;
+    padding: 12px 14px;
+    border: 1px solid rgba(231, 76, 60, 0.55);
+    background: rgba(192, 57, 43, 0.12);
+    border-radius: 10px;
+    color: #f5c6c0;
+    font-size: 13px;
+    line-height: 1.45;
+}
+.mms-reused-links strong { color: #ff8a80; }
+.mms-reused-links ul { margin: 8px 0 0 18px; padding: 0; }
+.mms-reused-links li { margin: 4px 0; word-break: break-all; }
+.mms-reused-links a { color: #ffb4ab; }
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
@@ -3664,7 +3680,7 @@ document.addEventListener('DOMContentLoaded', function () {
             html += '<div class="dl"><strong>Вложения (' + photos.length + '):</strong></div><div class="entry-detail-photos">';
             photos.forEach(function (a) {
                 if (a.dataUrl) {
-                    html += '<div><img src="' + a.dataUrl + '" alt="" onclick="openLightbox(this.src)" /><div style="font-size:11px;color:var(--text-muted);text-align:center;">' + esc(a.name || 'снимок') + ' · +' + (a.points || 0) + '</div></div>';
+                    html += '<div><img src="' + a.dataUrl + '" alt="" style="max-width:320px;max-height:240px;object-fit:contain;background:#0a0a0a;cursor:zoom-in;border-radius:8px;" onclick="openLightbox(this.src)" /><div style="font-size:11px;color:var(--text-muted);text-align:center;">' + esc(a.name || 'снимок') + ' · +' + (a.points || 0) + '</div></div>';
                 } else {
                     html += '<div style="font-size:12px;color:var(--text-muted);">' + esc(a.name || 'снимок') + ' (нет изображения)</div>';
                 }
@@ -3799,6 +3815,7 @@ document.addEventListener('DOMContentLoaded', function () {
             else if (/еженедел|weekly|\bweek\b|daily/.test(bag)) $('repType').value = 'weekly';
         } catch (eType) {}
         window.__mmsQueueReportType = $('repType').value === 'promotion' ? 'promotion' : 'weekly';
+                try { window.__mmsReusedLinks = (data && data.reused_links) || []; if (typeof mmsShowReusedLinks === 'function') mmsShowReusedLinks(window.__mmsReusedLinks); } catch (eRL) {}
         try {
             if (typeof mmsToggleRankRow === 'function') mmsToggleRankRow();
             else {
@@ -6132,6 +6149,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     : { rank_from: data.rank_from || '', rank_to: data.rank_to || '' };
                 if (er.rank_from) mmsSetRankSelect('rankFrom', er.rank_from);
                 if (er.rank_to) mmsSetRankSelect('rankTo', er.rank_to);
+                try { if (typeof mmsShowReusedLinks === 'function') mmsShowReusedLinks(data.reused_links || window.__mmsReusedLinks || []); } catch (eR) {}
                 if (typeof mmsToggleRankRow === 'function') mmsToggleRankRow();
             } catch (eR2) {}
             if (data.html) {
@@ -6158,6 +6176,32 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
+
+    
+    window.mmsShowReusedLinks = function (hits) {
+        var box = document.getElementById('mmsReusedLinksBox');
+        if (!box) {
+            box = document.createElement('div');
+            box.id = 'mmsReusedLinksBox';
+            box.className = 'mms-reused-links';
+            var host = document.getElementById('rankPromoteRow') || document.getElementById('entriesTableWrap') || document.body;
+            if (host && host.parentNode) host.parentNode.insertBefore(box, host);
+            else document.body.appendChild(box);
+        }
+        if (!hits || !hits.length) {
+            box.style.display = 'none';
+            box.innerHTML = '';
+            return;
+        }
+        box.style.display = 'block';
+        var lines = hits.map(function (h) {
+            var when = (h.at || '').slice(0, 16).replace('T', ' ');
+            var u = String(h.url || '');
+            return '<li><a href="' + u.replace(/"/g, '&quot;') + '" target="_blank" rel="noopener">' + u.replace(/</g, '&lt;') + '</a>' +
+                (when ? (' <span style="opacity:.75">· уже была ' + when + (h.type ? (' (' + h.type + ')') : '') + '</span>') : '') + '</li>';
+        }).join('');
+        box.innerHTML = '<strong>⚠ Ссылки из прошлых сдач</strong> (сотрудник этого не видит). Проверьте, не подставлены ли старые доказательства:<ul>' + lines + '</ul>';
+    };
 
     window.mmsSendDecisionDiscord = async function () {
         if (__mmsDecideInFlight) return;
@@ -6222,35 +6266,67 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             try { if (typeof decision !== 'undefined') decision = dec; } catch (e1) {}
             window.__mmsDecision = dec;
+            if (reportType === 'promotion') {
+                var rfChk = (document.getElementById('rankFrom') && document.getElementById('rankFrom').value) || '';
+                var rtChk = (document.getElementById('rankTo') && document.getElementById('rankTo').value) || '';
+                if (!rfChk || !rtChk) {
+                    notify('Для повышения укажите ранг «с» и «на» — без этого решение не отправляется', 'err');
+                    __mmsDecideInFlight = false;
+                    return;
+                }
+            }
             if (typeof drawA4 === 'function') drawA4();
             var canvas = document.getElementById('a4Canvas');
-            var png = canvas ? canvas.toDataURL('image/png') : null;
+            var blankImg = null;
+            try {
+                if (canvas) blankImg = canvas.toDataURL('image/jpeg', 0.82);
+            } catch (eBlank) {
+                try { if (canvas) blankImg = canvas.toDataURL('image/png'); } catch (e2) {}
+            }
             setBtnBusy(true);
             notify((dec === 'deny' ? 'Отправка отказа' : 'Отправка одобрения') + ' в Discord…', 'info');
-            var res = await fetch(PROXY + '/review/decide', {
-                method: 'POST',
-                headers: authHeaders({ 'Content-Type': 'application/json' }),
-                body: JSON.stringify({
-                    id: id,
-                    decision: dec,
-                    approved: dec === 'approve',
-                    denied: dec === 'deny',
-                    decision_text: text,
-                    full_name: name,
-                    static_id: sid,
-                    doc_no: docNo,
-                    report_type: reportType,
-                    file_name: window.__mmsLastFileName || '',
-                    discord_id: window.__mmsDiscordId || '',
-                    discord_message_id: window.__mmsDiscordMessageId || '',
-                    inspector: (typeof inspectorName === 'function' ? inspectorName() : (localStorage.getItem('mmsInspectorName') || 'Inspector')),
-                    png_data_url: png,
-                    send_discord: true,
-                    rank_from: (document.getElementById('rankFrom') && document.getElementById('rankFrom').value) || '',
-                    rank_to: (document.getElementById('rankTo') && document.getElementById('rankTo').value) || ''
-                })
-            });
-            var data = await res.json().catch(function () { return null; });
+            async function doDecide(imgData) {
+                return fetch(PROXY + '/review/decide', {
+                    method: 'POST',
+                    headers: authHeaders({ 'Content-Type': 'application/json' }),
+                    body: JSON.stringify({
+                        id: id,
+                        decision: dec,
+                        approved: dec === 'approve',
+                        denied: dec === 'deny',
+                        decision_text: text,
+                        full_name: name,
+                        static_id: sid,
+                        doc_no: docNo,
+                        report_type: reportType,
+                        file_name: window.__mmsLastFileName || '',
+                        discord_id: window.__mmsDiscordId || '',
+                        discord_message_id: window.__mmsDiscordMessageId || '',
+                        inspector: (typeof inspectorName === 'function' ? inspectorName() : (localStorage.getItem('mmsInspectorName') || 'Inspector')),
+                        png_data_url: imgData || null,
+                        send_discord: true,
+                        rank_from: (document.getElementById('rankFrom') && document.getElementById('rankFrom').value) || '',
+                        rank_to: (document.getElementById('rankTo') && document.getElementById('rankTo').value) || ''
+                    })
+                });
+            }
+            var res, data;
+            try {
+                res = await doDecide(blankImg);
+                data = await res.json().catch(function () { return null; });
+            } catch (netErr) {
+                // сеть / CORS / обрыв — повтор без картинки
+                notify('Сеть оборвалась, повтор без бланка…', 'info');
+                try {
+                    res = await doDecide(null);
+                    data = await res.json().catch(function () { return null; });
+                } catch (netErr2) {
+                    setBtnBusy(false);
+                    notify('Ошибка: Failed to fetch — Worker недоступен или сеть. Проверьте URL и Discord webhook.', 'err');
+                    __mmsDecideInFlight = false;
+                    return;
+                }
+            }
             setBtnBusy(false);
             if (data && data.ok && data.already_done) {
                 if (id) __mmsSentDecideIds[id] = true;
@@ -6618,6 +6694,6 @@ document.addEventListener('DOMContentLoaded', function () {
     <div><kbd>Esc</kbd> закрыть превью</div>
   </div>
 </div>
-<div class="mms-ver" id="mmsApiVer">worker … · reviewer 2.3</div>
+<div class="mms-ver" id="mmsApiVer">worker … · reviewer 2.6</div>
 </body>
 </html>
